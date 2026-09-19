@@ -12,3 +12,4 @@ build/
 screenshots/
 ShareExtension/Info.plist
 Config/*.entitlements
+.tools/
