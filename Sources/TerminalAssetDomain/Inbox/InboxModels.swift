@@ -105,7 +105,8 @@ public struct InboxManifest: Sendable, Codable, Equatable, Identifiable {
             return urlString.flatMap { URL(string: $0)?.host(percentEncoded: false) } ?? "Link"
         case .text:
             let body = (text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-            return body.isEmpty ? "Text" : String(body.prefix(80))
+            // The title is already the start of the text; repeating it under itself adds nothing.
+            return body.isEmpty || body == title || body.hasPrefix(title) ? "Text" : String(body.prefix(80))
         case .image:
             return "Image"
         case .file:

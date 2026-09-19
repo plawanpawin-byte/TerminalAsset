@@ -186,6 +186,17 @@ struct InboxManifestTests {
         #expect(manifest.subtitle == "XLSX file")
     }
 
+    @Test func textSubtitleDoesNotRepeatTheTitle() {
+        let same = InboxManifest(id: UUID(), draft: InboxDraft(kind: .text, title: "Call Priya", text: "Call Priya"))
+        #expect(same.subtitle == "Text")
+
+        let longer = InboxManifest(
+            id: UUID(),
+            draft: InboxDraft(kind: .text, title: "Meeting notes", text: "Discussed the audit scope and owners")
+        )
+        #expect(longer.subtitle == "Discussed the audit scope and owners")
+    }
+
     @Test func manifestSurvivesJSONRoundTrip() throws {
         let manifest = InboxManifest(
             id: UUID(),
