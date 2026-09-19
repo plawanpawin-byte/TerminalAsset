@@ -144,6 +144,11 @@ public struct InboxItemValue: Sendable, Hashable, Identifiable {
 public struct AutoAttachment: Sendable, Equatable {
     public let title: String
     public let eventTitle: String
+
+    public init(title: String, eventTitle: String) {
+        self.title = title
+        self.eventTitle = eventTitle
+    }
 }
 
 public struct IngestReport: Sendable, Equatable {
