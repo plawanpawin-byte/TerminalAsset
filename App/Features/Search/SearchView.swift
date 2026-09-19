@@ -96,15 +96,16 @@ private struct ResultRow: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
                 if let event = result.eventTitle {
-                    Label(event, systemImage: "calendar")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+                    HStack(spacing: 4) {
+                        Image(systemName: "calendar")
+                        Text(event)
+                    }
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
                 }
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 6) {
-                        ForEach(result.signals, id: \.self) { signal in
-                            Pill(text: signal.text, symbol: signal.symbol)
-                        }
+                FlowLayout(spacing: 6) {
+                    ForEach(result.signals, id: \.self) { signal in
+                        Pill(text: signal.text, symbol: signal.symbol)
                     }
                 }
                 .padding(.top, 2)

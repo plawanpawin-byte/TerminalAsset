@@ -28,8 +28,10 @@ enum AddKind: String, Identifiable {
 struct EventDetailView: View {
     @State private var model: EventDetailViewModel
     @State private var adding: AddKind?
+    private let today: TodayViewModel
 
     init(key: EventKey, today: TodayViewModel, initialAdding: AddKind? = nil) {
+        self.today = today
         _model = State(initialValue: today.makeDetailModel(for: key))
         _adding = State(initialValue: initialAdding)
     }
@@ -81,6 +83,11 @@ struct EventDetailView: View {
             Text(model.errorMessage ?? "")
         }
         .task { await model.load() }
+        // The event may not be stored yet when this screen opens (first sync still running), and a sync can
+        // change it while it is open, so reload whenever Today's data changes.
+        .onChange(of: today.events) {
+            Task { await model.load() }
+        }
     }
 
     // MARK: - Sections
