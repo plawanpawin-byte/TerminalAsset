@@ -19,7 +19,11 @@ enum ExtractionError: Error, Sendable {
 
 /// Reads what the host app is sharing. Deliberately shallow: it copies bytes and reads names, and does no OCR,
 /// embedding or analysis, because Share Extensions have tight memory and time limits.
-struct ItemExtractor: Sendable {
+///
+/// Runs on the main actor because `NSItemProvider` is not `Sendable`; it only awaits system callbacks,
+/// and the file copy itself happens inside the system's completion handler.
+@MainActor
+struct ItemExtractor {
     let stagingDirectory: URL
 
     /// Items that could not be read are counted, not thrown, so one bad attachment does not block the rest.
@@ -68,7 +72,7 @@ struct ItemExtractor: Sendable {
         throw ExtractionError.unreadable
     }
 
-    private func loadObject<T: _ObjectiveCBridgeable>(
+    private func loadObject<T: _ObjectiveCBridgeable & Sendable>(
         _ type: T.Type,
         from provider: NSItemProvider
     ) async throws -> T where T._ObjectiveCType: NSItemProviderReading {
