@@ -11,6 +11,7 @@ struct BootstrapFailure: Error {
 struct AppModel {
     let today: TodayViewModel
     let inbox: InboxViewModel
+    let search: SearchViewModel
 
     /// Loads Today, then imports shared items (they may auto-attach to events, so events must exist first).
     func start() async {
@@ -53,7 +54,12 @@ enum AppBootstrap {
         let inbox = InboxViewModel(store: store, shared: shared) { [today] in
             await today.reload()
         }
-        return AppModel(today: today, inbox: inbox)
+        #if DEBUG
+        let search = SearchViewModel(store: store, query: LaunchOptions.query)
+        #else
+        let search = SearchViewModel(store: store)
+        #endif
+        return AppModel(today: today, inbox: inbox, search: search)
     }
 
     #if DEBUG

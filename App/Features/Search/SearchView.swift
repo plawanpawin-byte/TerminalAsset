@@ -1,34 +1,41 @@
 import SwiftUI
+import TerminalAssetDomain
 
 struct SearchView: View {
-    @State private var model: SearchViewModel
-
-    init() {
-        #if DEBUG
-        _model = State(initialValue: SearchViewModel(query: LaunchOptions.query))
-        #else
-        _model = State(initialValue: SearchViewModel())
-        #endif
-    }
+    @Bindable var model: SearchViewModel
+    let today: TodayViewModel
 
     var body: some View {
         NavigationStack {
             List {
-                if model.trimmedQuery.isEmpty && model.scope == .all {
+                if let problem = model.problem {
+                    Section {
+                        Label(problem, systemImage: "exclamationmark.triangle.fill")
+                            .font(.footnote)
+                            .foregroundStyle(.orange)
+                    }
+                }
+
+                if model.trimmedQuery.isEmpty {
                     suggestions
                 } else {
                     resultsSection
                 }
-                Section { SampleDataNote() }
-                    .listRowBackground(Color.clear)
             }
             .navigationTitle("Search")
-            .searchable(text: $model.query, prompt: "Files, notes, links, events")
+            .searchable(text: $model.query, prompt: "Events, notes, links, tasks")
             .searchScopes($model.scope) {
                 ForEach(SearchScope.allCases) { scope in
                     Text(scope.title).tag(scope)
                 }
             }
+            .onSubmit(of: .search) { model.commit() }
+            .onChange(of: model.query) { model.scheduleSearch() }
+            .onChange(of: model.scope) { model.scheduleSearch() }
+            .navigationDestination(for: EventKey.self) { key in
+                EventDetailView(key: key, today: today)
+            }
+            .task { await model.loadCorpus() }
         }
     }
 
@@ -36,23 +43,53 @@ struct SearchView: View {
 
     @ViewBuilder
     private var suggestions: some View {
-        Section {
-            ForEach(model.relevantNow) { result in
-                ResultRow(result: result)
+        if !model.isReady {
+            Section { ProgressView().frame(maxWidth: .infinity) }
+        } else if !model.relevantNow.isEmpty {
+            Section {
+                ForEach(model.relevantNow) { hit in
+                    ResultRow(hit: hit)
+                }
+            } header: {
+                Label("Relevant now", systemImage: "sparkles")
+            } footer: {
+                Text("Open items for the event running now or starting soon.")
             }
-        } header: {
-            Label("Relevant now", systemImage: "sparkles")
-        } footer: {
-            Text("Ranked by how close the event is, how the item relates to it, and how recently you used it.")
+        } else if !model.hasContent {
+            Section {
+                ContentUnavailableView(
+                    "Nothing to search yet",
+                    systemImage: "magnifyingglass",
+                    description: Text("Add tasks, notes and links to your events, or share things into the Inbox. They'll be searchable here.")
+                )
+                .listRowBackground(Color.clear)
+            }
+        } else {
+            Section {
+                Label("Nothing time-sensitive right now", systemImage: "checkmark.seal")
+                    .foregroundStyle(.secondary)
+            } footer: {
+                Text("Type to search everything you've attached to your events.")
+            }
         }
 
-        Section("Recent searches") {
-            ForEach(model.recentSearches, id: \.self) { term in
-                Button {
-                    model.query = term
-                } label: {
-                    Label(term, systemImage: "clock.arrow.circlepath")
-                        .foregroundStyle(.primary)
+        if !model.recentSearches.isEmpty {
+            Section {
+                ForEach(model.recentSearches, id: \.self) { term in
+                    Button {
+                        model.query = term
+                    } label: {
+                        Label(term, systemImage: "clock.arrow.circlepath")
+                            .foregroundStyle(.primary)
+                    }
+                }
+            } header: {
+                HStack {
+                    Text("Recent searches")
+                    Spacer()
+                    Button("Clear") { model.clearRecentSearches() }
+                        .font(.footnote)
+                        .textCase(nil)
                 }
             }
         }
@@ -62,14 +99,13 @@ struct SearchView: View {
 
     @ViewBuilder
     private var resultsSection: some View {
-        let results = model.results
-        if results.isEmpty {
+        if model.results.isEmpty {
             ContentUnavailableView.search(text: model.trimmedQuery)
                 .listRowBackground(Color.clear)
         } else {
-            Section("\(results.count) result\(results.count == 1 ? "" : "s")") {
-                ForEach(results) { result in
-                    ResultRow(result: result)
+            Section("\(model.results.count) result\(model.results.count == 1 ? "" : "s")") {
+                ForEach(model.results) { hit in
+                    ResultRow(hit: hit)
                 }
             }
         }
@@ -77,45 +113,64 @@ struct SearchView: View {
 }
 
 private struct ResultRow: View {
-    let result: SearchResult
+    let hit: SearchHit
+
+    private var document: SearchDocument { hit.document }
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: result.kind.symbol)
-                .font(.title3)
-                .foregroundStyle(Color.accentColor)
-                .frame(width: 32, height: 32)
-                .background(Color.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .accessibilityHidden(true)
+        NavigationLink(value: document.eventKey) {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: document.kind.symbol(isDone: document.isDone))
+                    .font(.title3)
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: 32, height: 32)
+                    .background(Color.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .accessibilityHidden(true)
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(result.title)
-                    .font(.body.weight(.medium))
-                Text(result.snippet)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-                if let event = result.eventTitle {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(document.title)
+                        .font(.body.weight(.medium))
+                        .strikethrough(document.isDone)
+                    if !hit.snippet.isEmpty {
+                        Text(hit.snippet)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
                     HStack(spacing: 4) {
                         Image(systemName: "calendar")
-                        Text(event)
+                        Text(eventLine)
                     }
                     .font(.footnote)
                     .foregroundStyle(.secondary)
-                }
-                FlowLayout(spacing: 6) {
-                    ForEach(result.signals, id: \.self) { signal in
-                        Pill(text: signal.text, symbol: signal.symbol)
+
+                    FlowLayout(spacing: 6) {
+                        ForEach(hit.signals, id: \.self) { signal in
+                            Pill(text: signal.text, symbol: symbol(for: signal), tint: tint(for: signal))
+                        }
                     }
+                    .padding(.top, 2)
                 }
-                .padding(.top, 2)
             }
+            .padding(.vertical, 4)
         }
-        .padding(.vertical, 4)
         .accessibilityElement(children: .combine)
     }
-}
 
-#Preview("Search") {
-    SearchView()
+    private var eventLine: String {
+        let when = document.eventStart.formatted(date: .abbreviated, time: .shortened)
+        return document.kind == .event ? when : "\(document.eventTitle) · \(when)"
+    }
+
+    private func symbol(for signal: SearchSignal) -> String {
+        switch signal.kind {
+        case .match: "text.magnifyingglass"
+        case .temporal: "clock"
+        case .recent: "calendar.badge.clock"
+        }
+    }
+
+    private func tint(for signal: SearchSignal) -> Color {
+        signal.kind == .temporal ? .accentColor : .secondary
+    }
 }

@@ -39,7 +39,7 @@ struct RootView: View {
                 TodayView(model: app.today, initialPath: initialTodayPath)
             }
             Tab("Search", systemImage: "magnifyingglass", value: AppTab.search) {
-                SearchView()
+                SearchView(model: app.search, today: app.today)
             }
             Tab("Inbox", systemImage: "tray", value: AppTab.inbox) {
                 InboxView(model: app.inbox)
