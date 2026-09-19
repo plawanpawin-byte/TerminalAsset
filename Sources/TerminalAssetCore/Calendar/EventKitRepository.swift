@@ -6,7 +6,9 @@ import TerminalAssetDomain
 /// EventKit-backed `CalendarRepository`. The `EKEventStore` never leaves this actor;
 /// callers only ever receive `CalendarEventSnapshot` values.
 public actor EventKitRepository: CalendarRepository {
-    private let store = EKEventStore()
+    /// `EKEventStore` is not annotated `Sendable`, but the store is owned by this actor, never handed out,
+    /// and Apple documents it as safe to call from any thread, so awaiting its async API from here is safe.
+    private nonisolated(unsafe) let store = EKEventStore()
 
     public init() {}
 
