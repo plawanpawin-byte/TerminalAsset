@@ -104,6 +104,8 @@ public final class ContextItem {
     public var urlString: String?
     public var isDone: Bool
     public var createdAt: Date
+    /// Path of an attached file, relative to the shared attachments directory.
+    public var fileName: String?
     public var context: TemporalContext?
 
     public var kind: ContextItemKind {
@@ -111,12 +113,20 @@ public final class ContextItem {
         set { kindRaw = newValue.rawValue }
     }
 
-    public init(kind: ContextItemKind, title: String, detail: String?, urlString: String?, createdAt: Date) {
+    public init(
+        kind: ContextItemKind,
+        title: String,
+        detail: String?,
+        urlString: String?,
+        fileName: String? = nil,
+        createdAt: Date
+    ) {
         self.id = UUID()
         self.kindRaw = kind.rawValue
         self.title = title
         self.detail = detail
         self.urlString = urlString
+        self.fileName = fileName
         self.isDone = false
         self.createdAt = createdAt
     }
@@ -129,7 +139,67 @@ public final class ContextItem {
             detail: detail,
             url: urlString.flatMap { URL(string: $0) },
             isDone: isDone,
-            createdAt: createdAt
+            createdAt: createdAt,
+            fileName: fileName
+        )
+    }
+}
+
+/// Something shared into the app (via the Share Extension) that is waiting for, or has found, its event.
+/// Kept after handling so an attach can be undone; old entries are cleaned up by Context Decay later.
+@Model
+public final class InboxEntry {
+    public enum Status: String, Sendable {
+        case pending
+        case attached
+        case dismissed
+    }
+
+    /// Same as the manifest's id, so importing the same share twice cannot create a duplicate.
+    @Attribute(.unique) public var id: UUID
+    public var kindRaw: String
+    public var title: String
+    public var text: String?
+    public var urlString: String?
+    public var payloadFileName: String?
+    public var intentRaw: String
+    public var receivedAt: Date
+    /// Where the payload was stored, relative to the attachments directory.
+    public var attachmentPath: String?
+    public var statusRaw: String
+    public var attachedEventKey: String?
+    public var createdItemID: UUID?
+
+    public var status: Status {
+        get { Status(rawValue: statusRaw) ?? .pending }
+        set { statusRaw = newValue.rawValue }
+    }
+
+    init(manifest: InboxManifest, attachmentPath: String?) {
+        self.id = manifest.id
+        self.kindRaw = manifest.kind.rawValue
+        self.title = manifest.title
+        self.text = manifest.text
+        self.urlString = manifest.urlString
+        self.payloadFileName = manifest.payloadFileName
+        self.intentRaw = manifest.intent.rawValue
+        self.receivedAt = manifest.receivedAt
+        self.attachmentPath = attachmentPath
+        self.statusRaw = Status.pending.rawValue
+    }
+
+    var manifest: InboxManifest {
+        InboxManifest(
+            id: id,
+            draft: InboxDraft(
+                kind: InboxPayloadKind(rawValue: kindRaw) ?? .text,
+                title: title,
+                text: text,
+                urlString: urlString,
+                payloadFileName: payloadFileName,
+                intent: ShareIntent(rawValue: intentRaw) ?? .decide,
+                receivedAt: receivedAt
+            )
         )
     }
 }

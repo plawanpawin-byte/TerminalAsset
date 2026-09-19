@@ -69,6 +69,7 @@ extension ContextValidationError {
         case .emptyTitle: "Enter a title."
         case .titleTooLong: "That title is too long. Keep it under \(ContextItemDraft.maxTitleLength) characters."
         case .invalidURL: "Enter a valid web address, like example.com."
+        case .missingFile: "The file for this item is missing."
         case .unsupportedKind: "That kind of item can't be added here yet."
         }
     }

@@ -3,14 +3,14 @@ import TerminalAssetDomain
 
 /// The app shell: first-run onboarding, then five tabs.
 struct RootView: View {
-    let model: TodayViewModel
+    let app: AppModel
 
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @Environment(\.scenePhase) private var scenePhase
     @State private var selection: AppTab
-    @State private var inbox = InboxViewModel(items: UIFixtures.inboxItems(now: .now))
 
-    init(model: TodayViewModel) {
-        self.model = model
+    init(app: AppModel) {
+        self.app = app
         #if DEBUG
         _selection = State(initialValue: LaunchOptions.tab ?? .today)
         #else
@@ -19,26 +19,37 @@ struct RootView: View {
     }
 
     var body: some View {
-        if showsOnboarding {
-            OnboardingView { hasCompletedOnboarding = true }
-        } else {
-            TabView(selection: $selection) {
-                Tab("Today", systemImage: "calendar.day.timeline.left", value: AppTab.today) {
-                    TodayView(model: model, initialPath: initialTodayPath)
-                }
-                Tab("Search", systemImage: "magnifyingglass", value: AppTab.search) {
-                    SearchView()
-                }
-                Tab("Inbox", systemImage: "tray", value: AppTab.inbox) {
-                    InboxView(model: inbox)
-                }
-                .badge(inbox.items.count)
-                Tab("Prep", systemImage: "sparkles", value: AppTab.prep) {
-                    PrepView()
-                }
-                Tab("Settings", systemImage: "gearshape", value: AppTab.settings) {
-                    SettingsView()
-                }
+        Group {
+            if showsOnboarding {
+                OnboardingView { hasCompletedOnboarding = true }
+            } else {
+                tabs
+            }
+        }
+        .task { await app.start() }
+        .onChange(of: scenePhase) { _, phase in
+            // Items shared while the app was closed are waiting in the queue.
+            if phase == .active { Task { await app.inbox.refresh() } }
+        }
+    }
+
+    private var tabs: some View {
+        TabView(selection: $selection) {
+            Tab("Today", systemImage: "calendar.day.timeline.left", value: AppTab.today) {
+                TodayView(model: app.today, initialPath: initialTodayPath)
+            }
+            Tab("Search", systemImage: "magnifyingglass", value: AppTab.search) {
+                SearchView()
+            }
+            Tab("Inbox", systemImage: "tray", value: AppTab.inbox) {
+                InboxView(model: app.inbox)
+            }
+            .badge(app.inbox.items.count)
+            Tab("Prep", systemImage: "sparkles", value: AppTab.prep) {
+                PrepView()
+            }
+            Tab("Settings", systemImage: "gearshape", value: AppTab.settings) {
+                SettingsView()
             }
         }
     }

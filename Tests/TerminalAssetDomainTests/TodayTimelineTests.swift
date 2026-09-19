@@ -200,9 +200,21 @@ struct ContextItemDraftTests {
         }
     }
 
-    @Test func attachmentKindsAreNotCreatableYet() {
+    @Test func voiceItemsAreNotCreatableYet() {
         #expect(throws: ContextValidationError.unsupportedKind) {
-            try ContextItemDraft(kind: .file, title: "x").validated()
+            try ContextItemDraft(kind: .voice, title: "x").validated()
         }
+    }
+
+    @Test func fileItemRequiresAStoredFile() {
+        #expect(throws: ContextValidationError.missingFile) {
+            try ContextItemDraft(kind: .file, title: "Budget").validated()
+        }
+    }
+
+    @Test func fileItemDefaultsItsTitleToTheFileName() throws {
+        let valid = try ContextItemDraft(kind: .file, fileName: "abc/Budget.xlsx").validated()
+        #expect(valid.title == "Budget.xlsx")
+        #expect(valid.fileName == "abc/Budget.xlsx")
     }
 }

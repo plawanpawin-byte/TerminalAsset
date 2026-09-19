@@ -116,6 +116,7 @@ struct EventDetailView: View {
         let tasks = event.items.filter { $0.kind == .task }
         let notes = event.items.filter { $0.kind == .note }
         let links = event.items.filter { $0.kind == .link }
+        let files = event.items.filter { $0.kind == .file || $0.kind == .image }
 
         if !tasks.isEmpty {
             Section("Tasks") {
@@ -148,6 +149,15 @@ struct EventDetailView: View {
                         }
                     }
                     .swipeActions { deleteAction(note.id) }
+                }
+            }
+        }
+
+        if !files.isEmpty {
+            Section("Files") {
+                ForEach(files) { file in
+                    Label(file.title, systemImage: file.kind == .image ? "photo" : "doc")
+                        .swipeActions { deleteAction(file.id) }
                 }
             }
         }

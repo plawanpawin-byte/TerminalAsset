@@ -171,14 +171,14 @@ private struct AllDayStrip: View {
 
 #if DEBUG
 #Preview("Today · sample") {
-    if let model = try? AppBootstrap.makeSampleModel() {
-        TodayView(model: model)
+    if let app = try? AppBootstrap.makeSampleModel() {
+        TodayView(model: app.today)
     }
 }
 
 #Preview("Today · dark") {
-    if let model = try? AppBootstrap.makeSampleModel() {
-        TodayView(model: model)
+    if let app = try? AppBootstrap.makeSampleModel() {
+        TodayView(model: app.today)
             .preferredColorScheme(.dark)
     }
 }

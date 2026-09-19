@@ -18,6 +18,8 @@ public struct ContextItemValue: Sendable, Hashable, Identifiable {
     public let url: URL?
     public let isDone: Bool
     public let createdAt: Date
+    /// Path of an attached file, relative to the shared attachments directory.
+    public let fileName: String?
 
     public init(
         id: UUID,
@@ -26,7 +28,8 @@ public struct ContextItemValue: Sendable, Hashable, Identifiable {
         detail: String?,
         url: URL?,
         isDone: Bool,
-        createdAt: Date
+        createdAt: Date,
+        fileName: String? = nil
     ) {
         self.id = id
         self.kind = kind
@@ -35,6 +38,7 @@ public struct ContextItemValue: Sendable, Hashable, Identifiable {
         self.url = url
         self.isDone = isDone
         self.createdAt = createdAt
+        self.fileName = fileName
     }
 }
 
@@ -74,6 +78,7 @@ public enum ContextValidationError: Error, Sendable, Equatable {
     case emptyTitle
     case titleTooLong
     case invalidURL
+    case missingFile
     case unsupportedKind
 }
 
@@ -85,12 +90,21 @@ public struct ContextItemDraft: Sendable, Equatable {
     public var title: String
     public var detail: String
     public var urlString: String
+    /// Path of an already-stored attachment (for `.file` and `.image`).
+    public var fileName: String
 
-    public init(kind: ContextItemKind, title: String = "", detail: String = "", urlString: String = "") {
+    public init(
+        kind: ContextItemKind,
+        title: String = "",
+        detail: String = "",
+        urlString: String = "",
+        fileName: String = ""
+    ) {
         self.kind = kind
         self.title = title
         self.detail = detail
         self.urlString = urlString
+        self.fileName = fileName
     }
 
     /// Trims and normalizes the input. Links get an `https://` scheme when missing and default their title to the host.
@@ -103,16 +117,23 @@ public struct ContextItemDraft: Sendable, Equatable {
         case .note, .task:
             guard !trimmedTitle.isEmpty else { throw ContextValidationError.emptyTitle }
             guard trimmedTitle.count <= Self.maxTitleLength else { throw ContextValidationError.titleTooLong }
-            return ValidatedContextItem(kind: kind, title: trimmedTitle, detail: normalizedDetail, url: nil)
+            return ValidatedContextItem(kind: kind, title: trimmedTitle, detail: normalizedDetail, url: nil, fileName: nil)
 
         case .link:
             let url = try Self.normalizedURL(from: urlString)
             let host = url.host(percentEncoded: false) ?? url.absoluteString
             let resolvedTitle = trimmedTitle.isEmpty ? host : trimmedTitle
             guard resolvedTitle.count <= Self.maxTitleLength else { throw ContextValidationError.titleTooLong }
-            return ValidatedContextItem(kind: kind, title: resolvedTitle, detail: normalizedDetail, url: url)
+            return ValidatedContextItem(kind: kind, title: resolvedTitle, detail: normalizedDetail, url: url, fileName: nil)
 
-        case .file, .image, .voice:
+        case .file, .image:
+            let path = fileName.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !path.isEmpty else { throw ContextValidationError.missingFile }
+            let resolvedTitle = trimmedTitle.isEmpty ? URL(fileURLWithPath: path).lastPathComponent : trimmedTitle
+            guard resolvedTitle.count <= Self.maxTitleLength else { throw ContextValidationError.titleTooLong }
+            return ValidatedContextItem(kind: kind, title: resolvedTitle, detail: normalizedDetail, url: nil, fileName: path)
+
+        case .voice:
             throw ContextValidationError.unsupportedKind
         }
     }
@@ -136,6 +157,7 @@ public struct ValidatedContextItem: Sendable, Equatable {
     public let title: String
     public let detail: String?
     public let url: URL?
+    public let fileName: String?
 }
 
 public enum ContextStoreError: Error, Sendable, Equatable {

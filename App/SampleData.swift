@@ -30,9 +30,10 @@ enum SampleData {
         key("audit", now: now)
     }
 
-    static func seed(sync: CalendarSyncService, store: ContextStore, now: Date) async {
+    static func seed(sync: CalendarSyncService, store: ContextStore, shared: SharedInbox, now: Date) async {
         do {
             try await sync.syncNow(around: now)
+            try enqueueSharedItems(into: shared, now: now)
             let audit = key("audit", now: now)
             try await add(store, audit, .task, "Confirm scope with QA lead", now: now)
             try await add(store, audit, .task, "Print risk register summary", now: now)
@@ -53,6 +54,42 @@ enum SampleData {
             // Demo data is best-effort; the app still runs with whatever was seeded.
             return
         }
+    }
+
+    // MARK: - Shared items
+
+    /// Queues items exactly as the Share Extension would, so demo mode exercises the real ingestion path.
+    private static func enqueueSharedItems(into shared: SharedInbox, now: Date) throws {
+        try shared.enqueue(InboxDraft(
+            kind: .url, title: "How to prepare for an ISO 27001 surveillance audit",
+            urlString: "https://iso.org/audit-preparation", receivedAt: now - 12 * minute
+        ))
+        try shared.enqueue(InboxDraft(
+            kind: .text, title: "Ask Priya about the vendor questionnaire",
+            text: "Ask Priya about the vendor questionnaire", receivedAt: now - 8 * minute
+        ))
+        try shared.enqueue(
+            InboxDraft(kind: .image, title: "IMG_4821.jpg", receivedAt: now - 65 * minute),
+            payload: try payloadFile(named: "IMG_4821.jpg")
+        )
+        try shared.enqueue(
+            InboxDraft(kind: .file, title: "Q3 vendor list.xlsx", receivedAt: now - 180 * minute),
+            payload: try payloadFile(named: "Q3 vendor list.xlsx")
+        )
+        // Shared with an explicit "next event" choice, so it is attached during ingestion.
+        try shared.enqueue(InboxDraft(
+            kind: .text, title: "Bring printed copies", text: "Bring printed copies",
+            intent: .upcomingEvent, receivedAt: now - minute
+        ))
+    }
+
+    private static func payloadFile(named name: String) throws -> URL {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("sample-payload-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let url = directory.appendingPathComponent(name)
+        try Data("sample".utf8).write(to: url)
+        return url
     }
 
     // MARK: - Helpers

@@ -10,3 +10,5 @@ GoogleService-Info.plist
 App/Info.plist
 build/
 screenshots/
+ShareExtension/Info.plist
+Config/*.entitlements

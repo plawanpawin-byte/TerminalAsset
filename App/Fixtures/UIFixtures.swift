@@ -69,41 +69,6 @@ struct SearchResult: Identifiable, Hashable {
     let score: Double
 }
 
-// MARK: - Inbox
-
-enum InboxKind {
-    case link, image, file, text
-
-    var symbol: String {
-        switch self {
-        case .link: "link"
-        case .image: "photo"
-        case .file: "doc"
-        case .text: "text.alignleft"
-        }
-    }
-}
-
-struct InboxSuggestion: Hashable {
-    let eventTitle: String
-    let reason: String
-}
-
-struct InboxItem: Identifiable, Hashable {
-    let id = UUID()
-    let kind: InboxKind
-    let title: String
-    let source: String
-    let receivedAt: Date
-    let suggestion: InboxSuggestion?
-}
-
-struct EventChoice: Identifiable, Hashable {
-    let id = UUID()
-    let title: String
-    let timeText: String
-}
-
 // MARK: - Prep
 
 enum PrepStatus: Hashable {
@@ -156,15 +121,6 @@ struct PrepBlock: Identifiable, Hashable {
 /// Demo content for screens whose real data arrives in later phases. Dates are relative to `now`.
 enum UIFixtures {
     static let recentSearches = ["risk register", "vendor questionnaire", "corrective actions"]
-
-    static func eventChoices() -> [EventChoice] {
-        [
-            EventChoice(title: "ISO Audit Preparation", timeText: "Now · until 3:54 PM"),
-            EventChoice(title: "Vendor security review", timeText: "Today · 4:49 PM"),
-            EventChoice(title: "Risk register walkthrough", timeText: "Today · 7:19 PM"),
-            EventChoice(title: "Board prep", timeText: "Tomorrow · 9:00 AM")
-        ]
-    }
 
     static func searchResults() -> [SearchResult] {
         [
@@ -225,31 +181,6 @@ enum UIFixtures {
                 eventTitle: nil,
                 signals: [RankingSignal(kind: .semantic, text: "Similar meaning")],
                 score: 0.55
-            )
-        ]
-    }
-
-    static func inboxItems(now: Date) -> [InboxItem] {
-        [
-            InboxItem(
-                kind: .link, title: "How to prepare for an ISO 27001 surveillance audit",
-                source: "iso.org · Safari", receivedAt: now - 12 * 60,
-                suggestion: InboxSuggestion(eventTitle: "ISO Audit Preparation", reason: "Happening now · similar topic")
-            ),
-            InboxItem(
-                kind: .image, title: "IMG_4821.jpg",
-                source: "Photos", receivedAt: now - 65 * 60,
-                suggestion: InboxSuggestion(eventTitle: "ISO Audit Preparation", reason: "Taken during this event")
-            ),
-            InboxItem(
-                kind: .file, title: "Q3 vendor list.xlsx",
-                source: "Files", receivedAt: now - 3 * 3600,
-                suggestion: nil
-            ),
-            InboxItem(
-                kind: .text, title: "Ask Priya about the SOC 2 renewal",
-                source: "Notes", receivedAt: now - 5 * 3600,
-                suggestion: InboxSuggestion(eventTitle: "Vendor security review", reason: "Mentions a vendor")
             )
         ]
     }

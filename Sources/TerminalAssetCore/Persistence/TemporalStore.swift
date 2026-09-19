@@ -5,7 +5,7 @@ import SwiftData
 public enum TemporalStore {
     /// `Schema` is not `Sendable`, so a fresh instance is built per use instead of sharing a static.
     public static func makeSchema() -> Schema {
-        Schema([TemporalEvent.self, TemporalContext.self, ContextItem.self])
+        Schema([TemporalEvent.self, TemporalContext.self, ContextItem.self, InboxEntry.self])
     }
 
     /// Builds the app's container. Pass `inMemory: true` for tests and previews.

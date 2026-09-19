@@ -23,6 +23,7 @@ final class TodayViewModel {
     @ObservationIgnored private let calendar: Calendar
     @ObservationIgnored private let prepare: (@Sendable () async -> Void)?
     @ObservationIgnored private var syncTask: Task<Void, Never>?
+    @ObservationIgnored private var startTask: Task<Void, Never>?
 
     init(
         sync: CalendarSyncService,
@@ -44,8 +45,18 @@ final class TodayViewModel {
 
     // MARK: - Lifecycle
 
+    /// Safe to call from several places: the first call does the work and every caller waits for it to finish.
     func start() async {
-        guard syncTask == nil, phase == .loading else { return }
+        if let startTask {
+            await startTask.value
+            return
+        }
+        let task = Task { await performStart() }
+        startTask = task
+        await task.value
+    }
+
+    private func performStart() async {
         if let prepare { await prepare() }
         let status = sync.authorizationStatus()
         guard status == .fullAccess else {

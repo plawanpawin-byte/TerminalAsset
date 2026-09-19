@@ -21,6 +21,7 @@ targets:
         product: TerminalAssetCore
       - package: TerminalAsset
         product: TerminalAssetDomain
+      - target: ShareExtension
     info:
       path: App/Info.plist
       properties:
@@ -29,9 +30,46 @@ targets:
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         NSCalendarsFullAccessUsageDescription: TerminalAsset reads your calendar on this device to show the context you need for each event. Your calendar data is never uploaded.
+    entitlements:
+      path: Config/TerminalAsset.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.terminalasset.app
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.terminalasset.app
+        TARGETED_DEVICE_FAMILY: "1"
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+  ShareExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - ShareExtension
+    dependencies:
+      - package: TerminalAsset
+        product: TerminalAssetDomain
+    info:
+      path: ShareExtension/Info.plist
+      properties:
+        CFBundleDisplayName: TerminalAsset
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.share-services
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
+          NSExtensionAttributes:
+            NSExtensionActivationRule:
+              NSExtensionActivationSupportsWebURLWithMaxCount: 1
+              NSExtensionActivationSupportsText: true
+              NSExtensionActivationSupportsImageWithMaxCount: 10
+              NSExtensionActivationSupportsFileWithMaxCount: 10
+    entitlements:
+      path: Config/ShareExtension.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.terminalasset.app
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.terminalasset.app.share
         TARGETED_DEVICE_FAMILY: "1"
         MARKETING_VERSION: "0.1.0"
         CURRENT_PROJECT_VERSION: "1"

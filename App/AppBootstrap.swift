@@ -6,10 +6,23 @@ struct BootstrapFailure: Error {
     let message: String
 }
 
+/// Everything the UI needs, built once at launch.
+@MainActor
+struct AppModel {
+    let today: TodayViewModel
+    let inbox: InboxViewModel
+
+    /// Loads Today, then imports shared items (they may auto-attach to events, so events must exist first).
+    func start() async {
+        await today.start()
+        await inbox.refresh()
+    }
+}
+
 /// Composition root: the only place that knows which concrete repository and store back the app.
 @MainActor
 enum AppBootstrap {
-    static func make() -> Result<TodayViewModel, BootstrapFailure> {
+    static func make() -> Result<AppModel, BootstrapFailure> {
         do {
             #if DEBUG
             if ProcessInfo.processInfo.arguments.contains("-sampleData") {
@@ -21,24 +34,44 @@ enum AppBootstrap {
                 repository: EventKitRepository(),
                 store: CalendarSyncActor(modelContainer: container)
             )
-            let model = TodayViewModel(sync: sync, store: ContextStore(modelContainer: container))
-            return .success(model)
+            let store = ContextStore(modelContainer: container)
+            // Without the App Group container (missing entitlement) sharing is off; the rest of the app works.
+            let shared = try? SharedInbox.appGroup()
+            return .success(makeModel(sync: sync, store: store, shared: shared))
         } catch {
             return .failure(BootstrapFailure(message: "The local data store could not be opened on this device."))
         }
     }
 
+    private static func makeModel(
+        sync: CalendarSyncService,
+        store: ContextStore,
+        shared: SharedInbox?,
+        prepare: (@Sendable () async -> Void)? = nil
+    ) -> AppModel {
+        let today = TodayViewModel(sync: sync, store: store, prepare: prepare)
+        let inbox = InboxViewModel(store: store, shared: shared) { [today] in
+            await today.reload()
+        }
+        return AppModel(today: today, inbox: inbox)
+    }
+
     #if DEBUG
-    /// In-memory database, stub calendar and seeded context. Used by previews and `-sampleData` launches.
-    static func makeSampleModel(now: Date = SampleData.launchTime) throws -> TodayViewModel {
+    /// In-memory database, stub calendar, seeded context and a temporary share queue. The queued items go through
+    /// the same ingestion path as real shares. Used by previews and `-sampleData` launches.
+    static func makeSampleModel(now: Date = SampleData.launchTime) throws -> AppModel {
         let container = try TemporalStore.makeContainer(inMemory: true)
         let sync = CalendarSyncService(
             repository: StubCalendarRepository(snapshots: SampleData.snapshots(now: now)),
             store: CalendarSyncActor(modelContainer: container)
         )
         let store = ContextStore(modelContainer: container)
-        return TodayViewModel(sync: sync, store: store) {
-            await SampleData.seed(sync: sync, store: store, now: now)
+        let shared = SharedInbox(
+            rootURL: FileManager.default.temporaryDirectory
+                .appendingPathComponent("TerminalAssetSample-\(UUID().uuidString)", isDirectory: true)
+        )
+        return makeModel(sync: sync, store: store, shared: shared) {
+            await SampleData.seed(sync: sync, store: store, shared: shared, now: now)
         }
     }
     #endif

@@ -2,7 +2,7 @@ import SwiftUI
 
 @main
 struct TerminalAssetApp: App {
-    private let bootstrap: Result<TodayViewModel, BootstrapFailure>
+    private let bootstrap: Result<AppModel, BootstrapFailure>
 
     init() {
         bootstrap = AppBootstrap.make()
@@ -12,7 +12,7 @@ struct TerminalAssetApp: App {
         WindowGroup {
             switch bootstrap {
             case .success(let model):
-                RootView(model: model)
+                RootView(app: model)
             case .failure(let failure):
                 ContentUnavailableView {
                     Label("TerminalAsset can't start", systemImage: "exclamationmark.triangle")

@@ -37,18 +37,7 @@ public actor ContextStore {
 
         return try perform {
             guard let event = try fetchEvent(key) else { throw ContextStoreError.eventNotFound }
-            let context = event.context ?? TemporalContext(createdAt: now)
-            if event.context == nil { event.context = context }
-
-            let item = ContextItem(
-                kind: valid.kind,
-                title: valid.title,
-                detail: valid.detail,
-                urlString: valid.url?.absoluteString,
-                createdAt: now
-            )
-            modelContext.insert(item)
-            item.context = context
+            let item = insertItem(valid, into: event, now: now)
             try modelContext.save()
             return item.value
         }
@@ -73,21 +62,39 @@ public actor ContextStore {
 
     // MARK: - Private
 
-    private func fetchEvent(_ key: EventKey) throws -> TemporalEvent? {
+    /// Creates the item inside the event's context (creating the context if needed). Does not save.
+    func insertItem(_ valid: ValidatedContextItem, into event: TemporalEvent, now: Date) -> ContextItem {
+        let context = event.context ?? TemporalContext(createdAt: now)
+        if event.context == nil { event.context = context }
+
+        let item = ContextItem(
+            kind: valid.kind,
+            title: valid.title,
+            detail: valid.detail,
+            urlString: valid.url?.absoluteString,
+            fileName: valid.fileName,
+            createdAt: now
+        )
+        modelContext.insert(item)
+        item.context = context
+        return item
+    }
+
+    func fetchEvent(_ key: EventKey) throws -> TemporalEvent? {
         let raw = key.rawValue
         var descriptor = FetchDescriptor<TemporalEvent>(predicate: #Predicate { $0.eventKey == raw })
         descriptor.fetchLimit = 1
         return try modelContext.fetch(descriptor).first
     }
 
-    private func fetchItem(_ id: UUID) throws -> ContextItem? {
+    func fetchItem(_ id: UUID) throws -> ContextItem? {
         var descriptor = FetchDescriptor<ContextItem>(predicate: #Predicate { $0.id == id })
         descriptor.fetchLimit = 1
         return try modelContext.fetch(descriptor).first
     }
 
     /// Runs `body`, rolls back on failure and maps unknown errors to `ContextStoreError.persistence`.
-    private func perform<T>(_ body: () throws -> T) throws -> T {
+    func perform<T>(_ body: () throws -> T) throws -> T {
         do {
             return try body()
         } catch let error as ContextStoreError {
