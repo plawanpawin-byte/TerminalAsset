@@ -30,6 +30,7 @@ extension ContextStore {
                         eventTitle: event.title,
                         eventStart: event.startDate,
                         eventEnd: event.endDate,
+                        eventIsAllDay: event.isAllDay,
                         createdAt: event.startDate
                     ))
                 }
@@ -44,6 +45,7 @@ extension ContextStore {
                         eventTitle: event.title,
                         eventStart: event.startDate,
                         eventEnd: event.endDate,
+                        eventIsAllDay: event.isAllDay,
                         createdAt: item.createdAt,
                         isDone: item.isDone
                     ))

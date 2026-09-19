@@ -26,6 +26,7 @@ struct SettingsView: View {
     @AppStorage("settings.backgroundPrep") private var backgroundPrep = true
     @AppStorage("settings.decayDays") private var decayDays = 30
     @AppStorage("settings.coldStorage") private var coldStorage = false
+    @AppStorage(WeatherViewModel.enabledKey) private var showWeather = true
 
     @State private var workCalendar = true
     @State private var personalCalendar = true
@@ -43,6 +44,7 @@ struct SettingsView: View {
             Form {
                 planSection
                 calendarSection
+                weatherSection
                 intelligenceSection
                 storageSection
                 privacySection
@@ -106,6 +108,16 @@ struct SettingsView: View {
             Text("Calendars")
         } footer: {
             Text("Choose which calendars TerminalAsset reads. Your calendar is never uploaded.")
+        }
+    }
+
+    private var weatherSection: some View {
+        Section {
+            Toggle("Show weather on Today", isOn: $showWeather)
+        } header: {
+            Text("Weather")
+        } footer: {
+            Text("Uses your approximate location. Only a coordinate rounded to about 1 km is sent to the free Open-Meteo weather service to get the forecast: no name, account or calendar data. Turn this off to stop using your location.")
         }
     }
 

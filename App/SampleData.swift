@@ -56,6 +56,43 @@ enum SampleData {
         }
     }
 
+    // MARK: - Weather
+
+    /// A fixed forecast for previews and screenshots. `-weather rain`, `-night` and `-weatherPermission` choose the scene.
+    @MainActor
+    static func weatherModel(now: Date) -> WeatherViewModel {
+        let condition = LaunchOptions.weatherCondition.flatMap(WeatherCondition.init(rawValue:)) ?? .partlyCloudy
+        let rainChance: Int
+        switch condition {
+        case .thunderstorm: rainChance = 90
+        case .rain: rainChance = 80
+        case .drizzle: rainChance = 60
+        case .snow: rainChance = 70
+        case .partlyCloudy: rainChance = 40
+        case .cloudy: rainChance = 20
+        case .fog, .clear: rainChance = 0
+        }
+        let snapshot = WeatherSnapshot(
+            temperatureC: condition == .snow ? -2 : 31,
+            condition: condition,
+            isDaytime: !LaunchOptions.night,
+            highC: condition == .snow ? 1 : 33,
+            lowC: condition == .snow ? -6 : 26,
+            precipitationChance: rainChance,
+            cityName: "Bangkok",
+            fetchedAt: now
+        )
+        let place = WeatherPlace(coordinate: WeatherCoordinate(latitude: 13.7563, longitude: 100.5018), cityName: "Bangkok")
+        let location = StubLocationService(
+            permission: LaunchOptions.weatherPermission ? .notDetermined : .authorized,
+            place: place
+        )
+        return WeatherViewModel(
+            location: location,
+            service: WeatherService(provider: StubWeatherProvider(snapshot: snapshot), cacheURL: nil)
+        )
+    }
+
     // MARK: - Shared items
 
     /// Queues items exactly as the Share Extension would, so demo mode exercises the real ingestion path.

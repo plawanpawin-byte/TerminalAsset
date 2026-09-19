@@ -43,6 +43,7 @@ public struct SearchDocument: Sendable, Hashable, Identifiable {
     public let eventTitle: String
     public let eventStart: Date
     public let eventEnd: Date
+    public let eventIsAllDay: Bool
     public let createdAt: Date
     public let isDone: Bool
 
@@ -55,6 +56,7 @@ public struct SearchDocument: Sendable, Hashable, Identifiable {
         eventTitle: String,
         eventStart: Date,
         eventEnd: Date,
+        eventIsAllDay: Bool = false,
         createdAt: Date,
         isDone: Bool = false
     ) {
@@ -66,6 +68,7 @@ public struct SearchDocument: Sendable, Hashable, Identifiable {
         self.eventTitle = eventTitle
         self.eventStart = eventStart
         self.eventEnd = eventEnd
+        self.eventIsAllDay = eventIsAllDay
         self.createdAt = createdAt
         self.isDone = isDone
     }

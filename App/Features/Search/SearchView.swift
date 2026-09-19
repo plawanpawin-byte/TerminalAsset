@@ -163,7 +163,7 @@ private struct ResultRow: View {
     }
 
     private var eventLine: String {
-        let when = document.eventStart.formatted(date: .abbreviated, time: .shortened)
+        let when = TimeText.compact(start: document.eventStart, isAllDay: document.eventIsAllDay)
         return document.kind == .event ? when : "\(document.eventTitle) · \(when)"
     }
 

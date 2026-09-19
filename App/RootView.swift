@@ -36,7 +36,12 @@ struct RootView: View {
     private var tabs: some View {
         TabView(selection: $selection) {
             Tab("Today", systemImage: "calendar.day.timeline.left", value: AppTab.today) {
-                TodayView(model: app.today, initialPath: initialTodayPath)
+                TodayView(
+                    model: app.today,
+                    weather: app.weather,
+                    initialPath: initialTodayPath,
+                    initialCalendar: initialCalendarMode
+                )
             }
             Tab("Search", systemImage: "magnifyingglass", value: AppTab.search) {
                 SearchView(model: app.search, today: app.today)
@@ -60,6 +65,14 @@ struct RootView: View {
         if LaunchOptions.isSampleMode { return false }
         #endif
         return !hasCompletedOnboarding
+    }
+
+    private var initialCalendarMode: CalendarViewModel.Mode? {
+        #if DEBUG
+        return LaunchOptions.calendarMode.flatMap(CalendarViewModel.Mode.init(rawValue:))
+        #else
+        return nil
+        #endif
     }
 
     private var initialTodayPath: [EventKey] {

@@ -115,6 +115,10 @@ final class TodayViewModel {
         }
     }
 
+    func makeCalendarModel(mode: CalendarViewModel.Mode) -> CalendarViewModel {
+        CalendarViewModel(sync: sync, store: store, mode: mode, calendar: calendar)
+    }
+
     func makeDetailModel(for key: EventKey) -> EventDetailViewModel {
         EventDetailViewModel(key: key, store: store) { [weak self] in
             await self?.reload()

@@ -20,5 +20,14 @@ enum LaunchOptions {
     static var prepDetail: Bool { arguments.contains("-prepDetail") }
     static var privacyDetail: Bool { arguments.contains("-privacy") }
     static var isSampleMode: Bool { arguments.contains("-sampleData") }
+    /// `-weather rain` (any `WeatherCondition` raw value) shows a fixed sample forecast.
+    static var weatherCondition: String? { defaults.string(forKey: "weather") }
+    static var night: Bool { arguments.contains("-night") }
+    /// Shows the "allow location" card instead of a forecast.
+    static var weatherPermission: Bool { arguments.contains("-weatherPermission") }
+    /// Uses the real location service and Open-Meteo instead of the sample forecast.
+    static var liveWeather: Bool { arguments.contains("-liveWeather") }
+    /// `-calendar month` or `-calendar day` opens the full calendar from Today.
+    static var calendarMode: String? { defaults.string(forKey: "calendar") }
 }
 #endif

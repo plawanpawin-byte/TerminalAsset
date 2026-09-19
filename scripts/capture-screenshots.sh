@@ -34,6 +34,13 @@ shot() {
 
 shot today-light light
 shot today-dark dark
+shot weather-clear light -weather clear
+shot weather-rain light -weather rain
+shot weather-night dark -weather clear -night
+shot weather-storm dark -weather thunderstorm
+shot weather-permission light -weatherPermission
+shot calendar-month light -calendar month
+shot calendar-day light -calendar day
 shot event-detail light -detail
 shot add-task light -detail -addSheet task
 shot search light -tab search
@@ -46,5 +53,15 @@ shot settings light -tab settings
 shot cloud-privacy light -tab settings -privacy
 shot paywall light -tab settings -paywall
 shot onboarding light -onboarding
+
+# Real location + real Open-Meteo request (needs network). The simulator is placed in Bangkok and location
+# permission is pre-granted, so this exercises CoreLocation, geocoding and the HTTP call end to end.
+xcrun simctl privacy "$UDID" grant location "$BUNDLE" || true
+xcrun simctl location "$UDID" set 13.7563,100.5018 || true
+xcrun simctl ui "$UDID" appearance light
+xcrun simctl terminate "$UDID" "$BUNDLE" 2>/dev/null || true
+xcrun simctl launch "$UDID" "$BUNDLE" -sampleData -liveWeather >/dev/null
+sleep 16
+xcrun simctl io "$UDID" screenshot "screenshots/weather-live.png"
 
 ls -la screenshots

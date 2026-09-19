@@ -12,6 +12,7 @@ struct AppModel {
     let today: TodayViewModel
     let inbox: InboxViewModel
     let search: SearchViewModel
+    let weather: WeatherViewModel
 
     /// Loads Today, then imports shared items (they may auto-attach to events, so events must exist first).
     func start() async {
@@ -38,16 +39,24 @@ enum AppBootstrap {
             let store = ContextStore(modelContainer: container)
             // Without the App Group container (missing entitlement) sharing is off; the rest of the app works.
             let shared = try? SharedInbox.appGroup()
-            return .success(makeModel(sync: sync, store: store, shared: shared))
+            return .success(makeModel(sync: sync, store: store, shared: shared, weather: makeLiveWeather()))
         } catch {
             return .failure(BootstrapFailure(message: "The local data store could not be opened on this device."))
         }
+    }
+
+    static func makeLiveWeather() -> WeatherViewModel {
+        let cache = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first?
+            .appendingPathComponent("weather.json")
+        let service = WeatherService(provider: OpenMeteoWeatherProvider(), cacheURL: cache)
+        return WeatherViewModel(location: CoreLocationService(), service: service)
     }
 
     private static func makeModel(
         sync: CalendarSyncService,
         store: ContextStore,
         shared: SharedInbox?,
+        weather: WeatherViewModel,
         prepare: (@Sendable () async -> Void)? = nil
     ) -> AppModel {
         let today = TodayViewModel(sync: sync, store: store, prepare: prepare)
@@ -59,7 +68,7 @@ enum AppBootstrap {
         #else
         let search = SearchViewModel(store: store)
         #endif
-        return AppModel(today: today, inbox: inbox, search: search)
+        return AppModel(today: today, inbox: inbox, search: search, weather: weather)
     }
 
     #if DEBUG
@@ -76,7 +85,8 @@ enum AppBootstrap {
             rootURL: FileManager.default.temporaryDirectory
                 .appendingPathComponent("TerminalAssetSample-\(UUID().uuidString)", isDirectory: true)
         )
-        return makeModel(sync: sync, store: store, shared: shared) {
+        let weather = LaunchOptions.liveWeather ? makeLiveWeather() : SampleData.weatherModel(now: now)
+        return makeModel(sync: sync, store: store, shared: shared, weather: weather) {
             await SampleData.seed(sync: sync, store: store, shared: shared, now: now)
         }
     }

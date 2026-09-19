@@ -37,14 +37,20 @@ public actor CalendarSyncService {
 
     @discardableResult
     public func syncNow(around date: Date = .now) async throws -> SyncReport {
-        let window = makeWindow(around: date)
+        try await sync(window: makeWindow(around: date), now: date)
+    }
+
+    /// Syncs an arbitrary range, for example the month the calendar screen is showing. Events that vanished are
+    /// only marked missing inside this range, so syncing a far-away month never touches other data.
+    @discardableResult
+    public func sync(window: DateInterval, now: Date = .now) async throws -> SyncReport {
         let snapshots: [CalendarEventSnapshot]
         do {
             snapshots = try await repository.events(in: window)
         } catch let error as CalendarError {
             throw SyncError.calendar(error)
         }
-        return try await store.apply(snapshots: snapshots, window: window, now: date)
+        return try await store.apply(snapshots: snapshots, window: window, now: now)
     }
 
     /// Syncs once, then again on every (coalesced) calendar change until the task is cancelled.

@@ -10,6 +10,14 @@ enum TimeText {
         return interval.formatted(Date.IntervalFormatStyle(date: .omitted, time: .shortened))
     }
 
+    /// "Sep 19, 4:20 PM" or "Sep 19 · All day": short enough to sit on one line in a list row.
+    static func compact(start: Date, isAllDay: Bool) -> String {
+        if isAllDay {
+            return "\(start.formatted(.dateTime.month(.abbreviated).day())) · All day"
+        }
+        return start.formatted(.dateTime.month(.abbreviated).day().hour().minute())
+    }
+
     /// "in 25 minutes" / "5 minutes ago"
     static func relative(_ date: Date, to now: Date) -> String {
         let formatter = RelativeDateTimeFormatter()
