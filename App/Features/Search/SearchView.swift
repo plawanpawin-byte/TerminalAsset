@@ -36,6 +36,11 @@ struct SearchView: View {
                 EventDetailView(key: key, today: today)
             }
             .task { await model.loadCorpus() }
+            // The first calendar sync (or a share attached from the Inbox) can finish after this screen first
+            // loaded, so the searchable corpus is rebuilt whenever Today's data changes.
+            .onChange(of: today.events) {
+                Task { await model.loadCorpus() }
+            }
         }
     }
 
