@@ -39,18 +39,18 @@ struct CalendarScreen: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Today") { Task { await model.goToToday() } }
+                Button {
+                    Task { await model.goToToday() }
+                } label: {
+                    Label("Go to today", systemImage: "calendar.circle")
+                }
             }
         }
         .task { await model.onAppear() }
     }
 
-    private var title: String {
-        switch model.mode {
-        case .month: model.displayedMonth.formatted(.dateTime.month(.wide).year())
-        case .day: model.selectedDay.formatted(.dateTime.month(.wide).year())
-        }
-    }
+    /// The month or day is already shown in the screen itself, so the bar only names the screen.
+    private var title: String { "Calendar" }
 }
 
 // MARK: - Month
@@ -233,7 +233,9 @@ private struct AgendaRow: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                .frame(width: 64, alignment: .trailing)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .frame(width: 84, alignment: .trailing)
 
                 RoundedRectangle(cornerRadius: 2, style: .continuous)
                     .fill(Color.accentColor)
@@ -433,7 +435,13 @@ private struct EventBlock: View {
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(Color.accentColor.opacity(0.16))
+        // Opaque base so the hour lines behind an event never cut through its text.
+        .background {
+            ZStack {
+                Color(.systemBackground)
+                Color.accentColor.opacity(0.16)
+            }
+        }
         .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
         .accessibilityElement(children: .combine)
     }

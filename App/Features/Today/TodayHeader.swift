@@ -67,10 +67,13 @@ struct TodayHeader: View {
                     .padding(.top, 2)
             }
 
-            Text(dateLine)
-                .font(.footnote)
-                .opacity(0.8)
-                .padding(.top, 6)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(now, format: .dateTime.weekday(.wide).day().month(.wide))
+                Text(summary)
+            }
+            .font(.footnote)
+            .opacity(0.8)
+            .padding(.top, 6)
 
             if isStale {
                 Label("Updated \(snapshot.fetchedAt.formatted(.relative(presentation: .named)))", systemImage: "wifi.slash")
@@ -92,10 +95,6 @@ struct TodayHeader: View {
                 .foregroundStyle(.secondary)
         }
         .accessibilityElement(children: .combine)
-    }
-
-    private var dateLine: String {
-        "\(now.formatted(.dateTime.weekday(.wide).day().month(.wide))) · \(summary)"
     }
 
     private var summary: String {

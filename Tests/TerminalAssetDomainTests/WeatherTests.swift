@@ -221,3 +221,25 @@ struct WeatherServiceTests {
         #expect(result.snapshot?.cityName == "Bangkok")
     }
 }
+
+@Suite("PlaceName")
+struct PlaceNameTests {
+    @Test func aNormalCityNameIsUsedAsIs() {
+        #expect(PlaceName.choose(locality: "New York", subAdministrativeArea: "New York County", administrativeArea: "NY") == "New York")
+    }
+
+    @Test func aDistrictLocalityFallsBackToTheAdministrativeArea() {
+        #expect(PlaceName.choose(locality: "Phra Nakhon District", subAdministrativeArea: nil, administrativeArea: "Bangkok") == "Bangkok")
+        #expect(PlaceName.choose(locality: "เขตพระนคร", subAdministrativeArea: nil, administrativeArea: "กรุงเทพมหานคร") == "กรุงเทพมหานคร")
+    }
+
+    @Test func missingPartsFallBackInOrder() {
+        #expect(PlaceName.choose(locality: nil, subAdministrativeArea: "Some County", administrativeArea: "Some State") == "Some State")
+        #expect(PlaceName.choose(locality: nil, subAdministrativeArea: "Some County", administrativeArea: nil) == "Some County")
+        #expect(PlaceName.choose(locality: "  ", subAdministrativeArea: nil, administrativeArea: nil) == nil)
+    }
+
+    @Test func aDistrictIsBetterThanNothing() {
+        #expect(PlaceName.choose(locality: "Phra Nakhon District", subAdministrativeArea: nil, administrativeArea: nil) == "Phra Nakhon District")
+    }
+}

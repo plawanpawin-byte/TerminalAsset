@@ -79,7 +79,11 @@ final class CoreLocationService: NSObject, LocationProviding, CLLocationManagerD
         do {
             let placemarks = try await CLGeocoder().reverseGeocodeLocation(location)
             let mark = placemarks.first
-            return mark?.locality ?? mark?.subAdministrativeArea ?? mark?.administrativeArea
+            return PlaceName.choose(
+                locality: mark?.locality,
+                subAdministrativeArea: mark?.subAdministrativeArea,
+                administrativeArea: mark?.administrativeArea
+            )
         } catch {
             return nil
         }

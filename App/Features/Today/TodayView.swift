@@ -53,8 +53,8 @@ struct TodayView: View {
                 }
             }
             .background { background.ignoresSafeArea() }
-            .navigationTitle("Today")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationTitle(sky == nil ? "Today" : "")
+            .navigationBarTitleDisplayMode(sky == nil ? .large : .inline)
             .toolbarColorScheme(sky == nil ? nil : .dark, for: .navigationBar)
             .navigationDestination(for: EventKey.self) { key in
                 EventDetailView(key: key, today: model, initialAdding: launchAddSheet)
