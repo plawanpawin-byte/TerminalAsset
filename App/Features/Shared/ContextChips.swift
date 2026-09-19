@@ -22,6 +22,8 @@ struct ContextChips: View {
         Label(text, systemImage: symbol)
             .labelStyle(.titleAndIcon)
             .font(.caption.weight(.medium).monospacedDigit())
+            .lineLimit(1)
+            .fixedSize()
             .foregroundStyle(.secondary)
             .padding(.horizontal, 8)
             .padding(.vertical, 3)

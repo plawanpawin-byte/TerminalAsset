@@ -29,7 +29,7 @@ struct HeroCard: View {
             prepare
         }
         .padding(16)
-        .background(.background, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
         .overlay {
             if hero.kind == .now {
                 RoundedRectangle(cornerRadius: 22, style: .continuous)

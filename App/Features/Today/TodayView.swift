@@ -105,7 +105,7 @@ private struct TodayContent: View {
                 }
             }
             .padding(.horizontal, 12)
-            .background(.background, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
     }
 }
@@ -145,7 +145,7 @@ private struct AllDayStrip: View {
                             .foregroundStyle(.primary)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
-                            .background(.background, in: Capsule())
+                            .background(Color(.secondarySystemGroupedBackground), in: Capsule())
                     }
                     .buttonStyle(.plain)
                 }

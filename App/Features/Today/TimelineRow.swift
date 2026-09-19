@@ -5,6 +5,9 @@ import TerminalAssetDomain
 struct TimelineRow: View {
     let entry: TimelineEntry
 
+    /// One fixed column width (scaled with Dynamic Type) so every row's rail lines up.
+    @ScaledMetric(relativeTo: .subheadline) private var timeColumnWidth: CGFloat = 76
+
     private var event: TimelineEvent { entry.event }
 
     var body: some View {
@@ -13,7 +16,7 @@ struct TimelineRow: View {
                 Text(event.startDate, format: .dateTime.hour().minute())
                     .font(.subheadline.monospacedDigit())
                     .foregroundStyle(entry.phase == .past ? .secondary : .primary)
-                    .frame(minWidth: 56, alignment: .trailing)
+                    .frame(width: timeColumnWidth, alignment: .trailing)
                     .padding(.vertical, 12)
 
                 rail
@@ -81,7 +84,7 @@ struct TimelineRow: View {
             Circle().fill(Color.accentColor).frame(width: 12, height: 12)
                 .overlay(Circle().stroke(Color.accentColor.opacity(0.3), lineWidth: 4))
         case .upcoming:
-            Circle().fill(Color(.systemBackground)).frame(width: 10, height: 10)
+            Circle().fill(Color(.secondarySystemGroupedBackground)).frame(width: 10, height: 10)
                 .overlay(Circle().stroke(Color.accentColor, lineWidth: 2))
         }
     }
