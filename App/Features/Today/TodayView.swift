@@ -4,9 +4,15 @@ import TerminalAssetDomain
 struct TodayView: View {
     let model: TodayViewModel
     @Environment(\.scenePhase) private var scenePhase
+    @State private var path: [EventKey]
+
+    init(model: TodayViewModel, initialPath: [EventKey] = []) {
+        self.model = model
+        _path = State(initialValue: initialPath)
+    }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             Group {
                 switch model.phase {
                 case .loading:
@@ -30,13 +36,22 @@ struct TodayView: View {
             .navigationTitle("Today")
             .navigationBarTitleDisplayMode(.large)
             .navigationDestination(for: EventKey.self) { key in
-                EventDetailView(key: key, today: model)
+                EventDetailView(key: key, today: model, initialAdding: launchAddSheet)
             }
         }
         .task { await model.start() }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { Task { await model.didBecomeActive() } }
         }
+    }
+
+    /// Debug launch argument so CI can screenshot the add sheet; always nil in release builds.
+    private var launchAddSheet: AddKind? {
+        #if DEBUG
+        return LaunchOptions.addSheet.flatMap(AddKind.init(rawValue:))
+        #else
+        return nil
+        #endif
     }
 }
 

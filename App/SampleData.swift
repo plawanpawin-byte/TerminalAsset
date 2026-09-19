@@ -7,6 +7,10 @@ import TerminalAssetDomain
 enum SampleData {
     private static let minute: TimeInterval = 60
 
+    /// One clock reading for the whole launch. Event keys embed the occurrence time, so seeding and any later
+    /// lookup must use the same reference time or they would address different events.
+    static let launchTime = Date()
+
     static func snapshots(now: Date, calendar: Calendar = .current) -> [CalendarEventSnapshot] {
         let startOfToday = calendar.startOfDay(for: now)
         let tomorrowMorning = (calendar.date(byAdding: .day, value: 1, to: startOfToday) ?? startOfToday)
@@ -19,6 +23,11 @@ enum SampleData {
             make("allday", "Audit week", start: startOfToday, minutes: 24 * 60, location: nil, allDay: true),
             make("board", "Board prep", start: tomorrowMorning, minutes: 60, location: "HQ")
         ]
+    }
+
+    /// Key of the sample event that is "happening now"; used to open its detail screen from a launch argument.
+    static func auditKey(now: Date = launchTime) -> EventKey {
+        key("audit", now: now)
     }
 
     static func seed(sync: CalendarSyncService, store: ContextStore, now: Date) async {

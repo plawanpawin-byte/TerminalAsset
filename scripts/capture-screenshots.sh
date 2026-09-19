@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-# Launches the built app in the iOS Simulator with demo data and saves light/dark screenshots.
+# Launches the built app in the iOS Simulator with demo data and saves one screenshot per screen.
 # Expects the app to be built with -derivedDataPath build. Run from the repo root.
 set -euo pipefail
 
 mkdir -p screenshots
+BUNDLE=com.terminalasset.app
 
 UDID=$(xcrun simctl list devices available -j | python3 -c '
 import json, sys
@@ -20,11 +21,30 @@ xcrun simctl bootstatus "$UDID" -b
 APP=$(find build/Build/Products -maxdepth 3 -name 'TerminalAsset.app' | head -1)
 xcrun simctl install "$UDID" "$APP"
 
-for mode in light dark; do
+# shot <name> <appearance> [launch arguments...]
+shot() {
+  local name="$1" mode="$2"
+  shift 2
   xcrun simctl ui "$UDID" appearance "$mode"
-  xcrun simctl terminate "$UDID" com.terminalasset.app || true
-  xcrun simctl launch "$UDID" com.terminalasset.app -sampleData
-  sleep 8
-  xcrun simctl io "$UDID" screenshot "screenshots/today-$mode.png"
-done
+  xcrun simctl terminate "$UDID" "$BUNDLE" 2>/dev/null || true
+  xcrun simctl launch "$UDID" "$BUNDLE" -sampleData "$@" >/dev/null
+  sleep 6
+  xcrun simctl io "$UDID" screenshot "screenshots/$name.png"
+}
+
+shot today-light light
+shot today-dark dark
+shot event-detail light -detail
+shot add-task light -detail -addSheet task
+shot search light -tab search
+shot search-results light -tab search -query audit
+shot inbox light -tab inbox
+shot prep light -tab prep
+shot prep-dark dark -tab prep
+shot prep-detail light -tab prep -prepDetail
+shot settings light -tab settings
+shot cloud-privacy light -tab settings -privacy
+shot paywall light -tab settings -paywall
+shot onboarding light -onboarding
+
 ls -la screenshots

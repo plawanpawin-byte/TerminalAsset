@@ -29,8 +29,9 @@ struct EventDetailView: View {
     @State private var model: EventDetailViewModel
     @State private var adding: AddKind?
 
-    init(key: EventKey, today: TodayViewModel) {
+    init(key: EventKey, today: TodayViewModel, initialAdding: AddKind? = nil) {
         _model = State(initialValue: today.makeDetailModel(for: key))
+        _adding = State(initialValue: initialAdding)
     }
 
     var body: some View {

@@ -12,7 +12,7 @@ struct TerminalAssetApp: App {
         WindowGroup {
             switch bootstrap {
             case .success(let model):
-                TodayView(model: model)
+                RootView(model: model)
             case .failure(let failure):
                 ContentUnavailableView {
                     Label("TerminalAsset can't start", systemImage: "exclamationmark.triangle")

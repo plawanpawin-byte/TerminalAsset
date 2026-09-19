@@ -30,7 +30,7 @@ enum AppBootstrap {
 
     #if DEBUG
     /// In-memory database, stub calendar and seeded context. Used by previews and `-sampleData` launches.
-    static func makeSampleModel(now: Date = .now) throws -> TodayViewModel {
+    static func makeSampleModel(now: Date = SampleData.launchTime) throws -> TodayViewModel {
         let container = try TemporalStore.makeContainer(inMemory: true)
         let sync = CalendarSyncService(
             repository: StubCalendarRepository(snapshots: SampleData.snapshots(now: now)),
