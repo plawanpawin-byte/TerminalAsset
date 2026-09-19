@@ -1,0 +1,37 @@
+name: TerminalAsset
+options:
+  bundleIdPrefix: com.terminalasset
+  deploymentTarget:
+    iOS: "18.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+packages:
+  TerminalAsset:
+    path: .
+targets:
+  TerminalAsset:
+    type: application
+    platform: iOS
+    sources:
+      - App
+    dependencies:
+      - package: TerminalAsset
+        product: TerminalAssetCore
+      - package: TerminalAsset
+        product: TerminalAssetDomain
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: TerminalAsset
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        NSCalendarsFullAccessUsageDescription: TerminalAsset reads your calendar on this device to show the context you need for each event. Your calendar data is never uploaded.
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.terminalasset.app
+        TARGETED_DEVICE_FAMILY: "1"
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"

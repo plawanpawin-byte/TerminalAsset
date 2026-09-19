@@ -6,3 +6,7 @@ DerivedData/
 .DS_Store
 GoogleService-Info.plist
 *.xcconfig.local
+*.xcodeproj/
+App/Info.plist
+build/
+screenshots/

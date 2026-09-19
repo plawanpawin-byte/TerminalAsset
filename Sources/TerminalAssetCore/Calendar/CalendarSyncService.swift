@@ -20,6 +20,11 @@ public actor CalendarSyncService {
         self.calendar = calendar
     }
 
+    /// Current permission without prompting, so the UI can explain before it asks.
+    public nonisolated func authorizationStatus() -> CalendarAuthorization {
+        repository.authorizationStatus()
+    }
+
     public func requestAccessIfNeeded() async throws -> CalendarAuthorization {
         let status = repository.authorizationStatus()
         guard status == .notDetermined else { return status }
@@ -43,24 +48,29 @@ public actor CalendarSyncService {
     }
 
     /// Syncs once, then again on every (coalesced) calendar change until the task is cancelled.
-    /// A failed re-sync is reported through `onFailure` and does not stop observation.
-    public func keepInSync(onFailure: @Sendable (SyncError) -> Void) async {
+    /// `onSynced` fires after every successful sync; a failed sync is reported through `onFailure`
+    /// and does not stop observation.
+    public func keepInSync(
+        onSynced: @Sendable (SyncReport) -> Void,
+        onFailure: @Sendable (SyncError) -> Void
+    ) async {
+        await syncAndReport(onSynced: onSynced, onFailure: onFailure)
+        for await _ in repository.storeChanges() {
+            if Task.isCancelled { return }
+            await syncAndReport(onSynced: onSynced, onFailure: onFailure)
+        }
+    }
+
+    private func syncAndReport(
+        onSynced: @Sendable (SyncReport) -> Void,
+        onFailure: @Sendable (SyncError) -> Void
+    ) async {
         do {
-            try await syncNow()
+            onSynced(try await syncNow())
         } catch let error as SyncError {
             onFailure(error)
         } catch {
             onFailure(.persistence(reason: error.localizedDescription))
-        }
-        for await _ in repository.storeChanges() {
-            if Task.isCancelled { return }
-            do {
-                try await syncNow()
-            } catch let error as SyncError {
-                onFailure(error)
-            } catch {
-                onFailure(.persistence(reason: error.localizedDescription))
-            }
         }
     }
 

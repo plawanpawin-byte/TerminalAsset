@@ -79,15 +79,58 @@ public final class TemporalEvent {
     }
 }
 
-/// The container of everything relevant to one event. Items (files, notes, links, tasks) attach here in the
-/// next slice; keeping the context separate from the event lets it survive event re-linking and series moves.
+/// The container of everything relevant to one event. Keeping the context separate from the event lets it
+/// survive event re-linking and series moves.
 @Model
 public final class TemporalContext {
     public var createdAt: Date
     public var event: TemporalEvent?
 
+    @Relationship(deleteRule: .cascade, inverse: \ContextItem.context)
+    public var items: [ContextItem] = []
+
     public init(createdAt: Date) {
         self.createdAt = createdAt
+    }
+}
+
+/// One note, link or task attached to a `TemporalContext`. Files, images and voice arrive with ingestion.
+@Model
+public final class ContextItem {
+    @Attribute(.unique) public var id: UUID
+    public var kindRaw: String
+    public var title: String
+    public var detail: String?
+    public var urlString: String?
+    public var isDone: Bool
+    public var createdAt: Date
+    public var context: TemporalContext?
+
+    public var kind: ContextItemKind {
+        get { ContextItemKind(rawValue: kindRaw) ?? .note }
+        set { kindRaw = newValue.rawValue }
+    }
+
+    public init(kind: ContextItemKind, title: String, detail: String?, urlString: String?, createdAt: Date) {
+        self.id = UUID()
+        self.kindRaw = kind.rawValue
+        self.title = title
+        self.detail = detail
+        self.urlString = urlString
+        self.isDone = false
+        self.createdAt = createdAt
+    }
+
+    var value: ContextItemValue {
+        ContextItemValue(
+            id: id,
+            kind: kind,
+            title: title,
+            detail: detail,
+            url: urlString.flatMap { URL(string: $0) },
+            isDone: isDone,
+            createdAt: createdAt
+        )
     }
 }
 #endif
