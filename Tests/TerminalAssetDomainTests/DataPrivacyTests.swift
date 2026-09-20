@@ -97,6 +97,12 @@ struct DataExportTests {
     @Test func fileNameCarriesTheDate() {
         #expect(DataExport.fileName(for: now, calendar: calendar) == "TerminalAsset-2027-01-15.json")
     }
+
+    @Test func fileNameUsesTheGregorianYearOnABuddhistCalendarDevice() {
+        var buddhist = Calendar(identifier: .buddhist)
+        buddhist.timeZone = calendar.timeZone
+        #expect(DataExport.fileName(for: now, calendar: buddhist) == "TerminalAsset-2027-01-15.json")
+    }
 }
 
 @Suite("SharedInbox storage")

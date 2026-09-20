@@ -67,7 +67,10 @@ public struct DataExport: Sendable, Equatable, Codable {
 
     /// "TerminalAsset-2027-01-15.json"
     public static func fileName(for date: Date, calendar: Calendar) -> String {
-        let parts = calendar.dateComponents([.year, .month, .day], from: date)
+        // The user's day, in the Gregorian calendar: on a Buddhist-calendar device the year would otherwise read 2570.
+        var gregorian = Calendar(identifier: .gregorian)
+        gregorian.timeZone = calendar.timeZone
+        let parts = gregorian.dateComponents([.year, .month, .day], from: date)
         let year = parts.year ?? 0, month = parts.month ?? 0, day = parts.day ?? 0
         return "TerminalAsset-\(String(format: "%04d-%02d-%02d", year, month, day)).json"
     }
