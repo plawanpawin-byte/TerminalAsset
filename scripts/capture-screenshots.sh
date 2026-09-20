@@ -69,6 +69,9 @@ shot ax-today light -weather clear
 shot ax-calendar light -tab calendar
 shot ax-add-event light -tab calendar -addEvent form
 shot ax-settings light -tab settings
+shot ax-inbox light -tab inbox
+shot ax-search light -tab search -query audit
+shot ax-event-detail light -detail
 xcrun simctl ui "$UDID" content_size large
 
 # The same screens in Thai, to check the translation fits and reads well.
