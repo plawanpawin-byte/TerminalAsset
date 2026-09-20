@@ -15,12 +15,14 @@ struct AppModel {
     let briefing: BriefingViewModel
     let settings: SettingsViewModel
     let reminders: PrepReminderViewModel
+    let widgets: WidgetPublisher
     let weather: WeatherViewModel
 
     /// Loads Today, then imports shared items (they may auto-attach to events, so events must exist first).
     func start() async {
         await today.start()
         await inbox.refresh()
+        await widgets.publish()
     }
 }
 
@@ -76,17 +78,19 @@ enum AppBootstrap {
         let search = SearchViewModel(store: store)
         #endif
         let briefing = BriefingViewModel(sync: sync, store: store)
+        let widgets = WidgetPublisher(store: store, directory: shared?.rootURL)
         let settings = SettingsViewModel(sync: sync, store: store, shared: shared) { [today, inbox, search, briefing] in
             search.clearRecentSearches()
             await today.reload()
             await inbox.refresh()
             await briefing.load()
             await search.loadCorpus()
+            await widgets.publish()
         }
         let reminders = PrepReminderViewModel(scheduler: scheduler)
         return AppModel(
             today: today, inbox: inbox, search: search, briefing: briefing, settings: settings,
-            reminders: reminders, weather: weather
+            reminders: reminders, widgets: widgets, weather: weather
         )
     }
 

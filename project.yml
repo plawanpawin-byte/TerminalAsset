@@ -22,6 +22,7 @@ targets:
       - package: TerminalAsset
         product: TerminalAssetDomain
       - target: ShareExtension
+      - target: WidgetExtension
     info:
       path: App/Info.plist
       properties:
@@ -73,6 +74,31 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.terminalasset.app.share
+        TARGETED_DEVICE_FAMILY: "1"
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+  WidgetExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - WidgetExtension
+    dependencies:
+      - package: TerminalAsset
+        product: TerminalAssetDomain
+    info:
+      path: WidgetExtension/Info.plist
+      properties:
+        CFBundleDisplayName: TerminalAsset
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: Config/WidgetExtension.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.terminalasset.app
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.terminalasset.app.widget
         TARGETED_DEVICE_FAMILY: "1"
         MARKETING_VERSION: "0.1.0"
         CURRENT_PROJECT_VERSION: "1"

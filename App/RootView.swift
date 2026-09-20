@@ -27,9 +27,12 @@ struct RootView: View {
             }
         }
         .task { await app.start() }
-        // Keeps the scheduled prep reminders in step with the calendar, whichever tab is showing.
+        // Keeps prep reminders and the home-screen widget in step with the calendar, whichever tab is showing.
         .onChange(of: app.today.events) { _, events in
-            Task { await app.reminders.refresh(events: events) }
+            Task {
+                await app.reminders.refresh(events: events)
+                await app.widgets.publish()
+            }
         }
         .onChange(of: scenePhase) { _, phase in
             // Items shared while the app was closed are waiting in the queue.

@@ -13,3 +13,4 @@ screenshots/
 ShareExtension/Info.plist
 Config/*.entitlements
 .tools/
+WidgetExtension/Info.plist
