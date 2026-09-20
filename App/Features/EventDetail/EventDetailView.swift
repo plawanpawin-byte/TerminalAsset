@@ -1,3 +1,4 @@
+import QuickLook
 import SwiftUI
 import TerminalAssetDomain
 
@@ -28,6 +29,8 @@ enum AddKind: String, Identifiable {
 struct EventDetailView: View {
     @State private var model: EventDetailViewModel
     @State private var adding: AddKind?
+    /// The attached file being previewed (Quick Look), if any.
+    @State private var previewing: URL?
     private let today: TodayViewModel
 
     init(key: EventKey, today: TodayViewModel, initialAdding: AddKind? = nil) {
@@ -77,6 +80,7 @@ struct EventDetailView: View {
         .sheet(item: $adding) { kind in
             AddContextSheet(kind: kind, model: model)
         }
+        .quickLookPreview($previewing)
         .alert("Something went wrong", isPresented: errorBinding) {
             Button("OK", role: .cancel) { model.errorMessage = nil }
         } message: {
@@ -164,8 +168,14 @@ struct EventDetailView: View {
         if !files.isEmpty {
             Section("Files") {
                 ForEach(files) { file in
-                    Label(file.title, systemImage: file.kind == .image ? "photo" : "doc")
-                        .swipeActions { deleteAction(file.id) }
+                    Button {
+                        previewing = model.attachmentURL(for: file)
+                    } label: {
+                        Label(file.title, systemImage: file.kind == .image ? "photo" : "doc")
+                            .foregroundStyle(.primary)
+                    }
+                    .accessibilityHint("Opens a preview")
+                    .swipeActions { deleteAction(file.id) }
                 }
             }
         }

@@ -13,12 +13,34 @@ final class EventDetailViewModel {
     let key: EventKey
 
     @ObservationIgnored private let store: ContextStore
+    @ObservationIgnored private let attachments: SharedInbox?
     @ObservationIgnored private let onChange: @MainActor () async -> Void
 
-    init(key: EventKey, store: ContextStore, onChange: @escaping @MainActor () async -> Void) {
+    init(
+        key: EventKey,
+        store: ContextStore,
+        attachments: SharedInbox? = nil,
+        onChange: @escaping @MainActor () async -> Void
+    ) {
         self.key = key
         self.store = store
+        self.attachments = attachments
         self.onChange = onChange
+    }
+
+    /// Where an attached file lives now, or nil (with a message) when it is gone. Files stay where the app stored
+    /// them; this only looks, it never moves or deletes anything.
+    func attachmentURL(for item: ContextItemValue) -> URL? {
+        guard let attachments, let path = item.fileName else {
+            errorMessage = String(localized: "The file for this item is missing.")
+            return nil
+        }
+        let url = attachments.attachmentURL(for: path)
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            errorMessage = String(localized: "The file for this item is missing.")
+            return nil
+        }
+        return url
     }
 
     func load() async {

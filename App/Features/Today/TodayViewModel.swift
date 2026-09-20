@@ -21,6 +21,7 @@ final class TodayViewModel {
     @ObservationIgnored private let sync: CalendarSyncService
     @ObservationIgnored private let store: ContextStore
     @ObservationIgnored private let calendar: Calendar
+    @ObservationIgnored private let attachments: SharedInbox?
     @ObservationIgnored private let prepare: (@Sendable () async -> Void)?
     @ObservationIgnored private var syncTask: Task<Void, Never>?
     @ObservationIgnored private var startTask: Task<Void, Never>?
@@ -29,11 +30,13 @@ final class TodayViewModel {
         sync: CalendarSyncService,
         store: ContextStore,
         calendar: Calendar = .current,
+        attachments: SharedInbox? = nil,
         prepare: (@Sendable () async -> Void)? = nil
     ) {
         self.sync = sync
         self.store = store
         self.calendar = calendar
+        self.attachments = attachments
         self.prepare = prepare
     }
 
@@ -128,7 +131,7 @@ final class TodayViewModel {
     }
 
     func makeDetailModel(for key: EventKey) -> EventDetailViewModel {
-        EventDetailViewModel(key: key, store: store) { [weak self] in
+        EventDetailViewModel(key: key, store: store, attachments: attachments) { [weak self] in
             await self?.reload()
         }
     }

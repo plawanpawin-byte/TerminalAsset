@@ -76,7 +76,7 @@ enum AppBootstrap {
         scheduler: any ReminderScheduler,
         prepare: (@Sendable () async -> Void)? = nil
     ) -> AppModel {
-        let today = TodayViewModel(sync: sync, store: store, prepare: prepare)
+        let today = TodayViewModel(sync: sync, store: store, attachments: shared, prepare: prepare)
         let inbox = InboxViewModel(store: store, shared: shared) { [today] in
             await today.reload()
         }

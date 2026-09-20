@@ -2546,6 +2546,17 @@
         }
       }
     },
+    "Opens a preview": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดตัวอย่าง"
+          }
+        }
+      }
+    },
     "Opens the calendar": {
       "extractionState": "manual",
       "localizations": {
