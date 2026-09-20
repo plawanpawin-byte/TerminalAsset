@@ -25,11 +25,12 @@ struct AssistantOrb: View {
                     )
                 )
 
-            // Rainbow light swept round the inside and softened to a glow.
+            // Rainbow light swept round the inside and softened to a glow. Present even at rest so the small
+            // orb still reads as Siri rather than a grey ball.
             Circle()
                 .fill(AngularGradient(colors: rainbow, center: .center))
-                .blur(radius: 26)
-                .opacity(active ? 0.95 : 0.7)
+                .blur(radius: 20)
+                .opacity(active ? 0.95 : 0.8)
                 .rotationEffect(.degrees(spin ? 360 : 0))
 
             // A bright horizontal light bar, like the reference sphere.

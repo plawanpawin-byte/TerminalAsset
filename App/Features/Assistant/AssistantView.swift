@@ -120,7 +120,9 @@ struct AssistantView: View {
 
     private var voiceLayer: some View {
         ZStack(alignment: .top) {
-            Color.black.opacity(0.55 * effective)
+            // Near-opaque when listening, so the feed fades out and the space below the orb reads as empty.
+            background
+                .opacity(min(1, effective * 1.4))
                 .ignoresSafeArea()
                 .allowsHitTesting(effective > 0.05)
                 .onTapGesture { collapse() }
