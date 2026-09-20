@@ -3,6 +3,7 @@ import TerminalAssetDomain
 
 struct TodayView: View {
     let model: TodayViewModel
+    let briefing: BriefingViewModel
     let weather: WeatherViewModel
 
     @Environment(\.scenePhase) private var scenePhase
@@ -12,11 +13,13 @@ struct TodayView: View {
 
     init(
         model: TodayViewModel,
+        briefing: BriefingViewModel,
         weather: WeatherViewModel,
         initialPath: [EventKey] = [],
         initialCalendar: CalendarViewModel.Mode? = nil
     ) {
         self.model = model
+        self.briefing = briefing
         self.weather = weather
         _path = State(initialValue: initialPath)
         _showingCalendar = State(initialValue: initialCalendar != nil)
@@ -47,7 +50,7 @@ struct TodayView: View {
                         Button("Try Again") { Task { await model.reload() } }
                     }
                 case .ready:
-                    TodayContent(model: model, weather: weather, sky: sky) {
+                    TodayContent(model: model, briefing: briefing, weather: weather, sky: sky) {
                         showingCalendar = true
                     }
                 }
@@ -65,13 +68,16 @@ struct TodayView: View {
         }
         .task { await model.start() }
         .task { await weather.reconcile() }
+        .task { await briefing.load() }
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
             Task {
                 await model.didBecomeActive()
                 await weather.reconcile()
+                await briefing.load()
             }
         }
+        .onChange(of: model.events) { Task { await briefing.load() } }
     }
 
     @ViewBuilder
@@ -100,6 +106,7 @@ enum TodaySection: String, Hashable {
 
 private struct TodayContent: View {
     let model: TodayViewModel
+    let briefing: BriefingViewModel
     let weather: WeatherViewModel
     let sky: SkyStyle?
     let openCalendar: () -> Void
@@ -141,6 +148,10 @@ private struct TodayContent: View {
 
                         if !snapshot.allDay.isEmpty {
                             AllDayStrip(entries: snapshot.allDay)
+                        }
+
+                        if !briefing.briefing.looseEnds.isEmpty {
+                            looseEnds(events: briefing.briefing.looseEnds, now: context.date)
                         }
 
                         if !snapshot.timeline.isEmpty {
@@ -208,6 +219,67 @@ private struct TodayContent: View {
             .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
     }
+
+    /// Past events that still have open tasks: a friendly "you left this behind" nudge. Grouped section
+    /// so it reads as its own thing, above the day's schedule.
+    private func looseEnds(events: [TimelineEvent], now: Date) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Loose ends")
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(outerText)
+                .padding(.horizontal, 4)
+
+            VStack(spacing: 0) {
+                ForEach(Array(events.enumerated()), id: \.element.id) { index, event in
+                    NavigationLink(value: event.key) {
+                        LooseEndRow(event: event, now: now)
+                    }
+                    .buttonStyle(.plain)
+                    if index < events.count - 1 {
+                        Divider().padding(.leading, 44)
+                    }
+                }
+            }
+            .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        }
+    }
+}
+
+private struct LooseEndRow: View {
+    let event: TimelineEvent
+    let now: Date
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "checklist")
+                .font(.body.weight(.semibold))
+                .foregroundStyle(.orange)
+                .frame(width: 22)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(event.title)
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+                Text(subtitle)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            Spacer(minLength: 0)
+            Image(systemName: "chevron.right")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.tertiary)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .contentShape(Rectangle())
+    }
+
+    private var subtitle: String {
+        let open = event.summary.openTasks
+        let tasks = "\(open) task\(open == 1 ? "" : "s") open"
+        return "\(tasks) · \(TimeText.relative(event.endDate, to: now))"
+    }
 }
 
 private struct AllDayStrip: View {
@@ -235,13 +307,13 @@ private struct AllDayStrip: View {
 #if DEBUG
 #Preview("Today · sample") {
     if let app = try? AppBootstrap.makeSampleModel() {
-        TodayView(model: app.today, weather: app.weather)
+        TodayView(model: app.today, briefing: app.briefing, weather: app.weather)
     }
 }
 
 #Preview("Today · dark") {
     if let app = try? AppBootstrap.makeSampleModel() {
-        TodayView(model: app.today, weather: app.weather)
+        TodayView(model: app.today, briefing: app.briefing, weather: app.weather)
             .preferredColorScheme(.dark)
     }
 }

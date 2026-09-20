@@ -12,7 +12,7 @@ struct AppModel {
     let today: TodayViewModel
     let inbox: InboxViewModel
     let search: SearchViewModel
-    let assistant: AssistantViewModel
+    let briefing: BriefingViewModel
     let weather: WeatherViewModel
 
     /// Loads Today, then imports shared items (they may auto-attach to events, so events must exist first).
@@ -69,8 +69,8 @@ enum AppBootstrap {
         #else
         let search = SearchViewModel(store: store)
         #endif
-        let assistant = AssistantViewModel(sync: sync, store: store)
-        return AppModel(today: today, inbox: inbox, search: search, assistant: assistant, weather: weather)
+        let briefing = BriefingViewModel(sync: sync, store: store)
+        return AppModel(today: today, inbox: inbox, search: search, briefing: briefing, weather: weather)
     }
 
     #if DEBUG

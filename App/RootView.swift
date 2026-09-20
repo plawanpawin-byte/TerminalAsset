@@ -38,10 +38,19 @@ struct RootView: View {
             Tab("Today", systemImage: "calendar.day.timeline.left", value: AppTab.today) {
                 TodayView(
                     model: app.today,
+                    briefing: app.briefing,
                     weather: app.weather,
                     initialPath: initialTodayPath,
                     initialCalendar: initialCalendarMode
                 )
+            }
+            Tab("Calendar", systemImage: "calendar", value: AppTab.calendar) {
+                NavigationStack {
+                    CalendarScreen(today: app.today, mode: .month)
+                        .navigationDestination(for: EventKey.self) { key in
+                            EventDetailView(key: key, today: app.today)
+                        }
+                }
             }
             Tab("Search", systemImage: "magnifyingglass", value: AppTab.search) {
                 SearchView(model: app.search, today: app.today)
@@ -50,9 +59,6 @@ struct RootView: View {
                 InboxView(model: app.inbox)
             }
             .badge(app.inbox.items.count)
-            Tab("Assistant", systemImage: "sparkles", value: AppTab.assistant) {
-                AssistantView(model: app.assistant, today: app.today)
-            }
             Tab("Settings", systemImage: "gearshape", value: AppTab.settings) {
                 SettingsView()
             }

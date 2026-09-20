@@ -1,7 +1,7 @@
 import Foundation
 
 enum AppTab: String, Hashable {
-    case today, search, inbox, assistant, settings
+    case today, search, inbox, calendar, settings
 }
 
 #if DEBUG

@@ -49,7 +49,9 @@ enum SampleData {
             try await add(store, vendor, .task, "Review questionnaire answers", now: now)
             try await add(store, vendor, .link, "Vendor portal", url: "example.com/vendors", now: now)
 
-            try await add(store, key("standup", now: now), .note, "Blocked on access request", now: now)
+            let standup = key("standup", now: now)
+            try await add(store, standup, .note, "Blocked on access request", now: now)
+            try await add(store, standup, .task, "Share notes with the team", now: now)
         } catch {
             // Demo data is best-effort; the app still runs with whatever was seeded.
             return
