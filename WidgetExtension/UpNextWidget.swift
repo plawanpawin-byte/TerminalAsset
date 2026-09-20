@@ -9,7 +9,8 @@ struct UpNextIntent: WidgetConfigurationIntent {
     static let description = IntentDescription("Shows the event in progress or coming next, and what to prepare.")
 }
 
-struct UpNextEntry: TimelineEntry {
+/// Qualified: TerminalAssetDomain also has a `TimelineEntry` (for the Today screen).
+struct UpNextEntry: WidgetKit.TimelineEntry {
     let date: Date
     /// Nil when the app has not written a snapshot yet (before first launch, or after deleting all data).
     let snapshot: WidgetSnapshot?

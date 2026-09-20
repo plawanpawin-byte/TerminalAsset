@@ -29,11 +29,13 @@ public actor ContextStore {
     /// Deletes everything the app stored: events, their context items and the share history. The calendar itself
     /// is untouched, so events reappear (without context) at the next sync. Only used by "Delete all data".
     public func eraseEverything() throws {
+        // Object by object, not `delete(model:)`: the batch delete cannot cross the required event → context → item
+        // relationships and fails with a constraint violation.
         try perform {
-            try modelContext.delete(model: ContextItem.self)
-            try modelContext.delete(model: TemporalContext.self)
-            try modelContext.delete(model: TemporalEvent.self)
-            try modelContext.delete(model: InboxEntry.self)
+            for item in try modelContext.fetch(FetchDescriptor<ContextItem>()) { modelContext.delete(item) }
+            for context in try modelContext.fetch(FetchDescriptor<TemporalContext>()) { modelContext.delete(context) }
+            for event in try modelContext.fetch(FetchDescriptor<TemporalEvent>()) { modelContext.delete(event) }
+            for entry in try modelContext.fetch(FetchDescriptor<InboxEntry>()) { modelContext.delete(entry) }
             try modelContext.save()
         }
     }
