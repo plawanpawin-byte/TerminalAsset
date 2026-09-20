@@ -101,7 +101,7 @@ struct TodayView: View {
 
 /// Scroll targets on Today.
 enum TodaySection: String, Hashable {
-    case widgets, hourly, daily, details
+    case widgets, hourly, looseEnds, daily, details
 }
 
 private struct TodayContent: View {
@@ -152,6 +152,7 @@ private struct TodayContent: View {
 
                         if !briefing.briefing.looseEnds.isEmpty {
                             looseEnds(events: briefing.briefing.looseEnds, now: context.date)
+                                .id(TodaySection.looseEnds)
                         }
 
                         if !snapshot.timeline.isEmpty {

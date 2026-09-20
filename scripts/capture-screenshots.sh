@@ -36,6 +36,7 @@ shot today-light light
 shot today-dark dark
 shot weather-clear light -weather clear
 shot today-hourly light -weather rain -todaySection hourly
+shot today-loose-ends light -todaySection looseEnds
 shot today-daily light -weather partlyCloudy -todaySection daily
 shot today-details dark -weather clear -night -todaySection details
 shot weather-rain light -weather rain
