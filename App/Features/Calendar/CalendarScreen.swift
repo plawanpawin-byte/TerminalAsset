@@ -4,9 +4,13 @@ import TerminalAssetDomain
 /// Full calendar, opened from the tile on Today: a month grid with the selected day's agenda underneath,
 /// or a day view with an hour grid. Events open the same detail screen as everywhere else.
 struct CalendarScreen: View {
+    private let today: TodayViewModel
     @State private var model: CalendarViewModel
+    /// Set while the New Event form is open. Held here so the form keeps its state while the screen redraws.
+    @State private var adding: AddEventViewModel?
 
     init(today: TodayViewModel, mode: CalendarViewModel.Mode) {
+        self.today = today
         _model = State(initialValue: today.makeCalendarModel(mode: mode))
     }
 
@@ -38,19 +42,55 @@ struct CalendarScreen: View {
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItemGroup(placement: .topBarTrailing) {
                 Button {
                     Task { await model.goToToday() }
                 } label: {
                     Label("Go to today", systemImage: "calendar.circle")
                 }
+                Button {
+                    presentAddEvent()
+                } label: {
+                    Label("Add event", systemImage: "plus")
+                }
             }
         }
-        .task { await model.onAppear() }
+        .sheet(item: $adding) { form in
+            AddEventView(model: form)
+        }
+        .task {
+            await model.onAppear()
+            #if DEBUG
+            await runLaunchAddEvent()
+            #endif
+        }
     }
 
     /// The month or day is already shown in the screen itself, so the bar only names the screen.
     private var title: String { "Calendar" }
+
+    @discardableResult
+    private func presentAddEvent() -> AddEventViewModel {
+        let calendarModel = model
+        let form = today.makeAddEventModel(day: calendarModel.selectedDay) { start in
+            await calendarModel.eventAdded(on: start)
+        }
+        adding = form
+        return form
+    }
+
+    #if DEBUG
+    /// `-addEvent form|submit`: lets CI screenshot the form, or the calendar after an event was added, without taps.
+    private func runLaunchAddEvent() async {
+        guard let mode = LaunchOptions.addEvent else { return }
+        let form = presentAddEvent()
+        form.draft.title = "Dentist appointment"
+        form.draft.location = "Bangkok Hospital"
+        await form.loadCalendars()
+        guard mode == "submit" else { return }
+        if await form.save() { adding = nil }
+    }
+    #endif
 }
 
 // MARK: - Month

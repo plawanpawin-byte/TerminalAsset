@@ -29,7 +29,7 @@ targets:
         UILaunchScreen: {}
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
-        NSCalendarsFullAccessUsageDescription: TerminalAsset reads your calendar on this device to show the context you need for each event. Your calendar data is never uploaded.
+        NSCalendarsFullAccessUsageDescription: TerminalAsset reads your calendar on this device to show the context you need for each event, and adds events to it when you create them. Your calendar data is never uploaded.
         NSLocationWhenInUseUsageDescription: TerminalAsset uses your approximate location to show the weather for where you are. Only a rounded coordinate is sent to the weather service.
     entitlements:
       path: Config/TerminalAsset.entitlements

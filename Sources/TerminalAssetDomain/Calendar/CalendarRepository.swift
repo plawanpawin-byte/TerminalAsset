@@ -18,6 +18,13 @@ public protocol CalendarRepository: Sendable {
     /// Occurrences overlapping `interval`. Throws `CalendarError.permissionDenied` (or a sibling) without access.
     func events(in interval: DateInterval) async throws -> [CalendarEventSnapshot]
 
+    /// Calendars that accept new events, for the "which calendar" choice. Throws without calendar access.
+    func writableCalendars() async throws -> [CalendarInfo]
+
+    /// Adds a one-off event and returns it as the calendar stored it. Throws `CalendarError.noWritableCalendar` or
+    /// `.calendarNotFound` when there is nowhere to put it, and `.writeFailed` if the system rejects the save.
+    func createEvent(_ event: ValidatedNewEvent) async throws -> CalendarEventSnapshot
+
     /// Emits whenever the system calendar changed. Coalesced: bursts collapse into a single element.
     func storeChanges() -> AsyncStream<Void>
 }

@@ -85,6 +85,12 @@ final class CalendarViewModel {
         await ensureLoaded(around: day)
     }
 
+    /// Called after an event was added: forgets what was loaded so the new event is read, and shows its day.
+    func eventAdded(on day: Date) async {
+        loadedRange = nil
+        await select(day)
+    }
+
     func goToToday(now: Date = .now) async {
         await select(now)
     }

@@ -51,6 +51,8 @@ shot search light -tab search
 shot search-results light -tab search -query audit
 shot inbox light -tab inbox
 shot calendar-tab light -tab calendar
+shot add-event light -tab calendar -addEvent form
+shot add-event-saved light -tab calendar -addEvent submit
 shot settings light -tab settings
 shot cloud-privacy light -tab settings -privacy
 shot paywall light -tab settings -paywall

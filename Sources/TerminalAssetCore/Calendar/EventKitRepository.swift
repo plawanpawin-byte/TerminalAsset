@@ -31,6 +31,50 @@ public actor EventKitRepository: CalendarRepository {
         return store.events(matching: predicate).compactMap(Self.snapshot(from:))
     }
 
+    public func writableCalendars() async throws -> [CalendarInfo] {
+        try Self.requireWriteAccess(authorizationStatus())
+        let defaultID = store.defaultCalendarForNewEvents?.calendarIdentifier
+        return store.calendars(for: .event)
+            .filter(\.allowsContentModifications)
+            .map { CalendarInfo(id: $0.calendarIdentifier, title: $0.title, isDefault: $0.calendarIdentifier == defaultID) }
+    }
+
+    public func createEvent(_ newEvent: ValidatedNewEvent) async throws -> CalendarEventSnapshot {
+        try Self.requireWriteAccess(authorizationStatus())
+
+        let target: EKCalendar
+        if let id = newEvent.calendarID {
+            guard let chosen = store.calendar(withIdentifier: id), chosen.allowsContentModifications else {
+                throw CalendarError.calendarNotFound
+            }
+            target = chosen
+        } else if let fallback = store.defaultCalendarForNewEvents, fallback.allowsContentModifications {
+            target = fallback
+        } else if let any = store.calendars(for: .event).first(where: \.allowsContentModifications) {
+            target = any
+        } else {
+            throw CalendarError.noWritableCalendar
+        }
+
+        let event = EKEvent(eventStore: store)
+        event.calendar = target
+        event.title = newEvent.title
+        event.isAllDay = newEvent.isAllDay
+        event.startDate = newEvent.start
+        event.endDate = newEvent.end
+        event.location = newEvent.location
+
+        do {
+            try store.save(event, span: .thisEvent, commit: true)
+        } catch {
+            throw CalendarError.writeFailed(reason: error.localizedDescription)
+        }
+        guard let snapshot = Self.snapshot(from: event) else {
+            throw CalendarError.writeFailed(reason: "The saved event has no dates.")
+        }
+        return snapshot
+    }
+
     public nonisolated func storeChanges() -> AsyncStream<Void> {
         AsyncStream(bufferingPolicy: .bufferingNewest(1)) { continuation in
             let task = Task {
@@ -69,6 +113,16 @@ public actor EventKitRepository: CalendarRepository {
         case .writeOnly: .writeOnly
         case .fullAccess: .fullAccess
         default: .denied
+        }
+    }
+
+    /// Writing works with full access and with write-only access.
+    private static func requireWriteAccess(_ status: CalendarAuthorization) throws {
+        switch status {
+        case .fullAccess, .writeOnly: return
+        case .notDetermined: throw CalendarError.permissionNotDetermined
+        case .restricted: throw CalendarError.permissionRestricted
+        case .denied: throw CalendarError.permissionDenied
         }
     }
 

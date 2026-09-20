@@ -17,6 +17,8 @@ enum LaunchOptions {
     static var showPaywall: Bool { arguments.contains("-paywall") }
     static var openDetail: Bool { arguments.contains("-detail") }
     static var addSheet: String? { defaults.string(forKey: "addSheet") }
+    /// `-addEvent form` opens the New Event form filled in; `-addEvent submit` also saves it.
+    static var addEvent: String? { defaults.string(forKey: "addEvent") }
     static var privacyDetail: Bool { arguments.contains("-privacy") }
     static var isSampleMode: Bool { arguments.contains("-sampleData") }
     /// `-weather rain` (any `WeatherCondition` raw value) shows a fixed sample forecast.

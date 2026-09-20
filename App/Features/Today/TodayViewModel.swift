@@ -119,6 +119,14 @@ final class TodayViewModel {
         CalendarViewModel(sync: sync, store: store, mode: mode, calendar: calendar)
     }
 
+    /// `onCreated` runs after Today has reloaded, with the start of the new event.
+    func makeAddEventModel(day: Date, onCreated: @escaping @MainActor (Date) async -> Void) -> AddEventViewModel {
+        AddEventViewModel(sync: sync, calendar: calendar, day: day) { [weak self] start in
+            await self?.reload()
+            await onCreated(start)
+        }
+    }
+
     func makeDetailModel(for key: EventKey) -> EventDetailViewModel {
         EventDetailViewModel(key: key, store: store) { [weak self] in
             await self?.reload()
@@ -167,6 +175,12 @@ final class TodayViewModel {
             return "That event is no longer in your calendar."
         case .storeUnavailable:
             return "Your calendar isn't available right now."
+        case .noWritableCalendar:
+            return "None of your calendars can take new events."
+        case .calendarNotFound:
+            return "That calendar is no longer available. Choose another one."
+        case .writeFailed:
+            return "Couldn't save the event to your calendar. Please try again."
         }
     }
 }

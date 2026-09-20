@@ -53,6 +53,33 @@ public actor CalendarSyncService {
         return try await store.apply(snapshots: snapshots, window: window, now: now)
     }
 
+    /// Calendars the user can add events to, default first.
+    public func writableCalendars() async throws -> [CalendarInfo] {
+        do {
+            let calendars = try await repository.writableCalendars()
+            return calendars.filter(\.isDefault) + calendars.filter { !$0.isDefault }
+        } catch let error as CalendarError {
+            throw SyncError.calendar(error)
+        }
+    }
+
+    /// Writes the event to the system calendar, then syncs the days it covers so it is in the app straight away
+    /// (with the same identity a later sync would give it, so nothing is duplicated). Returns that identity.
+    @discardableResult
+    public func createEvent(_ event: ValidatedNewEvent) async throws -> EventKey {
+        let snapshot: CalendarEventSnapshot
+        do {
+            snapshot = try await repository.createEvent(event)
+        } catch let error as CalendarError {
+            throw SyncError.calendar(error)
+        }
+        let start = calendar.startOfDay(for: snapshot.startDate)
+        let lastDay = calendar.startOfDay(for: max(snapshot.startDate, snapshot.endDate))
+        let end = calendar.date(byAdding: .day, value: 1, to: lastDay) ?? lastDay.addingTimeInterval(86_400)
+        try await sync(window: DateInterval(start: start, end: max(start, end)))
+        return EventIdentity.key(for: snapshot)
+    }
+
     /// Syncs once, then again on every (coalesced) calendar change until the task is cancelled.
     /// `onSynced` fires after every successful sync; a failed sync is reported through `onFailure`
     /// and does not stop observation.
