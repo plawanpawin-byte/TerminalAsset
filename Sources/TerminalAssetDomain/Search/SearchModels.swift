@@ -46,6 +46,9 @@ public struct SearchDocument: Sendable, Hashable, Identifiable {
     public let eventIsAllDay: Bool
     public let createdAt: Date
     public let isDone: Bool
+    /// False once the event has disappeared from the calendar. Its context stays searchable (it is the user's), but it
+    /// is never "relevant now": pointing the user at a meeting that was cancelled would be wrong.
+    public let isEventActive: Bool
 
     public init(
         id: String,
@@ -58,7 +61,8 @@ public struct SearchDocument: Sendable, Hashable, Identifiable {
         eventEnd: Date,
         eventIsAllDay: Bool = false,
         createdAt: Date,
-        isDone: Bool = false
+        isDone: Bool = false,
+        isEventActive: Bool = true
     ) {
         self.id = id
         self.kind = kind
@@ -71,6 +75,7 @@ public struct SearchDocument: Sendable, Hashable, Identifiable {
         self.eventIsAllDay = eventIsAllDay
         self.createdAt = createdAt
         self.isDone = isDone
+        self.isEventActive = isEventActive
     }
 }
 
@@ -92,6 +97,7 @@ public struct SearchSignal: Sendable, Hashable {
         case eventStartsInMinutes(Int)
         case eventStartsInHours(Int)
         case eventStartsTomorrow
+        case eventStartsInDays(Int)
         case eventWasEarlierToday
         case eventWasYesterday
         case eventWasDaysAgo(Int)

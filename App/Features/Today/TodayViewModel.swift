@@ -95,6 +95,9 @@ final class TodayViewModel {
     }
 
     func reload(now: Date = .now) async {
+        // Without calendar access Today keeps asking for it. A reload triggered from elsewhere (Settings, the
+        // Inbox) must not flip it to an empty "A clear day".
+        if case .needsPermission = phase, sync.authorizationStatus() != .fullAccess { return }
         let start = calendar.startOfDay(for: now)
         guard let end = calendar.date(byAdding: .day, value: 2, to: start) else { return }
         do {

@@ -40,10 +40,16 @@ struct ShareView: View {
 
     @ViewBuilder
     private var contentSections: some View {
-        Section("Sharing") {
+        Section {
             ForEach(Array(model.contents.enumerated()), id: \.offset) { _, content in
                 Label(content.title, systemImage: symbol(for: content))
                     .lineLimit(2)
+            }
+        } header: {
+            Text("Sharing")
+        } footer: {
+            if model.skipped > 0 {
+                Text("\(model.skipped) items couldn't be read and won't be added.")
             }
         }
 

@@ -5,6 +5,8 @@ struct SearchView: View {
     @Bindable var model: SearchViewModel
     let today: TodayViewModel
 
+    @Environment(\.scenePhase) private var scenePhase
+
     var body: some View {
         NavigationStack {
             List {
@@ -36,6 +38,17 @@ struct SearchView: View {
                 EventDetailView(key: key, today: today)
             }
             .task { await model.loadCorpus() }
+            // "Relevant now" and the time wording go stale as the day goes on, even if nothing else changed:
+            // refresh when the app comes back and every minute while this tab is showing.
+            .onChange(of: scenePhase) { _, phase in
+                if phase == .active { Task { await model.loadCorpus() } }
+            }
+            .task {
+                while !Task.isCancelled {
+                    try? await Task.sleep(for: .seconds(60))
+                    await model.refreshRelevance()
+                }
+            }
             // The first calendar sync (or a share attached from the Inbox) can finish after this screen first
             // loaded, so the searchable corpus is rebuilt whenever Today's data changes.
             .onChange(of: today.events) {
@@ -203,6 +216,7 @@ extension SearchSignal.Reason {
         case .eventStartsInMinutes(let minutes): String(localized: "Event starts in \(minutes) min")
         case .eventStartsInHours(let hours): String(localized: "Event starts in \(hours) h")
         case .eventStartsTomorrow: String(localized: "Event starts tomorrow")
+        case .eventStartsInDays(let days): String(localized: "Event starts in \(days) days")
         case .eventWasEarlierToday: String(localized: "Event was earlier today")
         case .eventWasYesterday: String(localized: "Event was yesterday")
         case .eventWasDaysAgo(let days): String(localized: "Event was \(days) days ago")

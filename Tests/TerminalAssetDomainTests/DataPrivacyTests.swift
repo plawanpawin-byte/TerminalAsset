@@ -180,6 +180,38 @@ struct SharedInboxStorageTests {
         #expect(path.hasSuffix("/file"))
     }
 
+    @Test func aTruncatedLeftoverCopyIsNeverMistakenForTheFile() throws {
+        let inbox = try makeInbox()
+        let source = inbox.rootURL.appendingPathComponent("src/big.bin")
+        try write(1000, to: source)
+        let manifest = try inbox.enqueue(InboxDraft(kind: .file, title: "big.bin"), payload: source)
+
+        // A previous run was killed half-way and left a partial copy under the hidden temporary name.
+        let folder = inbox.attachmentsDirectory.appendingPathComponent(manifest.id.uuidString, isDirectory: true)
+        try write(10, to: folder.appendingPathComponent(".big.bin.part"))
+
+        let item = try #require(try inbox.pending().items.first)
+        let path = try #require(try inbox.storeAttachment(for: item))
+
+        // The complete file is what is stored, and the leftover is gone.
+        #expect(inbox.attachmentsSize() == 1000)
+        #expect(FileManager.default.fileExists(atPath: inbox.attachmentURL(for: path).path))
+    }
+
+    @Test func stagingFoldersAreRemovedOnlyOnceTheyAreStale() throws {
+        let inbox = try makeInbox()
+        let staging = inbox.inboxDirectory.appendingPathComponent(".tmp-half-written", isDirectory: true)
+        try write(5, to: staging.appendingPathComponent("payload"))
+
+        // Just created: a share sheet may still be writing it.
+        _ = try inbox.pending(now: Date())
+        #expect(FileManager.default.fileExists(atPath: staging.path))
+
+        // Two hours on, nothing can still be writing it.
+        _ = try inbox.pending(now: Date().addingTimeInterval(2 * 3600))
+        #expect(!FileManager.default.fileExists(atPath: staging.path))
+    }
+
     @Test func eraseAllWithNothingStoredIsHarmless() throws {
         try makeInbox().eraseAll()
     }

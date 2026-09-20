@@ -56,17 +56,19 @@ struct ItemExtractor {
             return SharedContent(title: file.lastPathComponent, payload: .file(file, isImage: true))
         }
 
-        if isFileURL || provider.hasItemConformingToTypeIdentifier(UTType.data.identifier) {
-            let typeIdentifier = isFileURL ? UTType.fileURL.identifier : UTType.data.identifier
-            let file = try await loadFile(from: provider, typeIdentifier: typeIdentifier)
-            return SharedContent(title: file.lastPathComponent, payload: .file(file, isImage: false))
-        }
-
-        if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
+        // Text comes before the generic "data" check: plain text conforms to data too, so testing data first
+        // would turn every shared paragraph into a file. A text *file* (a file URL) still stays a file.
+        if !isFileURL, provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
             let text = try await loadObject(String.self, from: provider)
             let firstLine = text.split(whereSeparator: \.isNewline).first.map(String.init) ?? text
             let title = firstLine.count > 60 ? String(firstLine.prefix(60)) + "…" : firstLine
             return SharedContent(title: title.isEmpty ? String(localized: "Shared text") : title, payload: .text(text))
+        }
+
+        if isFileURL || provider.hasItemConformingToTypeIdentifier(UTType.data.identifier) {
+            let typeIdentifier = isFileURL ? UTType.fileURL.identifier : UTType.data.identifier
+            let file = try await loadFile(from: provider, typeIdentifier: typeIdentifier)
+            return SharedContent(title: file.lastPathComponent, payload: .file(file, isImage: false))
         }
 
         throw ExtractionError.unreadable

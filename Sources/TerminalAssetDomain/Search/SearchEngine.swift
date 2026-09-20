@@ -25,6 +25,7 @@ public enum SearchEngine {
         scope: SearchScope,
         in documents: [SearchDocument],
         now: Date,
+        calendar: Calendar = .current,
         limit: Int = 50
     ) -> [SearchHit] {
         let queryWords = words(in: text).filter { $0.count >= 2 || $0.allSatisfy(\.isNumber) }
@@ -33,13 +34,15 @@ public enum SearchEngine {
         var hits: [SearchHit] = []
         for document in documents where scope == .all || document.kind.scope == scope {
             guard let match = lexicalMatch(queryWords, in: document) else { continue }
-            let temporal = temporalWeight(of: document, at: now)
+            let temporal = temporalWeight(of: document, at: now, calendar: calendar)
             let recency = recencyWeight(of: document, at: now)
             let score = match.score * (0.55 + 0.30 * temporal.weight + 0.15 * recency)
 
             var signals = [SearchSignal(kind: .match, reason: match.reason)]
             if let reason = temporal.reason { signals.append(SearchSignal(kind: .temporal, reason: reason)) }
-            if let reason = recencyReason(of: document, at: now) { signals.append(SearchSignal(kind: .recent, reason: reason)) }
+            if let reason = recencyReason(of: document, at: now, calendar: calendar) {
+                signals.append(SearchSignal(kind: .recent, reason: reason))
+            }
 
             hits.append(SearchHit(
                 document: document,
@@ -53,17 +56,25 @@ public enum SearchEngine {
 
     /// "What is relevant now?": open context attached to the event running now or starting soon.
     /// Used before the user types anything.
-    public static func relevantNow(in documents: [SearchDocument], now: Date, limit: Int = 3) -> [SearchHit] {
+    public static func relevantNow(
+        in documents: [SearchDocument],
+        now: Date,
+        calendar: Calendar = .current,
+        limit: Int = 3
+    ) -> [SearchHit] {
         var hits: [SearchHit] = []
-        for document in documents where document.kind != .event && !(document.kind == .task && document.isDone) {
-            let temporal = temporalWeight(of: document, at: now)
+        for document in documents
+        where document.kind != .event && !(document.kind == .task && document.isDone) && document.isEventActive {
+            let temporal = temporalWeight(of: document, at: now, calendar: calendar)
             // Only the running event and upcoming events count; the recent past is not "now".
             guard temporal.isCurrentOrUpcoming else { continue }
             let recency = recencyWeight(of: document, at: now)
 
             var signals: [SearchSignal] = []
             if let reason = temporal.reason { signals.append(SearchSignal(kind: .temporal, reason: reason)) }
-            if let reason = recencyReason(of: document, at: now) { signals.append(SearchSignal(kind: .recent, reason: reason)) }
+            if let reason = recencyReason(of: document, at: now, calendar: calendar) {
+                signals.append(SearchSignal(kind: .recent, reason: reason))
+            }
 
             hits.append(SearchHit(
                 document: document,
@@ -142,7 +153,7 @@ public enum SearchEngine {
         let isCurrentOrUpcoming: Bool
     }
 
-    private static func temporalWeight(of document: SearchDocument, at now: Date) -> TemporalWeight {
+    private static func temporalWeight(of document: SearchDocument, at now: Date, calendar: Calendar) -> TemporalWeight {
         if document.eventStart <= now && now < document.eventEnd {
             return TemporalWeight(weight: 1.0, reason: .eventHappeningNow, isCurrentOrUpcoming: true)
         }
@@ -152,25 +163,42 @@ public enum SearchEngine {
                 return TemporalWeight(weight: 0.1, reason: nil, isCurrentOrUpcoming: false)
             }
             let weight = 0.9 - 0.5 * (hours / 48)
-            return TemporalWeight(weight: weight, reason: futureReason(hours: hours), isCurrentOrUpcoming: true)
+            return TemporalWeight(
+                weight: weight,
+                reason: futureReason(hours: hours, days: dayOffset(from: now, to: document.eventStart, calendar: calendar)),
+                isCurrentOrUpcoming: true
+            )
         }
         let daysAgo = now.timeIntervalSince(document.eventEnd) / 86_400
         if daysAgo <= 7 {
-            return TemporalWeight(weight: 0.4, reason: pastReason(days: daysAgo), isCurrentOrUpcoming: false)
+            return TemporalWeight(
+                weight: 0.4,
+                reason: pastReason(days: -dayOffset(from: now, to: document.eventEnd, calendar: calendar)),
+                isCurrentOrUpcoming: false
+            )
         }
         return TemporalWeight(weight: 0.1, reason: nil, isCurrentOrUpcoming: false)
     }
 
-    private static func futureReason(hours: Double) -> SearchSignal.Reason {
-        if hours < 1 { return .eventStartsInMinutes(max(1, Int((hours * 60).rounded()))) }
-        if hours < 24 { return .eventStartsInHours(Int(hours.rounded())) }
-        return .eventStartsTomorrow
+    /// How many calendar days `date` is from `now` (0 = the same day, 1 = tomorrow, -1 = yesterday). Wording follows
+    /// the calendar, not elapsed hours: 11 hours ago can be yesterday, and 46 hours ahead can be the day after tomorrow.
+    private static func dayOffset(from now: Date, to date: Date, calendar: Calendar) -> Int {
+        let start = calendar.startOfDay(for: now)
+        let target = calendar.startOfDay(for: date)
+        return calendar.dateComponents([.day], from: start, to: target).day ?? 0
     }
 
-    private static func pastReason(days: Double) -> SearchSignal.Reason {
-        if days < 1 { return .eventWasEarlierToday }
-        if days < 2 { return .eventWasYesterday }
-        return .eventWasDaysAgo(Int(days.rounded(.down)))
+    private static func futureReason(hours: Double, days: Int) -> SearchSignal.Reason {
+        if days >= 2 { return .eventStartsInDays(days) }
+        if days == 1 { return .eventStartsTomorrow }
+        if hours < 1 { return .eventStartsInMinutes(max(1, Int((hours * 60).rounded()))) }
+        return .eventStartsInHours(Int(hours.rounded()))
+    }
+
+    private static func pastReason(days: Int) -> SearchSignal.Reason {
+        if days <= 0 { return .eventWasEarlierToday }
+        if days == 1 { return .eventWasYesterday }
+        return .eventWasDaysAgo(days)
     }
 
     private static func recencyWeight(of document: SearchDocument, at now: Date) -> Double {
@@ -178,13 +206,17 @@ public enum SearchEngine {
         return 1 / (1 + ageDays / 14)
     }
 
-    private static func recencyReason(of document: SearchDocument, at now: Date) -> SearchSignal.Reason? {
-        guard document.kind != .event else { return nil }
-        let ageDays = now.timeIntervalSince(document.createdAt) / 86_400
-        guard ageDays >= 0, ageDays <= 7 else { return nil }
-        if ageDays < 1 { return .addedToday }
-        if ageDays < 2 { return .addedYesterday }
-        return .addedDaysAgo(Int(ageDays.rounded(.down)))
+    private static func recencyReason(
+        of document: SearchDocument,
+        at now: Date,
+        calendar: Calendar
+    ) -> SearchSignal.Reason? {
+        guard document.kind != .event, document.createdAt <= now else { return nil }
+        let daysAgo = -dayOffset(from: now, to: document.createdAt, calendar: calendar)
+        guard daysAgo <= 7 else { return nil }
+        if daysAgo <= 0 { return .addedToday }
+        if daysAgo == 1 { return .addedYesterday }
+        return .addedDaysAgo(daysAgo)
     }
 
     // MARK: - Presentation helpers

@@ -155,6 +155,7 @@ struct UpNextWidgetView: View {
                 Text(focus.title)
                     .font(.headline)
                     .lineLimit(1)
+                    .privacySensitive()
                 Text(timeRange(focus))
                     .font(.caption)
                     .lineLimit(1)

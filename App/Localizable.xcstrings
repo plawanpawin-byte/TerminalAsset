@@ -1479,6 +1479,17 @@
         }
       }
     },
+    "Event starts in %lld days": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กิจกรรมเริ่มในอีก %lld วัน"
+          }
+        }
+      }
+    },
     "Event starts in %lld h": {
       "extractionState": "manual",
       "localizations": {

@@ -28,6 +28,17 @@ private func doc(
 
 private func ids(_ hits: [SearchHit]) -> [String] { hits.map(\.id) }
 
+/// Day wording depends on the calendar, so tests fix it instead of using the machine's time zone.
+private let utc: Calendar = {
+    var calendar = Calendar(identifier: .gregorian)
+    calendar.timeZone = TimeZone(identifier: "UTC") ?? .gmt
+    return calendar
+}()
+
+private func date(_ day: Int, _ hour: Int, _ minute: Int = 0) -> Date {
+    utc.date(from: DateComponents(year: 2027, month: 1, day: day, hour: hour, minute: minute)) ?? .distantPast
+}
+
 @Suite("SearchEngine")
 struct SearchEngineTests {
     @Test func everyQueryWordMustMatch() {
@@ -118,7 +129,7 @@ struct SearchEngineTests {
 
     private func temporalReason(eventStart: Date, createdAt: Date = now - 30 * day) -> SearchSignal.Reason? {
         let docs = [doc("a", title: "Audit plan", eventStart: eventStart, createdAt: createdAt)]
-        let hit = SearchEngine.search("audit", scope: .all, in: docs, now: now).first
+        let hit = SearchEngine.search("audit", scope: .all, in: docs, now: now, calendar: utc).first
         return hit?.signals.first { $0.kind == .temporal }?.reason
     }
 
@@ -128,19 +139,56 @@ struct SearchEngineTests {
         #expect(temporalReason(eventStart: now + 30 * hour) == .eventStartsTomorrow)
         #expect(temporalReason(eventStart: now - 3 * hour) == .eventWasEarlierToday)
         #expect(temporalReason(eventStart: now - 30 * hour) == .eventWasYesterday)
-        #expect(temporalReason(eventStart: now - 4 * day) == .eventWasDaysAgo(3))
+        // Monday 11:00 is four calendar days before Friday.
+        #expect(temporalReason(eventStart: now - 4 * day) == .eventWasDaysAgo(4))
     }
 
     @Test func recencyReasonsCarryTheirNumbers() {
         func recent(_ createdAt: Date) -> SearchSignal.Reason? {
             let docs = [doc("a", title: "Audit plan", createdAt: createdAt)]
-            return SearchEngine.search("audit", scope: .all, in: docs, now: now).first?
+            return SearchEngine.search("audit", scope: .all, in: docs, now: now, calendar: utc).first?
                 .signals.first { $0.kind == .recent }?.reason
         }
         #expect(recent(now - 2 * hour) == .addedToday)
         #expect(recent(now - 30 * hour) == .addedYesterday)
         #expect(recent(now - 4 * day) == .addedDaysAgo(4))
         #expect(recent(now - 20 * day) == nil)
+    }
+
+    @Test func wordingFollowsTheCalendarNotElapsedHours() {
+        func reason(now: Date, eventStart: Date, length: TimeInterval = hour) -> SearchSignal.Reason? {
+            let docs = [doc("a", title: "Audit plan", eventStart: eventStart, eventLength: length, createdAt: now - 60 * day)]
+            return SearchEngine.search("audit", scope: .all, in: docs, now: now, calendar: utc).first?
+                .signals.first { $0.kind == .temporal }?.reason
+        }
+        // 9am: an event that ended at 10pm last night is 11 hours ago, but it was yesterday.
+        #expect(reason(now: date(15, 9), eventStart: date(14, 21), length: hour) == .eventWasYesterday)
+        // Monday 8am: Wednesday 6am is 46 hours ahead, but it is the day after tomorrow.
+        #expect(reason(now: date(18, 8), eventStart: date(20, 6)) == .eventStartsInDays(2))
+        // Still today, 20 hours ahead is impossible, but 3 hours ahead is "in 3 h".
+        #expect(reason(now: date(18, 8), eventStart: date(18, 11)) == .eventStartsInHours(3))
+        // 11pm now, 1am tomorrow is 2 hours away but is tomorrow.
+        #expect(reason(now: date(18, 23), eventStart: date(19, 1)) == .eventStartsTomorrow)
+    }
+
+    @Test func recencyFollowsTheCalendar() {
+        let docs = [doc("a", title: "Audit plan", createdAt: date(14, 14))]
+        // Created 20 hours ago, but on the previous day.
+        let hit = SearchEngine.search("audit", scope: .all, in: docs, now: date(15, 10), calendar: utc).first
+        #expect(hit?.signals.first { $0.kind == .recent }?.reason == .addedYesterday)
+    }
+
+    @Test func relevantNowSkipsContextOfEventsThatWereRemoved() {
+        let kept = doc("kept", .task, title: "Prep slides", eventStart: now + 30 * 60)
+        let removed = SearchDocument(
+            id: "gone", kind: .task, title: "Prep agenda", body: "",
+            eventKey: EventKey(rawValue: "k-gone"), eventTitle: "Cancelled sync",
+            eventStart: now + 30 * 60, eventEnd: now + 90 * 60, createdAt: now - hour, isEventActive: false
+        )
+        let hits = SearchEngine.relevantNow(in: [kept, removed], now: now, calendar: utc)
+        #expect(ids(hits) == ["kept"])
+        // It is still findable by searching: the user's notes are kept.
+        #expect(ids(SearchEngine.search("agenda", scope: .all, in: [removed], now: now, calendar: utc)) == ["gone"])
     }
 
     @Test func snippetIsCentredOnTheMatch() {

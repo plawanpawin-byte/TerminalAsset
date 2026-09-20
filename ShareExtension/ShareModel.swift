@@ -14,6 +14,8 @@ final class ShareModel {
 
     private(set) var phase: Phase = .loading
     private(set) var contents: [SharedContent] = []
+    /// Items the host app offered that could not be read. Shown, so a missing item is never a surprise.
+    private(set) var skipped = 0
     var intent: ShareIntent = .decide
 
     @ObservationIgnored private let providers: [NSItemProvider]
@@ -29,6 +31,7 @@ final class ShareModel {
         let extractor = ItemExtractor(stagingDirectory: stagingDirectory)
         let result = await extractor.extract(from: providers)
         contents = result.contents
+        skipped = result.failures
         phase = result.contents.isEmpty
             ? .failed(String(localized: "TerminalAsset can't add this kind of item yet."))
             : .ready
@@ -45,8 +48,16 @@ final class ShareModel {
             let inbox = try SharedInbox.appGroup()
             // File copies can be large, so they run off the main actor.
             try await Task.detached(priority: .userInitiated) {
-                for job in jobs {
-                    try inbox.enqueue(job.draft, payload: job.payload)
+                // All or nothing: if a later item fails, the ones already queued are taken back out, so the sheet
+                // never says "failed" while half of the share has quietly gone through.
+                var queued: [UUID] = []
+                do {
+                    for job in jobs {
+                        queued.append(try inbox.enqueue(job.draft, payload: job.payload).id)
+                    }
+                } catch {
+                    for id in queued { inbox.remove(id: id) }
+                    throw error
                 }
             }.value
             try? FileManager.default.removeItem(at: stagingDirectory)

@@ -52,6 +52,15 @@ final class SearchViewModel {
         }
     }
 
+    /// Re-ranks "Relevant now" for the current moment from the corpus already loaded (no database read).
+    func refreshRelevance(now: Date = .now) async {
+        let documents = corpus
+        guard !documents.isEmpty else { return }
+        relevantNow = await Task.detached(priority: .utility) {
+            SearchEngine.relevantNow(in: documents, now: now)
+        }.value
+    }
+
     /// Debounced, cancellable ranking. Runs off the main actor so typing never waits on scoring.
     func scheduleSearch() {
         searchTask?.cancel()

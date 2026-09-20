@@ -8,6 +8,8 @@ struct TodayView: View {
     let weather: WeatherViewModel
 
     @Environment(\.scenePhase) private var scenePhase
+    /// The same setting as the toggle in Settings, watched here so switching it takes effect straight away.
+    @AppStorage(WeatherViewModel.enabledKey) private var showWeather = true
     @State private var path: [EventKey]
     @State private var showingCalendar: Bool
     private let calendarMode: CalendarViewModel.Mode
@@ -71,7 +73,11 @@ struct TodayView: View {
         }
         .task { await model.start() }
         .task { await weather.reconcile() }
-        .task { await looseEnds.load(readCalendar: true) }
+        .onChange(of: showWeather) { Task { await weather.reconcile() } }
+        // Reads the past 60 days once Today is ready, which also covers calendar access being granted later.
+        .onChange(of: model.phase, initial: true) { _, phase in
+            if phase == .ready { Task { await looseEnds.load(readCalendar: true) } }
+        }
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
             Task {

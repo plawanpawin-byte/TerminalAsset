@@ -1,6 +1,41 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%lld items couldn't be read and won't be added.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld item couldn't be read and won't be added."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld items couldn't be read and won't be added."
+                }
+              }
+            }
+          }
+        },
+        "th": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "อ่าน %lld รายการไม่ได้ จึงจะไม่ถูกเพิ่ม"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "Add": {
       "extractionState": "manual",
       "localizations": {

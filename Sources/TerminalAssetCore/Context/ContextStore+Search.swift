@@ -47,7 +47,8 @@ extension ContextStore {
                         eventEnd: event.endDate,
                         eventIsAllDay: event.isAllDay,
                         createdAt: item.createdAt,
-                        isDone: item.isDone
+                        isDone: item.isDone,
+                        isEventActive: event.syncState == .active
                     ))
                 }
             }

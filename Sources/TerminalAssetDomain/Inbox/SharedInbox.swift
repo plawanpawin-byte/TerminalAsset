@@ -90,9 +90,10 @@ public struct SharedInbox: Sendable {
     // MARK: - Reading (app)
 
     /// Complete items in the queue, oldest first. Unreadable items are moved aside and skipped.
-    public func pending() throws -> (items: [PendingInboxItem], rejected: Int) {
+    public func pending(now: Date = Date()) throws -> (items: [PendingInboxItem], rejected: Int) {
         let fileManager = FileManager.default
         guard fileManager.fileExists(atPath: inboxDirectory.path) else { return ([], 0) }
+        removeStaleStaging(now: now)
 
         let children: [URL]
         do {
@@ -134,8 +135,13 @@ public struct SharedInbox: Sendable {
         let destination = directory.appendingPathComponent(name)
         do {
             try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
+            // The file only ever appears under its real name once it is complete: an app killed half-way through
+            // leaves a `.part` file (ignored, replaced next time), never a truncated file the database points at.
             if !fileManager.fileExists(atPath: destination.path) {
-                try fileManager.copyItem(at: source, to: destination)
+                let partial = directory.appendingPathComponent(".\(name).part")
+                try? fileManager.removeItem(at: partial)
+                try fileManager.copyItem(at: source, to: partial)
+                try fileManager.moveItem(at: partial, to: destination)
             }
         } catch {
             throw SharedInboxError.writeFailed(reason: error.localizedDescription)
@@ -229,6 +235,20 @@ public struct SharedInbox: Sendable {
 
     private func itemDirectory(for id: UUID) -> URL {
         inboxDirectory.appendingPathComponent(id.uuidString, isDirectory: true)
+    }
+
+    /// A share sheet killed mid-copy (memory limit) leaves its hidden `.tmp-*` folder behind. Nothing ever reads those,
+    /// so ones older than an hour are removed rather than left to fill the container.
+    private func removeStaleStaging(now: Date = Date()) {
+        let fileManager = FileManager.default
+        guard let children = try? fileManager.contentsOfDirectory(
+            at: inboxDirectory, includingPropertiesForKeys: [.contentModificationDateKey]
+        ) else { return }
+        for directory in children where directory.lastPathComponent.hasPrefix(".tmp-") {
+            let modified = (try? directory.resourceValues(forKeys: [.contentModificationDateKey]))?
+                .contentModificationDate ?? .distantPast
+            if now.timeIntervalSince(modified) > 3600 { try? fileManager.removeItem(at: directory) }
+        }
     }
 
     private func setAside(_ directory: URL) {
