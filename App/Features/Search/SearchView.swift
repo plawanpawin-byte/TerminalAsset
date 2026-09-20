@@ -127,9 +127,16 @@ private struct ResultRow: View {
     /// One-line details are cut at normal sizes; at accessibility sizes they wrap instead of leaving a few letters.
     private var detailLines: Int? { typeSize.isAccessibilitySize ? nil : 1 }
 
+    /// Icon beside the text, or above it at accessibility sizes so the text keeps the full width.
+    private var layout: AnyLayout {
+        typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 12))
+            : AnyLayout(HStackLayout(alignment: .top, spacing: 12))
+    }
+
     var body: some View {
         NavigationLink(value: document.eventKey) {
-            HStack(alignment: .top, spacing: 12) {
+            layout {
                 Image(systemName: document.kind.symbol(isDone: document.isDone))
                     .font(.title3)
                     .foregroundStyle(Color.accentColor)

@@ -155,8 +155,15 @@ private struct InboxRow: View {
     /// Long titles are cut to a couple of lines, except at accessibility sizes where cutting them leaves too little.
     private var titleLines: Int? { typeSize.isAccessibilitySize ? nil : 2 }
 
+    /// Icon beside the text, or above it at accessibility sizes so the text keeps the full width.
+    private var layout: AnyLayout {
+        typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 12))
+            : AnyLayout(HStackLayout(alignment: .top, spacing: 12))
+    }
+
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
+        layout {
             Image(systemName: item.kind.symbol)
                 .font(.title3)
                 .foregroundStyle(Color.accentColor)
