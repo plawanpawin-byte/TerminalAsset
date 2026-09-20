@@ -1,7 +1,7 @@
 import Foundation
 
 enum AppTab: String, Hashable {
-    case today, search, inbox, prep, settings
+    case today, search, inbox, assistant, settings
 }
 
 #if DEBUG
@@ -17,7 +17,7 @@ enum LaunchOptions {
     static var showPaywall: Bool { arguments.contains("-paywall") }
     static var openDetail: Bool { arguments.contains("-detail") }
     static var addSheet: String? { defaults.string(forKey: "addSheet") }
-    static var prepDetail: Bool { arguments.contains("-prepDetail") }
+    static var assistantListening: Bool { arguments.contains("-assistantListening") }
     static var privacyDetail: Bool { arguments.contains("-privacy") }
     static var isSampleMode: Bool { arguments.contains("-sampleData") }
     /// `-weather rain` (any `WeatherCondition` raw value) shows a fixed sample forecast.

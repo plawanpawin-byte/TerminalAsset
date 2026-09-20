@@ -50,8 +50,8 @@ struct RootView: View {
                 InboxView(model: app.inbox)
             }
             .badge(app.inbox.items.count)
-            Tab("Prep", systemImage: "sparkles", value: AppTab.prep) {
-                PrepView()
+            Tab("Assistant", systemImage: "sparkles", value: AppTab.assistant) {
+                AssistantView(model: app.assistant, today: app.today)
             }
             Tab("Settings", systemImage: "gearshape", value: AppTab.settings) {
                 SettingsView()
