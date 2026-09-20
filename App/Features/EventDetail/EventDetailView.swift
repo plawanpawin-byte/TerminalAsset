@@ -107,6 +107,14 @@ struct EventDetailView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
+            // Editing the event itself (time, guests, alerts) belongs to the Calendar app; this hands it over.
+            if event.syncState == .active, let url = URL(string: "calshow:\(event.startDate.timeIntervalSinceReferenceDate)") {
+                Link(destination: url) {
+                    Label("Open in Calendar", systemImage: "calendar")
+                }
+                .font(.subheadline)
+                .padding(.top, 2)
+            }
         }
         .padding(.vertical, 4)
     }

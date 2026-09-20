@@ -2502,6 +2502,17 @@
         }
       }
     },
+    "Open in Calendar": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดในปฏิทิน"
+          }
+        }
+      }
+    },
     "Open items for the event running now or starting soon.": {
       "extractionState": "manual",
       "localizations": {
