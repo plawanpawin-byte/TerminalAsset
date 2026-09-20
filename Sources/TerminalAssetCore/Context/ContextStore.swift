@@ -65,6 +65,30 @@ public actor ContextStore {
         }
     }
 
+    /// Changes the text of an existing note, task or link. The kind cannot change, and files and images are not
+    /// edited here (they are the user's originals). A task keeps its done state.
+    public func updateItem(id: UUID, with draft: ContextItemDraft) throws {
+        let valid: ValidatedContextItem
+        do {
+            valid = try draft.validated()
+        } catch let error as ContextValidationError {
+            throw ContextStoreError.invalidItem(error)
+        } catch {
+            throw ContextStoreError.persistence(reason: error.localizedDescription)
+        }
+
+        try perform {
+            guard let item = try fetchItem(id) else { throw ContextStoreError.itemNotFound }
+            guard item.kind == valid.kind, [.note, .task, .link].contains(valid.kind) else {
+                throw ContextStoreError.invalidItem(.unsupportedKind)
+            }
+            item.title = valid.title
+            item.detail = valid.detail
+            item.urlString = valid.url?.absoluteString
+            try modelContext.save()
+        }
+    }
+
     public func setTaskDone(id: UUID, isDone: Bool) throws {
         try perform {
             guard let item = try fetchItem(id) else { throw ContextStoreError.itemNotFound }

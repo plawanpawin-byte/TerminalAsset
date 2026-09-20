@@ -66,6 +66,20 @@ final class EventDetailViewModel {
         }
     }
 
+    /// Returns a user-facing message when the change could not be saved, nil on success.
+    func update(_ id: UUID, with draft: ContextItemDraft) async -> String? {
+        do {
+            try await store.updateItem(id: id, with: draft)
+            await load()
+            await onChange()
+            return nil
+        } catch ContextStoreError.invalidItem(let validation) {
+            return validation.userMessage
+        } catch {
+            return TodayViewModel.message(for: error)
+        }
+    }
+
     func setTask(_ id: UUID, done: Bool) async {
         await mutate { try await self.store.setTaskDone(id: id, isDone: done) }
     }

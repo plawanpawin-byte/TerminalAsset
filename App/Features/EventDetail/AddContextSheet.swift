@@ -1,16 +1,28 @@
 import SwiftUI
 import TerminalAssetDomain
 
+/// Adds a task, note or link, or (when `editing` is set) changes an existing one.
 struct AddContextSheet: View {
     let kind: AddKind
     let model: EventDetailViewModel
+    let editing: ContextItemValue?
 
     @Environment(\.dismiss) private var dismiss
-    @State private var title = ""
-    @State private var detail = ""
-    @State private var urlString = ""
+    @State private var title: String
+    @State private var detail: String
+    @State private var urlString: String
     @State private var isSaving = false
     @State private var errorMessage: String?
+
+    init(kind: AddKind, model: EventDetailViewModel, editing: ContextItemValue? = nil) {
+        self.kind = kind
+        self.model = model
+        self.editing = editing
+        // A link's title defaults to its address, so an edit only shows a title the user actually gave it.
+        _title = State(initialValue: editing?.title ?? "")
+        _detail = State(initialValue: editing?.detail ?? "")
+        _urlString = State(initialValue: editing?.url?.absoluteString ?? "")
+    }
 
     var body: some View {
         NavigationStack {
@@ -41,7 +53,7 @@ struct AddContextSheet: View {
                     }
                 }
             }
-            .navigationTitle(kind.title)
+            .navigationTitle(editing == nil ? kind.title : kind.editTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -61,7 +73,13 @@ struct AddContextSheet: View {
         errorMessage = nil
         let draft = ContextItemDraft(kind: kind.kind, title: title, detail: detail, urlString: urlString)
         Task {
-            if let message = await model.add(draft) {
+            let message: String?
+            if let editing {
+                message = await model.update(editing.id, with: draft)
+            } else {
+                message = await model.add(draft)
+            }
+            if let message {
                 errorMessage = message
                 isSaving = false
             } else {

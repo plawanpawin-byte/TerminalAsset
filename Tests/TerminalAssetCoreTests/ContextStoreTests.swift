@@ -43,6 +43,66 @@ struct ContextStoreTests {
         #expect(events.first?.summary.openTasks == 1)
     }
 
+    @Test func aNoteCanBeEdited() async throws {
+        let (store, key) = try await makeStores()
+        let note = try await store.addItem(
+            to: key, draft: ContextItemDraft(kind: .note, title: "Old", detail: "before"), now: base
+        )
+
+        try await store.updateItem(id: note.id, with: ContextItemDraft(kind: .note, title: " New ", detail: "after"))
+
+        let item = try #require(try await store.event(forKey: key)?.items.first)
+        #expect(item.title == "New")
+        #expect(item.detail == "after")
+        #expect(item.id == note.id)
+    }
+
+    @Test func editingATaskKeepsItsDoneState() async throws {
+        let (store, key) = try await makeStores()
+        let task = try await store.addItem(to: key, draft: ContextItemDraft(kind: .task, title: "Send"), now: base)
+        try await store.setTaskDone(id: task.id, isDone: true)
+
+        try await store.updateItem(id: task.id, with: ContextItemDraft(kind: .task, title: "Send agenda"))
+
+        let item = try #require(try await store.event(forKey: key)?.items.first)
+        #expect(item.title == "Send agenda")
+        #expect(item.isDone)
+    }
+
+    @Test func aLinkCanBeEditedAndIsChecked() async throws {
+        let (store, key) = try await makeStores()
+        let link = try await store.addItem(
+            to: key, draft: ContextItemDraft(kind: .link, urlString: "example.com/a"), now: base
+        )
+
+        try await store.updateItem(
+            id: link.id, with: ContextItemDraft(kind: .link, title: "Plan", urlString: "example.com/b")
+        )
+        let item = try #require(try await store.event(forKey: key)?.items.first)
+        #expect(item.title == "Plan")
+        #expect(item.url?.host() == "example.com")
+        #expect(item.url?.path == "/b")
+
+        await #expect(throws: ContextStoreError.invalidItem(.invalidURL)) {
+            try await store.updateItem(id: link.id, with: ContextItemDraft(kind: .link, urlString: "not a url"))
+        }
+    }
+
+    @Test func theKindCannotChangeAndMissingItemsAreReported() async throws {
+        let (store, key) = try await makeStores()
+        let note = try await store.addItem(to: key, draft: ContextItemDraft(kind: .note, title: "N"), now: base)
+
+        await #expect(throws: ContextStoreError.invalidItem(.unsupportedKind)) {
+            try await store.updateItem(id: note.id, with: ContextItemDraft(kind: .task, title: "T"))
+        }
+        await #expect(throws: ContextStoreError.itemNotFound) {
+            try await store.updateItem(id: UUID(), with: ContextItemDraft(kind: .note, title: "N"))
+        }
+        await #expect(throws: ContextStoreError.invalidItem(.emptyTitle)) {
+            try await store.updateItem(id: note.id, with: ContextItemDraft(kind: .note, title: " "))
+        }
+    }
+
     @Test func allEventsReturnsEveryStoredEventWithItsItems() async throws {
         let (store, key) = try await makeStores()
         try await store.addItem(to: key, draft: ContextItemDraft(kind: .note, title: "Remember"), now: base)

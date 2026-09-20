@@ -24,11 +24,29 @@ enum AddKind: String, Identifiable {
         case .link: "New Link"
         }
     }
+
+    var editTitle: LocalizedStringKey {
+        switch self {
+        case .task: "Edit Task"
+        case .note: "Edit Note"
+        case .link: "Edit Link"
+        }
+    }
+
+    init?(_ kind: ContextItemKind) {
+        switch kind {
+        case .task: self = .task
+        case .note: self = .note
+        case .link: self = .link
+        case .file, .image, .voice: return nil
+        }
+    }
 }
 
 struct EventDetailView: View {
     @State private var model: EventDetailViewModel
     @State private var adding: AddKind?
+    @State private var editing: ContextItemValue?
     /// The attached file being previewed (Quick Look), if any.
     @State private var previewing: URL?
     private let today: TodayViewModel
@@ -79,6 +97,11 @@ struct EventDetailView: View {
         }
         .sheet(item: $adding) { kind in
             AddContextSheet(kind: kind, model: model)
+        }
+        .sheet(item: $editing) { item in
+            if let kind = AddKind(item.kind) {
+                AddContextSheet(kind: kind, model: model, editing: item)
+            }
         }
         .quickLookPreview($previewing)
         .alert("Something went wrong", isPresented: errorBinding) {
@@ -147,6 +170,7 @@ struct EventDetailView: View {
                     }
                     .accessibilityValue(task.isDone ? String(localized: "Done") : String(localized: "Not done"))
                     .swipeActions { deleteAction(task.id) }
+                    .swipeActions(edge: .leading) { editAction(task) }
                 }
             }
         }
@@ -161,6 +185,7 @@ struct EventDetailView: View {
                         }
                     }
                     .swipeActions { deleteAction(note.id) }
+                    .swipeActions(edge: .leading) { editAction(note) }
                 }
             }
         }
@@ -194,6 +219,7 @@ struct EventDetailView: View {
                             }
                         }
                         .swipeActions { deleteAction(link.id) }
+                        .swipeActions(edge: .leading) { editAction(link) }
                     }
                 }
             }
@@ -225,6 +251,15 @@ struct EventDetailView: View {
 
     private func addButton(_ kind: AddKind, _ title: LocalizedStringKey, _ symbol: String) -> some View {
         Button { adding = kind } label: { Label(title, systemImage: symbol) }
+    }
+
+    private func editAction(_ item: ContextItemValue) -> some View {
+        Button {
+            editing = item
+        } label: {
+            Label("Edit", systemImage: "pencil")
+        }
+        .tint(.blue)
     }
 
     private func deleteAction(_ id: UUID) -> some View {
