@@ -247,6 +247,63 @@ struct EventTextParserThaiTests {
     }
 }
 
+@Suite("EventTextParser · Relative")
+struct EventTextParserRelativeTests {
+    @Test func inHoursIsFromNow() {
+        let result = parse("call Anna in 2 hours")
+        #expect(result.draft.title == "call Anna")
+        #expect(result.draft.start == at(1, 15, 12, 20))
+        // "in 2 hours" is when it starts, not how long it lasts.
+        #expect(result.draft.end == at(1, 15, 13, 20))
+        #expect(result.recognized == [.time])
+    }
+
+    @Test func minutesAreRoundedToFive() {
+        #expect(parse("stretch in 25 minutes").draft.start == at(1, 15, 10, 45))
+        #expect(parse("tea in half an hour").draft.start == at(1, 15, 10, 50))
+    }
+
+    @Test func inDaysKeepsAnExplicitTime() {
+        let result = parse("dentist in 3 days at 2pm")
+        #expect(result.draft.title == "dentist")
+        #expect(result.draft.start == at(1, 18, 14))
+    }
+
+    @Test func inWeeksMeansThatDayAtNine() {
+        #expect(parse("review in 2 weeks").draft.start == at(1, 29, 9))
+    }
+
+    @Test func partsOfTheDayStandInForAClockTime() {
+        #expect(parse("workshop tomorrow morning").draft.start == at(1, 16, 9))
+        #expect(parse("yoga this evening").draft.start == at(1, 15, 18))
+        #expect(parse("gym in the afternoon").draft.start == at(1, 15, 14))
+        #expect(parse("dinner tonight").draft.start == at(1, 15, 20))
+    }
+
+    @Test func aPartOfTheDayWordAloneIsJustTheTitle() {
+        let result = parse("Morning standup")
+        #expect(result.draft.title == "Morning standup")
+        #expect(result.recognized.isEmpty)
+    }
+
+    @Test func aClockTimeBeatsAPartOfTheDay() {
+        #expect(parse("workshop tomorrow morning 10:30").draft.start == at(1, 16, 10, 30))
+    }
+
+    @Test func thaiOffsetsAndPartsOfTheDay() {
+        #expect(parse("ประชุมอีก 2 ชั่วโมง").draft.start == at(1, 15, 12, 20))
+        #expect(parse("ประชุมอีก 2 ชั่วโมง").draft.title == "ประชุม")
+
+        let morning = parse("พรุ่งนี้เช้า ไปตลาด")
+        #expect(morning.draft.title == "ไปตลาด")
+        #expect(morning.draft.start == at(1, 16, 9))
+
+        let evening = parse("ทานข้าวเย็นนี้")
+        #expect(evening.draft.title == "ทานข้าว")
+        #expect(evening.draft.start == at(1, 15, 18))
+    }
+}
+
 @Suite("EventTextParser · Repeat")
 struct EventTextParserRepeatTests {
     @Test func everyWeekdayInEnglish() {

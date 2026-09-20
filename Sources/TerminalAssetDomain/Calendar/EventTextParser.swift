@@ -22,6 +22,7 @@ public enum EventTextParser {
 
         // Words that decide whether a bare hour means morning or evening.
         let evening = matches(input, "tonight|evening|night|dinner|เย็น|ค่ำ|คืนนี้")
+        let saidTonight = matches(input, "\\btonight\\b|คืนนี้")
         var day: Date?
         var allDay = false
 
@@ -91,6 +92,32 @@ public enum EventTextParser {
                 }
             }
         }
+        // MARK: In N minutes / hours / days
+        var relativeStart: Date?
+        if let g = scanner.take(
+            "\\bin\\s+(\\d+(?:\\.\\d+)?|an?|half an?)\\s*(minutes?|mins?|hours?|hrs?|days?|weeks?)\\b|อีก\\s*(\\d+)\\s*(นาที|ชั่วโมง|วัน|สัปดาห์)"
+        ) {
+            let amount = offsetAmount(g[1] ?? g[3])
+            let unit = (g[2] ?? g[4] ?? "").lowercased()
+            let seconds: TimeInterval = switch unit {
+            case "นาที": 60
+            case "ชั่วโมง": 3600
+            case "วัน": 86_400
+            case "สัปดาห์": 604_800
+            case _ where unit.hasPrefix("min"): 60
+            case _ where unit.hasPrefix("h"): 3600
+            case _ where unit.hasPrefix("d"): 86_400
+            default: 604_800
+            }
+            if seconds >= 86_400 {
+                day = calendar.date(byAdding: .second, value: Int(amount * seconds), to: today)
+                    .map(calendar.startOfDay(for:))
+            } else {
+                // Rounded to the nearest five minutes, so "in 25 minutes" lands on a tidy time.
+                let raw = now.addingTimeInterval(amount * seconds).timeIntervalSince1970
+                relativeStart = Date(timeIntervalSince1970: (raw / 300).rounded() * 300)
+            }
+        }
         if day != nil { recognized.insert(.date) }
 
         // MARK: Duration
@@ -155,7 +182,20 @@ public enum EventTextParser {
         ) {
             startMinutes = clock(hour: g[1], minute: nil, marker: nil, evening: evening)
         }
-        if startMinutes != nil { recognized.insert(.time) }
+
+        // "this morning", "tomorrow evening", "พรุ่งนี้เช้า": a part of the day stands in for a clock time.
+        if startMinutes == nil, relativeStart == nil {
+            if let g = scanner.take("\\b(?:this|in the)\\s+(morning|afternoon|evening)\\b|\\btonight\\b|(เช้า|บ่าย|เย็น)นี้") {
+                if day == nil { day = today }
+                startMinutes = periodMinutes(g[1] ?? g[2] ?? "tonight")
+            } else if day != nil, let g = scanner.take("\\b(morning|afternoon|evening|tonight)\\b|(เช้า|บ่าย|เย็น|ค่ำ)") {
+                startMinutes = periodMinutes(g[1] ?? g[2] ?? "")
+            }
+            // "tonight" was read as a day above; on its own it also means evening.
+            if startMinutes == nil, saidTonight { startMinutes = periodMinutes("tonight") }
+            if day != nil { recognized.insert(.date) }
+        }
+        if startMinutes != nil || relativeStart != nil { recognized.insert(.time) }
 
         // MARK: Location
         var location = ""
@@ -171,7 +211,10 @@ public enum EventTextParser {
         draft.isAllDay = allDay
         draft.repeatRule = repeatRule
 
-        if allDay {
+        if let relativeStart, !allDay {
+            draft.start = relativeStart
+            draft.end = relativeStart.addingTimeInterval(duration ?? NewEventDraft.defaultDuration)
+        } else if allDay {
             let start = day ?? today
             draft.start = start
             draft.end = start
@@ -208,6 +251,23 @@ public enum EventTextParser {
     /// "อาทิตย์" alone also means "week", so Sunday needs its "วัน".
     private static let thaiWeekdays = "จันทร์|อังคาร|พุธ|พฤหัสบดี|พฤหัส|ศุกร์|เสาร์|วันอาทิตย์"
     private static let thaiNumber = "\\d{1,2}|สิบเอ็ด|สิบสอง|สิบ|หนึ่ง|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า"
+
+    private static func offsetAmount(_ text: String?) -> Double {
+        guard let text = text?.lowercased() else { return 0 }
+        if text.hasPrefix("half") { return 0.5 }
+        if text.hasPrefix("a") { return 1 }
+        return Double(text) ?? 0
+    }
+
+    /// A representative clock time for a part of the day.
+    private static func periodMinutes(_ word: String) -> Int {
+        switch word.lowercased() {
+        case "morning", "เช้า": 9 * 60
+        case "afternoon", "บ่าย": 14 * 60
+        case "evening", "เย็น": 18 * 60
+        default: 20 * 60   // tonight, ค่ำ
+        }
+    }
 
     /// Full names and the usual abbreviations, with or without the dots ("ก.ย." / "ก.ย").
     private static let thaiMonthNames: [(month: Int, names: [String])] = [
