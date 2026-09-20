@@ -10,6 +10,7 @@ struct HeroCard: View {
     private var event: TimelineEvent { hero.entry.event }
     private var openTasks: [ContextItemValue] { event.items.filter { $0.kind == .task && !$0.isDone } }
     private let visibleTaskLimit = 3
+    @State private var completions = 0
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -128,6 +129,7 @@ struct HeroCard: View {
 
     private func taskRow(_ task: ContextItemValue) -> some View {
         Button {
+            completions += 1
             onToggleTask(task.id, true)
         } label: {
             HStack(spacing: 10) {
@@ -142,6 +144,7 @@ struct HeroCard: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .sensoryFeedback(.success, trigger: completions)
         .accessibilityLabel(task.title)
         .accessibilityValue("Not done")
         .accessibilityHint("Marks the task as done")

@@ -71,7 +71,36 @@ struct InboxView: View {
                         onAttach: { Task { await model.attachToSuggestion(item) } },
                         onChoose: { choosing = item }
                     )
+                    .swipeActions(edge: .leading) {
+                        if item.suggestion != nil {
+                            Button {
+                                Task { await model.attachToSuggestion(item) }
+                            } label: {
+                                Label("Attach", systemImage: "paperclip")
+                            }
+                            .tint(.green)
+                        }
+                    }
                     .swipeActions(edge: .trailing) {
+                        Button(role: .destructive) {
+                            Task { await model.dismiss(item) }
+                        } label: {
+                            Label("Dismiss", systemImage: "xmark.bin")
+                        }
+                    }
+                    .contextMenu {
+                        if let suggestion = item.suggestion {
+                            Button {
+                                Task { await model.attachToSuggestion(item) }
+                            } label: {
+                                Label("Attach to \(suggestion.eventTitle)", systemImage: "paperclip")
+                            }
+                        }
+                        Button {
+                            choosing = item
+                        } label: {
+                            Label("Choose event…", systemImage: "calendar")
+                        }
                         Button(role: .destructive) {
                             Task { await model.dismiss(item) }
                         } label: {
@@ -85,6 +114,7 @@ struct InboxView: View {
                 Text("Share anything to TerminalAsset and it lands here with a suggested event. You never have to file it yourself.")
             }
         }
+        .sensoryFeedback(.success, trigger: model.banner?.id)
     }
 
     @ViewBuilder
@@ -119,15 +149,15 @@ private struct InboxRow: View {
     let onChoose: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top, spacing: 12) {
-                Image(systemName: item.kind.symbol)
-                    .font(.title3)
-                    .foregroundStyle(Color.accentColor)
-                    .frame(width: 36, height: 36)
-                    .background(Color.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-                    .accessibilityHidden(true)
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: item.kind.symbol)
+                .font(.title3)
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 36, height: 36)
+                .background(Color.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .accessibilityHidden(true)
 
+            VStack(alignment: .leading, spacing: 8) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(item.title)
                         .font(.body.weight(.medium))
@@ -137,41 +167,42 @@ private struct InboxRow: View {
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
+                destination
             }
+        }
+        .padding(.vertical, 4)
+        .buttonStyle(.borderless)
+    }
 
-            if let suggestion = item.suggestion {
-                VStack(alignment: .leading, spacing: 8) {
-                    Label {
-                        Text("Suggested: **\(suggestion.eventTitle)**")
-                    } icon: {
-                        Image(systemName: "sparkles").foregroundStyle(Color.accentColor)
-                    }
-                    .font(.subheadline)
+    @ViewBuilder
+    private var destination: some View {
+        if let suggestion = item.suggestion {
+            VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("Suggested: **\(suggestion.eventTitle)**")
+                        .font(.subheadline)
                     Text(suggestion.reason)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
-                    HStack {
-                        Button("Attach", action: onAttach)
-                            .buttonStyle(.borderedProminent)
-                        Button("Choose…", action: onChoose)
-                            .buttonStyle(.bordered)
-                    }
-                    .controlSize(.small)
                 }
-            } else {
                 HStack {
-                    Label("No confident match", systemImage: "questionmark.circle")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Button("Choose event…", action: onChoose)
+                    Button("Attach", action: onAttach)
+                        .buttonStyle(.borderedProminent)
+                    Button("Choose…", action: onChoose)
                         .buttonStyle(.bordered)
-                        .controlSize(.small)
                 }
+                .controlSize(.small)
+            }
+        } else {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("No confident match")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                Button("Choose event…", action: onChoose)
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
             }
         }
-        .padding(.vertical, 6)
-        .buttonStyle(.borderless)
     }
 }
 

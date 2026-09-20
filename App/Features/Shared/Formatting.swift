@@ -10,12 +10,19 @@ enum TimeText {
         return interval.formatted(Date.IntervalFormatStyle(date: .omitted, time: .shortened))
     }
 
-    /// "Sep 19, 4:20 PM" or "Sep 19 · All day": short enough to sit on one line in a list row.
-    static func compact(start: Date, isAllDay: Bool) -> String {
-        if isAllDay {
-            return "\(start.formatted(.dateTime.month(.abbreviated).day())) · All day"
+    /// "Today, 4:20 PM", "Tomorrow · All day" or "Sep 19, 4:20 PM": short enough to sit on one line in a list row.
+    static func compact(start: Date, isAllDay: Bool, now: Date = .now, calendar: Calendar = .current) -> String {
+        let daysAway = calendar.dateComponents(
+            [.day], from: calendar.startOfDay(for: now), to: calendar.startOfDay(for: start)
+        ).day
+        let day = switch daysAway ?? Int.max {
+        case 0: "Today"
+        case 1: "Tomorrow"
+        case -1: "Yesterday"
+        default: start.formatted(.dateTime.month(.abbreviated).day())
         }
-        return start.formatted(.dateTime.month(.abbreviated).day().hour().minute())
+        if isAllDay { return "\(day) · All day" }
+        return "\(day), \(start.formatted(date: .omitted, time: .shortened))"
     }
 
     /// "in 25 minutes" / "5 minutes ago"

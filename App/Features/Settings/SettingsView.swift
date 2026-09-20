@@ -73,33 +73,42 @@ struct SettingsView: View {
 
     private var planSection: some View {
         Section {
-            HStack(spacing: 14) {
-                Image(systemName: "sparkles")
-                    .font(.title2)
-                    .foregroundStyle(.white)
-                    .frame(width: 44, height: 44)
-                    .background(Color.accentColor.gradient, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    .accessibilityHidden(true)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Free plan").font(.headline)
-                    Text("Calendar, local context and basic search")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+            Button {
+                showingPaywall = true
+            } label: {
+                HStack(spacing: 14) {
+                    Image(systemName: "sparkles")
+                        .font(.title2)
+                        .foregroundStyle(.white)
+                        .frame(width: 44, height: 44)
+                        .background(Color.accentColor.gradient, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                        .accessibilityHidden(true)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Free plan")
+                            .font(.headline)
+                            .foregroundStyle(.primary)
+                        Text("Calendar, local context and basic search")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer(minLength: 8)
+                    Text("Upgrade")
+                        .font(.subheadline)
+                    Image(systemName: "chevron.right")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(.tertiary)
+                        .accessibilityHidden(true)
                 }
-                Spacer()
-                Button("Upgrade") { showingPaywall = true }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.small)
+                .padding(.vertical, 4)
             }
-            .padding(.vertical, 4)
+            .accessibilityHint("Shows the Pro plan")
         }
     }
 
     private var calendarSection: some View {
         Section {
             LabeledContent("Access") {
-                Label("Full access", systemImage: "checkmark.circle.fill")
-                    .foregroundStyle(.green)
+                Text("Full access").foregroundStyle(.green)
             }
             Toggle("Work", isOn: $workCalendar)
             Toggle("Personal", isOn: $personalCalendar)

@@ -132,29 +132,27 @@ private struct ResultRow: View {
                     .background(Color.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                     .accessibilityHidden(true)
 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 3) {
                     Text(document.title)
                         .font(.body.weight(.medium))
                         .strikethrough(document.isDone)
+                        .lineLimit(2)
                     if !hit.snippet.isEmpty {
                         Text(hit.snippet)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
-                            .lineLimit(2)
+                            .lineLimit(1)
                     }
-                    HStack(spacing: 4) {
-                        Image(systemName: "calendar")
-                        Text(eventLine)
+                    Text(eventLine)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                    if let reasons {
+                        Text(reasons)
+                            .font(.caption)
+                            .foregroundStyle(hasTemporalSignal ? Color.accentColor : .secondary)
+                            .lineLimit(1)
                     }
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-
-                    FlowLayout(spacing: 6) {
-                        ForEach(hit.signals, id: \.self) { signal in
-                            Pill(text: signal.text, symbol: symbol(for: signal), tint: tint(for: signal))
-                        }
-                    }
-                    .padding(.top, 2)
                 }
             }
             .padding(.vertical, 4)
@@ -167,15 +165,12 @@ private struct ResultRow: View {
         return document.kind == .event ? when : "\(document.eventTitle) · \(when)"
     }
 
-    private func symbol(for signal: SearchSignal) -> String {
-        switch signal.kind {
-        case .match: "text.magnifyingglass"
-        case .temporal: "clock"
-        case .recent: "calendar.badge.clock"
-        }
+    private var hasTemporalSignal: Bool {
+        hit.signals.contains { $0.kind == .temporal }
     }
 
-    private func tint(for signal: SearchSignal) -> Color {
-        signal.kind == .temporal ? .accentColor : .secondary
+    /// Why the result ranked here, on one quiet line ("Event is happening now · Added today").
+    private var reasons: String? {
+        hit.signals.isEmpty ? nil : hit.signals.map(\.text).joined(separator: " · ")
     }
 }

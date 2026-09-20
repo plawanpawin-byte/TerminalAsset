@@ -5,24 +5,39 @@ struct PrepView: View {
     @State private var showingPaywall = false
     @State private var path: [PrepBlock] = []
 
+    /// Briefs for events starting within a day are "coming up"; the rest wait under "Later".
+    private var comingUp: [PrepBlock] {
+        blocks.filter { $0.startsAt < Date.now.addingTimeInterval(24 * 3600) }
+    }
+
+    private var later: [PrepBlock] {
+        blocks.filter { $0.startsAt >= Date.now.addingTimeInterval(24 * 3600) }
+    }
+
     var body: some View {
         NavigationStack(path: $path) {
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 16) {
-                    Text("Ready before you need it. Each block is drafted from the context attached to an upcoming event.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-
-                    ForEach(blocks) { block in
-                        PrepCard(block: block) { showingPaywall = true }
+            List {
+                if !comingUp.isEmpty {
+                    Section("Coming up") {
+                        ForEach(comingUp) { block in
+                            PrepRow(block: block) { showingPaywall = true }
+                        }
                     }
-
-                    SampleDataNote().padding(.top, 8)
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 24)
+                if !later.isEmpty {
+                    Section("Later") {
+                        ForEach(later) { block in
+                            PrepRow(block: block) { showingPaywall = true }
+                        }
+                    }
+                }
+                Section {
+                    SampleDataNote()
+                } footer: {
+                    Text("Ready before you need it. Each brief is drafted from the context attached to an upcoming event.")
+                }
+                .listRowBackground(Color.clear)
             }
-            .background(Color(.systemGroupedBackground))
             .navigationTitle("Prep")
             .navigationDestination(for: PrepBlock.self) { block in
                 PrepDetailView(block: block)
@@ -41,7 +56,7 @@ struct PrepView: View {
     }
 }
 
-private struct PrepCard: View {
+private struct PrepRow: View {
     let block: PrepBlock
     let onUpgrade: () -> Void
 
@@ -49,35 +64,38 @@ private struct PrepCard: View {
         switch block.status {
         case .ready:
             NavigationLink(value: block) { content }
-                .buttonStyle(.plain)
         case .generating, .needsPro, .offline:
             content
         }
     }
 
     private var content: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            header
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(block.eventTitle)
+                    .font(.headline)
+                Spacer(minLength: 8)
+                status
+                    .font(.caption.weight(.medium))
+            }
+            Text(block.startsAt.formatted(.dateTime.weekday(.abbreviated).hour().minute()))
+                .font(.footnote)
+                .foregroundStyle(.secondary)
 
             switch block.status {
             case .ready:
                 if let summary = block.summary {
                     Text(summary)
                         .font(.subheadline)
-                        .lineLimit(3)
-                }
-                HStack {
-                    Label("\(block.keyItems.count) items to have ready", systemImage: "tray.full")
-                        .font(.footnote)
                         .foregroundStyle(.secondary)
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .font(.footnote.weight(.semibold))
-                        .foregroundStyle(.tertiary)
+                        .lineLimit(2)
                 }
+                Label("\(block.keyItems.count) items to have ready", systemImage: "tray.full")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
 
             case .generating:
-                HStack(spacing: 10) {
+                HStack(spacing: 8) {
                     ProgressView()
                     Text("Preparing your brief…")
                         .font(.subheadline)
@@ -86,74 +104,49 @@ private struct PrepCard: View {
 
             case .needsPro:
                 localItems
-                VStack(alignment: .leading, spacing: 8) {
+                Button(action: onUpgrade) {
                     Label("Cloud prep is part of Pro", systemImage: "lock.fill")
                         .font(.subheadline.weight(.semibold))
-                    Text("Get a written brief, open questions and a checklist drafted for this event.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                    Button("See Pro", action: onUpgrade)
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.small)
                 }
+                .buttonStyle(.borderless)
 
             case .offline:
-                Label("You're offline. The written brief needs a connection.", systemImage: "wifi.slash")
+                Label("Offline. The written brief needs a connection.", systemImage: "wifi.slash")
                     .font(.subheadline)
                     .foregroundStyle(.orange)
                 localItems
-                Text("Your context still works offline — nothing here is lost.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
             }
         }
-        .card()
+        .padding(.vertical, 4)
     }
 
-    private var header: some View {
-        HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(block.eventTitle)
-                    .font(.headline)
-                    .multilineTextAlignment(.leading)
-                Text(block.startsAt.formatted(.dateTime.weekday(.abbreviated).hour().minute()))
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-            }
-            Spacer(minLength: 8)
-            statusPill
-        }
-    }
-
+    /// One quiet label instead of a coloured capsule: where the brief was drafted, or why there isn't one.
     @ViewBuilder
-    private var statusPill: some View {
+    private var status: some View {
         switch block.status {
         case .ready:
             if let provider = block.provider {
-                Pill(text: provider.title, symbol: provider.symbol, tint: .green)
+                Label(provider.title, systemImage: provider.symbol)
+                    .foregroundStyle(.green)
             }
         case .generating:
-            Pill(text: "Preparing", symbol: "hourglass", tint: .blue)
+            Label("Preparing", systemImage: "hourglass")
+                .foregroundStyle(.blue)
         case .needsPro:
-            Pill(text: "Pro", symbol: "lock.fill", tint: .purple)
+            Label("Pro", systemImage: "lock.fill")
+                .foregroundStyle(.purple)
         case .offline:
-            Pill(text: "Offline", symbol: "wifi.slash", tint: .orange)
+            Label("Offline", systemImage: "wifi.slash")
+                .foregroundStyle(.orange)
         }
     }
 
     @ViewBuilder
     private var localItems: some View {
-        if !block.keyItems.isEmpty {
-            VStack(alignment: .leading, spacing: 6) {
-                Text("In your context")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                    .textCase(.uppercase)
-                ForEach(block.keyItems, id: \.self) { item in
-                    Label(item, systemImage: "doc.text")
-                        .font(.subheadline)
-                }
-            }
+        ForEach(block.keyItems, id: \.self) { item in
+            Label(item, systemImage: "doc.text")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
         }
     }
 }

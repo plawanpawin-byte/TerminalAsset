@@ -14,12 +14,15 @@ struct PrepDetailView: View {
                     Text(block.startsAt.formatted(.dateTime.weekday(.wide).hour().minute()))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                    HStack(spacing: 6) {
+                    HStack(spacing: 12) {
                         if let provider = block.provider {
-                            Pill(text: "Drafted \(provider.title.lowercased())", symbol: provider.symbol, tint: .green)
+                            Label("Drafted \(provider.title.lowercased())", systemImage: provider.symbol)
+                                .foregroundStyle(.green)
                         }
-                        Pill(text: "AI draft", symbol: "sparkles", tint: .purple)
+                        Label("AI draft", systemImage: "sparkles")
+                            .foregroundStyle(.purple)
                     }
+                    .font(.caption.weight(.medium))
                 }
                 .padding(.vertical, 4)
             } footer: {
@@ -98,9 +101,13 @@ struct PrepDetailView: View {
                     Label(source.title, systemImage: source.symbol)
                     Spacer()
                     if source.sentToCloud {
-                        Pill(text: "Sent", symbol: "cloud", tint: .orange)
+                        Label("Sent", systemImage: "cloud")
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.orange)
                     } else {
-                        Pill(text: "On device", symbol: "iphone", tint: .green)
+                        Label("On device", systemImage: "iphone")
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.green)
                     }
                 }
                 .accessibilityElement(children: .combine)
