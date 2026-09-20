@@ -107,6 +107,8 @@ struct UpNextWidgetView: View {
                 Text(focus.title)
                     .font(.headline)
                     .lineLimit(3)
+                    // Event titles are redacted where the widget can be seen on a locked device (StandBy).
+                    .privacySensitive()
                 Spacer(minLength: 0)
                 Text(timeRange(focus))
                     .font(.caption)
@@ -135,6 +137,7 @@ struct UpNextWidgetView: View {
                             Text(item.title)
                                 .font(.footnote.weight(.medium))
                                 .lineLimit(1)
+                                .privacySensitive()
                         }
                     }
                     Spacer(minLength: 0)
