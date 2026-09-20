@@ -28,6 +28,9 @@ targets:
       properties:
         CFBundleDisplayName: TerminalAsset
         ITSAppUsesNonExemptEncryption: false
+        CFBundleLocalizations:
+          - en
+          - th
         CFBundleURLTypes:
           - CFBundleURLName: com.terminalasset.app
             CFBundleURLSchemes:
@@ -61,6 +64,9 @@ targets:
       path: ShareExtension/Info.plist
       properties:
         CFBundleDisplayName: TerminalAsset
+        CFBundleLocalizations:
+          - en
+          - th
         NSExtension:
           NSExtensionPointIdentifier: com.apple.share-services
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
@@ -93,6 +99,9 @@ targets:
       path: WidgetExtension/Info.plist
       properties:
         CFBundleDisplayName: TerminalAsset
+        CFBundleLocalizations:
+          - en
+          - th
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
     entitlements:

@@ -66,11 +66,11 @@ final class EventDetailViewModel {
 extension ContextValidationError {
     var userMessage: String {
         switch self {
-        case .emptyTitle: "Enter a title."
-        case .titleTooLong: "That title is too long. Keep it under \(ContextItemDraft.maxTitleLength) characters."
-        case .invalidURL: "Enter a valid web address, like example.com."
-        case .missingFile: "The file for this item is missing."
-        case .unsupportedKind: "That kind of item can't be added here yet."
+        case .emptyTitle: String(localized: "Enter a title.")
+        case .titleTooLong: String(localized: "That title is too long. Keep it under \(ContextItemDraft.maxTitleLength) characters.")
+        case .invalidURL: String(localized: "Enter a valid web address, like example.com.")
+        case .missingFile: String(localized: "The file for this item is missing.")
+        case .unsupportedKind: String(localized: "That kind of item can't be added here yet.")
         }
     }
 }

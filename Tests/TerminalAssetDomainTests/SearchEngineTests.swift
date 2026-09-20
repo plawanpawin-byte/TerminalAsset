@@ -58,7 +58,7 @@ struct SearchEngineTests {
         ]
         let hits = SearchEngine.search("vendor", scope: .all, in: docs, now: now)
         #expect(ids(hits) == ["in"])
-        #expect(hits.first?.signals.first?.text == "Matches event name")
+        #expect(hits.first?.signals.first?.reason == .matchesEventName)
     }
 
     @Test func itemsOfTheRunningEventOutrankTheSameItemsOfAnOldEvent() {
@@ -66,7 +66,7 @@ struct SearchEngineTests {
         let old = doc("old", title: "Risk register", event: "Old", eventStart: now - 40 * day, createdAt: now - 40 * day)
         let hits = SearchEngine.search("risk", scope: .all, in: [old, current], now: now)
         #expect(ids(hits) == ["current", "old"])
-        #expect(hits.first?.signals.contains { $0.text == "Event is happening now" } == true)
+        #expect(hits.first?.signals.contains { $0.reason == .eventHappeningNow } == true)
     }
 
     @Test func timeNeverRescuesAnItemThatDoesNotMatch() {
@@ -89,7 +89,7 @@ struct SearchEngineTests {
         let docs = [doc("link", .link, title: "Guide", body: "https://iso.org/audit-preparation", event: "Weekly sync")]
         let hits = SearchEngine.search("preparation", scope: .all, in: docs, now: now)
         #expect(ids(hits) == ["link"])
-        #expect(hits.first?.signals.first?.text == "Matches link")
+        #expect(hits.first?.signals.first?.reason == .matchesLink)
     }
 
     @Test func thaiTextMatchesBySubstring() {
@@ -114,6 +114,33 @@ struct SearchEngineTests {
         let first = ids(SearchEngine.search("same", scope: .all, in: docs, now: now))
         let second = ids(SearchEngine.search("same", scope: .all, in: docs.reversed(), now: now))
         #expect(first == second)
+    }
+
+    private func temporalReason(eventStart: Date, createdAt: Date = now - 30 * day) -> SearchSignal.Reason? {
+        let docs = [doc("a", title: "Audit plan", eventStart: eventStart, createdAt: createdAt)]
+        let hit = SearchEngine.search("audit", scope: .all, in: docs, now: now).first
+        return hit?.signals.first { $0.kind == .temporal }?.reason
+    }
+
+    @Test func timeReasonsCarryTheirNumbers() {
+        #expect(temporalReason(eventStart: now + 30 * 60) == .eventStartsInMinutes(30))
+        #expect(temporalReason(eventStart: now + 3 * hour) == .eventStartsInHours(3))
+        #expect(temporalReason(eventStart: now + 30 * hour) == .eventStartsTomorrow)
+        #expect(temporalReason(eventStart: now - 3 * hour) == .eventWasEarlierToday)
+        #expect(temporalReason(eventStart: now - 30 * hour) == .eventWasYesterday)
+        #expect(temporalReason(eventStart: now - 4 * day) == .eventWasDaysAgo(3))
+    }
+
+    @Test func recencyReasonsCarryTheirNumbers() {
+        func recent(_ createdAt: Date) -> SearchSignal.Reason? {
+            let docs = [doc("a", title: "Audit plan", createdAt: createdAt)]
+            return SearchEngine.search("audit", scope: .all, in: docs, now: now).first?
+                .signals.first { $0.kind == .recent }?.reason
+        }
+        #expect(recent(now - 2 * hour) == .addedToday)
+        #expect(recent(now - 30 * hour) == .addedYesterday)
+        #expect(recent(now - 4 * day) == .addedDaysAgo(4))
+        #expect(recent(now - 20 * day) == nil)
     }
 
     @Test func snippetIsCentredOnTheMatch() {

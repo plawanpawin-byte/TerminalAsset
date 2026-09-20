@@ -162,7 +162,7 @@ private struct InboxRow: View {
                     Text(item.title)
                         .font(.body.weight(.medium))
                         .lineLimit(2)
-                    Text("\(item.subtitle) · \(item.receivedAt.formatted(.relative(presentation: .named)))")
+                    Text(verbatim: "\(item.subtitle.text) · \(item.receivedAt.formatted(.relative(presentation: .named)))")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
@@ -181,7 +181,7 @@ private struct InboxRow: View {
                 VStack(alignment: .leading, spacing: 1) {
                     Text("Suggested: **\(suggestion.eventTitle)**")
                         .font(.subheadline)
-                    Text(suggestion.reason)
+                    Text(suggestion.reasonText)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
@@ -273,7 +273,7 @@ private struct ShareHowToSheet: View {
         .presentationDetents([.medium])
     }
 
-    private func step(_ number: String, _ symbol: String, _ title: String, _ detail: String) -> some View {
+    private func step(_ number: String, _ symbol: String, _ title: LocalizedStringKey, _ detail: LocalizedStringKey) -> some View {
         HStack(alignment: .top, spacing: 14) {
             Image(systemName: symbol)
                 .font(.title3)
@@ -281,11 +281,43 @@ private struct ShareHowToSheet: View {
                 .frame(width: 30)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
-                Text("\(number). \(title)").font(.headline)
+                HStack(spacing: 4) {
+                    Text(verbatim: "\(number).")
+                    Text(title)
+                }
+                .font(.headline)
                 Text(detail).font(.subheadline).foregroundStyle(.secondary)
             }
         }
         .padding(.vertical, 4)
         .accessibilityElement(children: .combine)
+    }
+}
+
+extension InboxSubtitle {
+    var text: String {
+        switch self {
+        case .host(let host): host
+        case .link: String(localized: "Link")
+        case .text: String(localized: "Text")
+        case .excerpt(let excerpt): excerpt
+        case .image: String(localized: "Image")
+        case .fileType(let type): String(localized: "\(type) file")
+        case .file: String(localized: "File")
+        }
+    }
+}
+
+extension EventSuggestion {
+    /// "Happening now · Similar topic": the signals behind the suggestion, in the user's language.
+    var reasonText: String {
+        reasons.map { reason in
+            switch reason {
+            case .happeningNow: String(localized: "Happening now")
+            case .startsInMinutes(let minutes): String(localized: "Starts in \(minutes) min")
+            case .endedMinutesAgo(let minutes): String(localized: "Ended \(minutes) min ago")
+            case .similarTopic: String(localized: "Similar topic")
+            }
+        }.joined(separator: " · ")
     }
 }

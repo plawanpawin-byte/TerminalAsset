@@ -30,7 +30,7 @@ final class ShareModel {
         let result = await extractor.extract(from: providers)
         contents = result.contents
         phase = result.contents.isEmpty
-            ? .failed("TerminalAsset can't add this kind of item yet.")
+            ? .failed(String(localized: "TerminalAsset can't add this kind of item yet."))
             : .ready
     }
 
@@ -55,7 +55,7 @@ final class ShareModel {
             phase = .failed(Self.message(for: error))
             return false
         } catch {
-            phase = .failed("Couldn't save this. Please try again.")
+            phase = .failed(String(localized: "Couldn't save this. Please try again."))
             return false
         }
     }
@@ -96,11 +96,11 @@ final class ShareModel {
     private static func message(for error: SharedInboxError) -> String {
         switch error {
         case .containerUnavailable:
-            "TerminalAsset can't receive shared items on this device yet."
+            String(localized: "TerminalAsset can't receive shared items on this device yet.")
         case .payloadTooLarge(let limit):
-            "That file is too large to share (limit \(limit / 1_048_576) MB)."
+            String(localized: "That file is too large to share (limit \(limit / 1_048_576) MB).")
         case .payloadMissing, .readFailed, .writeFailed:
-            "Couldn't save this. Please try again."
+            String(localized: "Couldn't save this. Please try again.")
         }
     }
 }

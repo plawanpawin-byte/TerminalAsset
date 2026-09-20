@@ -9,8 +9,8 @@ struct OnboardingView: View {
     private struct Page: Identifiable {
         let id: Int
         let symbol: String
-        let title: String
-        let detail: String
+        let title: LocalizedStringKey
+        let detail: LocalizedStringKey
     }
 
     private let pages = [
@@ -53,7 +53,7 @@ struct OnboardingView: View {
                         onFinish()
                     }
                 } label: {
-                    Text(page == pages.count - 1 ? "Get Started" : "Continue")
+                    Text(page == pages.count - 1 ? LocalizedStringKey("Get Started") : LocalizedStringKey("Continue"))
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                 }

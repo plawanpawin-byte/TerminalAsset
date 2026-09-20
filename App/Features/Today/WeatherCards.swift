@@ -59,8 +59,8 @@ private struct HourColumn: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(label)
         .accessibilityValue(
-            "\(TemperatureText.format(celsius: hour.temperatureC)), \(hour.condition.title)"
-                + (showsRain ? ", \(hour.precipitationChance) percent chance of rain" : "")
+            String(localized: "\(TemperatureText.format(celsius: hour.temperatureC)), \(hour.condition.title)")
+                + (showsRain ? String(localized: ", \(hour.precipitationChance) percent chance of rain") : "")
         )
     }
 }
@@ -98,7 +98,7 @@ private struct DayRow: View {
     private var showsRain: Bool { day.precipitationChance >= 20 }
 
     private var name: String {
-        isToday ? "Today" : WeatherText.weekday(day.date, in: zone)
+        isToday ? String(localized: "Today") : WeatherText.weekday(day.date, in: zone)
     }
 
     var body: some View {
@@ -128,8 +128,8 @@ private struct DayRow: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(name)
         .accessibilityValue(
-            "\(day.condition.title), high \(TemperatureText.format(celsius: day.highC)), low \(TemperatureText.format(celsius: day.lowC))"
-                + (showsRain ? ", \(day.precipitationChance) percent chance of rain" : "")
+            String(localized: "\(day.condition.title), high \(TemperatureText.format(celsius: day.highC)), low \(TemperatureText.format(celsius: day.lowC))")
+                + (showsRain ? String(localized: ", \(day.precipitationChance) percent chance of rain") : "")
         )
     }
 }
@@ -166,11 +166,11 @@ struct WeatherDetailsGrid: View {
     let now: Date
 
     private struct Tile: Identifiable {
-        let title: String
+        let title: LocalizedStringKey
         let symbol: String
         let value: String
         let caption: String
-        var id: String { title }
+        var id: String { symbol }
     }
 
     private var tiles: [Tile] {
@@ -206,7 +206,7 @@ struct WeatherDetailsGrid: View {
         }
         tiles.append(Tile(
             title: "Rain", symbol: "umbrella.fill",
-            value: "\(snapshot.precipitationChance)%", caption: "Highest chance in the next 12 hours."
+            value: "\(snapshot.precipitationChance)%", caption: String(localized: "Highest chance in the next 12 hours.")
         ))
         return tiles
     }
@@ -217,12 +217,12 @@ struct WeatherDetailsGrid: View {
         if now < sunrise {
             return Tile(
                 title: "Sunrise", symbol: "sunrise.fill",
-                value: WeatherText.time(sunrise, in: zone), caption: "Sunset: \(WeatherText.time(sunset, in: zone))"
+                value: WeatherText.time(sunrise, in: zone), caption: String(localized: "Sunset: \(WeatherText.time(sunset, in: zone))")
             )
         }
         return Tile(
             title: "Sunset", symbol: "sunset.fill",
-            value: WeatherText.time(sunset, in: zone), caption: "Sunrise: \(WeatherText.time(sunrise, in: zone))"
+            value: WeatherText.time(sunset, in: zone), caption: String(localized: "Sunrise: \(WeatherText.time(sunrise, in: zone))")
         )
     }
 

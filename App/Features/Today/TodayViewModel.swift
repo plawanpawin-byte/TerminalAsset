@@ -156,31 +156,31 @@ final class TodayViewModel {
         case let error as SyncError:
             switch error {
             case .calendar(let calendarError): return message(for: calendarError)
-            case .persistence: return "Couldn't update the data saved on this device."
+            case .persistence: return String(localized: "Couldn't update the data saved on this device.")
             }
         case let error as CalendarError:
             return message(for: error)
         case is ContextStoreError:
-            return "Couldn't read your saved context."
+            return String(localized: "Couldn't read your saved context.")
         default:
-            return "Something went wrong. Please try again."
+            return String(localized: "Something went wrong. Please try again.")
         }
     }
 
     private nonisolated static func message(for error: CalendarError) -> String {
         switch error {
         case .permissionNotDetermined, .permissionDenied, .permissionRestricted, .writeOnlyAccess:
-            return "Calendar access is off. Turn it on in Settings to see your day."
+            return String(localized: "Calendar access is off. Turn it on in Settings to see your day.")
         case .eventNotFound:
-            return "That event is no longer in your calendar."
+            return String(localized: "That event is no longer in your calendar.")
         case .storeUnavailable:
-            return "Your calendar isn't available right now."
+            return String(localized: "Your calendar isn't available right now.")
         case .noWritableCalendar:
-            return "None of your calendars can take new events."
+            return String(localized: "None of your calendars can take new events.")
         case .calendarNotFound:
-            return "That calendar is no longer available. Choose another one."
+            return String(localized: "That calendar is no longer available. Choose another one.")
         case .writeFailed:
-            return "Couldn't save the event to your calendar. Please try again."
+            return String(localized: "Couldn't save the event to your calendar. Please try again.")
         }
     }
 }

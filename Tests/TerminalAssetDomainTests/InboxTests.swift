@@ -183,18 +183,18 @@ struct InboxManifestTests {
         let draft = manifest.contextDraft(attachmentPath: "id/Budget.xlsx")
         #expect(draft.kind == .file)
         #expect(draft.fileName == "id/Budget.xlsx")
-        #expect(manifest.subtitle == "XLSX file")
+        #expect(manifest.subtitle == .fileType("XLSX"))
     }
 
     @Test func textSubtitleDoesNotRepeatTheTitle() {
         let same = InboxManifest(id: UUID(), draft: InboxDraft(kind: .text, title: "Call Priya", text: "Call Priya"))
-        #expect(same.subtitle == "Text")
+        #expect(same.subtitle == .text)
 
         let longer = InboxManifest(
             id: UUID(),
             draft: InboxDraft(kind: .text, title: "Meeting notes", text: "Discussed the audit scope and owners")
         )
-        #expect(longer.subtitle == "Discussed the audit scope and owners")
+        #expect(longer.subtitle == .excerpt("Discussed the audit scope and owners"))
     }
 
     @Test func manifestSurvivesJSONRoundTrip() throws {
@@ -216,7 +216,7 @@ struct EventSuggesterTests {
         let suggestion = EventSuggester.suggest(text: "anything", at: now, events: [other, running])
 
         #expect(suggestion?.eventTitle == "ISO Audit Preparation")
-        #expect(suggestion?.reason.lowercased().contains("happening now") == true)
+        #expect(suggestion?.reasons.contains(.happeningNow) == true)
     }
 
     @Test func sharedWordsOutrankAMoreDistantButUnrelatedEvent() {
@@ -230,7 +230,7 @@ struct EventSuggesterTests {
         )
 
         #expect(suggestion?.eventTitle == "Vendor security")
-        #expect(suggestion?.reason.contains("similar topic") == true)
+        #expect(suggestion?.reasons.contains(.similarTopic) == true)
     }
 
     @Test func nothingIsSuggestedWhenNoSignalIsStrongEnough() {
@@ -247,7 +247,7 @@ struct EventSuggesterTests {
         // ...but together with a shared word it is enough.
         let suggestion = EventSuggester.suggest(text: "standup notes", at: now, events: [ended])
         #expect(suggestion?.eventTitle == "Standup")
-        #expect(suggestion?.reason.lowercased().contains("ended") == true)
+        #expect(suggestion?.reasons.contains { if case .endedMinutesAgo = $0 { true } else { false } } == true)
     }
 
     @Test func missingAndAllDayEventsAreNeverSuggested() {
@@ -259,7 +259,7 @@ struct EventSuggesterTests {
     @Test func existingContextTitlesContributeToMatching() {
         let target = event("Weekly sync", from: now + 30 * minute, itemTitles: ["Kubernetes migration plan"])
         let suggestion = EventSuggester.suggest(text: "Kubernetes migration checklist", at: now, events: [target])
-        #expect(suggestion?.reason.contains("similar topic") == true)
+        #expect(suggestion?.reasons.contains(.similarTopic) == true)
     }
 
     @Test func currentIntentResolvesTheEventRunningAtTheMomentOfSharing() {

@@ -1,0 +1,3965 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%@ file": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไฟล์ %@"
+          }
+        }
+      }
+    },
+    "%@ left": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เหลือ %@"
+          }
+        }
+      }
+    },
+    "%@ · All day": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · ทั้งวัน"
+          }
+        }
+      }
+    },
+    "%@ · in %lld min": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · อีก %lld นาที"
+          }
+        }
+      }
+    },
+    "%@, %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %@"
+          }
+        }
+      }
+    },
+    "%@, high %@, low %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, สูงสุด %@, ต่ำสุด %@"
+          }
+        }
+      }
+    },
+    "%lld attachments": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld attachment"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld attachments"
+                }
+              }
+            }
+          }
+        },
+        "th": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ไฟล์แนบ"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld events": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld event"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld events"
+                }
+              }
+            }
+          }
+        },
+        "th": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld กิจกรรม"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld events no longer in Calendar. Their context is kept.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld event no longer in Calendar. Its context is kept."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld events no longer in Calendar. Their context is kept."
+                }
+              }
+            }
+          }
+        },
+        "th": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld กิจกรรมไม่อยู่ในปฏิทินแล้ว แต่ข้อมูลที่แนบไว้ยังอยู่"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld files": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld file"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld files"
+                }
+              }
+            }
+          }
+        },
+        "th": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ไฟล์"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld left today · %lld done": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เหลือวันนี้ %lld · เสร็จแล้ว %lld"
+          }
+        }
+      }
+    },
+    "%lld links": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld link"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld links"
+                }
+              }
+            }
+          }
+        },
+        "th": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ลิงก์"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld notes": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld note"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld notes"
+                }
+              }
+            }
+          }
+        },
+        "th": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld โน้ต"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld of %lld events done": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เสร็จแล้ว %lld จาก %lld กิจกรรม"
+          }
+        }
+      }
+    },
+    "%lld open tasks": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld open task"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld open tasks"
+                }
+              }
+            }
+          }
+        },
+        "th": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "งานค้าง %lld รายการ"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld percent": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld เปอร์เซ็นต์"
+          }
+        }
+      }
+    },
+    "%lld results": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld result"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld results"
+                }
+              }
+            }
+          }
+        },
+        "th": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ผลลัพธ์"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld tasks open": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld task open"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld tasks open"
+                }
+              }
+            }
+          }
+        },
+        "th": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "ค้าง %lld งาน"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld to do": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ต้องทำ %lld งาน"
+          }
+        }
+      }
+    },
+    "%lld waiting": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld waiting"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld waiting"
+                }
+              }
+            }
+          }
+        },
+        "th": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "รอ %lld รายการ"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld%% chance of rain": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "โอกาสฝนตก %lld%%"
+          }
+        }
+      }
+    },
+    "%lld-day forecast": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "พยากรณ์ %lld วัน"
+          }
+        }
+      }
+    },
+    "+%lld more": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+อีก %lld"
+          }
+        }
+      }
+    },
+    ", %lld percent chance of rain": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ", โอกาสฝนตก %lld เปอร์เซ็นต์"
+          }
+        }
+      }
+    },
+    "A clear day": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "วันที่ว่าง"
+          }
+        }
+      }
+    },
+    "A web page in Safari, a photo, a file or a message.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "หน้าเว็บใน Safari, รูปภาพ, ไฟล์ หรือข้อความ"
+          }
+        }
+      }
+    },
+    "About": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เกี่ยวกับ"
+          }
+        }
+      }
+    },
+    "About 15 minutes before an event that has open tasks, or nothing attached yet, you get a notification with what to prepare. Reminders are scheduled on this iPhone; nothing is sent anywhere.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ก่อนถึงกิจกรรมประมาณ 15 นาที หากกิจกรรมนั้นมีงานค้างหรือยังไม่มีอะไรแนบไว้ คุณจะได้รับการแจ้งเตือนพร้อมสิ่งที่ต้องเตรียม การเตือนถูกตั้งเวลาไว้บน iPhone เครื่องนี้ ไม่มีการส่งข้อมูลไปที่ไหน"
+          }
+        }
+      }
+    },
+    "Access": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "การเข้าถึง"
+          }
+        }
+      }
+    },
+    "Add": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เพิ่ม"
+          }
+        }
+      }
+    },
+    "Add Context": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เพิ่มข้อมูลแนบ"
+          }
+        }
+      }
+    },
+    "Add context": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เพิ่มข้อมูลแนบ"
+          }
+        }
+      }
+    },
+    "Add event": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เพิ่มกิจกรรม"
+          }
+        }
+      }
+    },
+    "Add events only": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เพิ่มกิจกรรมได้อย่างเดียว"
+          }
+        }
+      }
+    },
+    "Add tasks, notes and links to your events, or share things into the Inbox. They'll be searchable here.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เพิ่มงาน โน้ต และลิงก์ให้กิจกรรมของคุณ หรือแชร์สิ่งต่าง ๆ เข้ากล่องรับเข้า แล้วจะค้นหาได้ที่นี่"
+          }
+        }
+      }
+    },
+    "Add tasks, notes or links. They'll be shown on Today when this event is close.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เพิ่มงาน โน้ต หรือลิงก์ แล้วจะแสดงในหน้าวันนี้เมื่อใกล้ถึงกิจกรรมนี้"
+          }
+        }
+      }
+    },
+    "Add to Inbox": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เพิ่มเข้ากล่องรับเข้า"
+          }
+        }
+      }
+    },
+    "Added %lld days ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เพิ่มเมื่อ %lld วันที่แล้ว"
+          }
+        }
+      }
+    },
+    "Added today": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เพิ่มวันนี้"
+          }
+        }
+      }
+    },
+    "Added yesterday": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เพิ่มเมื่อวาน"
+          }
+        }
+      }
+    },
+    "Added “%@” and %lld more to %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เพิ่ม “%@” และอีก %lld รายการไปยัง %@"
+          }
+        }
+      }
+    },
+    "Added “%@” to %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เพิ่ม “%@” ไปยัง %@"
+          }
+        }
+      }
+    },
+    "All": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ทั้งหมด"
+          }
+        }
+      }
+    },
+    "All %lld done for today": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ครบทั้ง %lld กิจกรรมของวันนี้แล้ว"
+          }
+        }
+      }
+    },
+    "All data was deleted from this device. Your calendar was not changed, so its events will appear again without notes, links or tasks.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลบข้อมูลทั้งหมดออกจากเครื่องนี้แล้ว ปฏิทินของคุณไม่ถูกเปลี่ยนแปลง กิจกรรมจะกลับมาแสดงอีกครั้งโดยไม่มีโน้ต ลิงก์ หรืองาน"
+          }
+        }
+      }
+    },
+    "All day": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ทั้งวัน"
+          }
+        }
+      }
+    },
+    "All-day": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ทั้งวัน"
+          }
+        }
+      }
+    },
+    "Allow Calendar Access": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "อนุญาตการเข้าถึงปฏิทิน"
+          }
+        }
+      }
+    },
+    "Allow Location": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "อนุญาตตำแหน่ง"
+          }
+        }
+      }
+    },
+    "Allow access so TerminalAsset can show your events. Your calendar stays on this device.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "อนุญาตให้ TerminalAsset แสดงกิจกรรมของคุณ ปฏิทินของคุณอยู่บนเครื่องนี้เท่านั้น"
+          }
+        }
+      }
+    },
+    "Attach": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "แนบ"
+          }
+        }
+      }
+    },
+    "Attach to %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "แนบกับ %@"
+          }
+        }
+      }
+    },
+    "Attach to the current event, the next one, or let TerminalAsset decide.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "แนบกับกิจกรรมปัจจุบัน กิจกรรมถัดไป หรือให้ TerminalAsset เลือกให้"
+          }
+        }
+      }
+    },
+    "Attach to…": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "แนบกับ…"
+          }
+        }
+      }
+    },
+    "Attached files": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไฟล์ที่แนบ"
+          }
+        }
+      }
+    },
+    "Attached to %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "แนบกับ %@ แล้ว"
+          }
+        }
+      }
+    },
+    "Avoid the midday sun.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "หลีกเลี่ยงแดดช่วงเที่ยง"
+          }
+        }
+      }
+    },
+    "Calendar": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ปฏิทิน"
+          }
+        }
+      }
+    },
+    "Calendar access is off, so TerminalAsset can't show your day. Turn it on in the Settings app.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "การเข้าถึงปฏิทินปิดอยู่ TerminalAsset จึงแสดงวันของคุณไม่ได้ เปิดได้ในแอปการตั้งค่า"
+          }
+        }
+      }
+    },
+    "Calendar access is off. Turn it on in Settings to see your day.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "การเข้าถึงปฏิทินปิดอยู่ เปิดในการตั้งค่าเพื่อดูวันของคุณ"
+          }
+        }
+      }
+    },
+    "Calendar access is off. Turn on Full Access for TerminalAsset in Settings to see your events.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "การเข้าถึงปฏิทินปิดอยู่ เปิด “การเข้าถึงแบบเต็ม” ให้ TerminalAsset ในการตั้งค่าเพื่อดูกิจกรรมของคุณ"
+          }
+        }
+      }
+    },
+    "Calendar access is on.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดการเข้าถึงปฏิทินแล้ว"
+          }
+        }
+      }
+    },
+    "Calendar access is restricted on this device, for example by Screen Time or a device policy.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "การเข้าถึงปฏิทินถูกจำกัดบนเครื่องนี้ เช่น โดยเวลาหน้าจอหรือนโยบายของอุปกรณ์"
+          }
+        }
+      }
+    },
+    "Calendar access is restricted on this device, for example by Screen Time or a device profile.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "การเข้าถึงปฏิทินถูกจำกัดบนเครื่องนี้ เช่น โดยเวลาหน้าจอหรือโปรไฟล์ของอุปกรณ์"
+          }
+        }
+      }
+    },
+    "Calm": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลมสงบ"
+          }
+        }
+      }
+    },
+    "Can't load your day": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "โหลดวันของคุณไม่ได้"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ยกเลิก"
+          }
+        }
+      }
+    },
+    "Choose TerminalAsset from the share sheet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เลือก TerminalAsset จากหน้าต่างแชร์"
+          }
+        }
+      }
+    },
+    "Choose event…": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เลือกกิจกรรม…"
+          }
+        }
+      }
+    },
+    "Choose…": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เลือก…"
+          }
+        }
+      }
+    },
+    "City name": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ชื่อเมือง"
+          }
+        }
+      }
+    },
+    "Clear": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ล้าง"
+          }
+        }
+      }
+    },
+    "Clear sky": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ท้องฟ้าแจ่มใส"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear"
+          }
+        }
+      }
+    },
+    "Cloudy": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "มีเมฆมาก"
+          }
+        }
+      }
+    },
+    "Comfortable": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สบาย"
+          }
+        }
+      }
+    },
+    "Continue": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ต่อไป"
+          }
+        }
+      }
+    },
+    "Couldn't ask for notification permission. Please try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ขอสิทธิ์การแจ้งเตือนไม่สำเร็จ กรุณาลองอีกครั้ง"
+          }
+        }
+      }
+    },
+    "Couldn't delete everything. Please try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลบทั้งหมดไม่สำเร็จ กรุณาลองอีกครั้ง"
+          }
+        }
+      }
+    },
+    "Couldn't find your location. Try again in a moment.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "หาตำแหน่งของคุณไม่พบ ลองอีกครั้งในอีกสักครู่"
+          }
+        }
+      }
+    },
+    "Couldn't prepare your data. Please try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เตรียมข้อมูลของคุณไม่สำเร็จ กรุณาลองอีกครั้ง"
+          }
+        }
+      }
+    },
+    "Couldn't read your saved context.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "อ่านข้อมูลที่บันทึกไว้ไม่ได้"
+          }
+        }
+      }
+    },
+    "Couldn't save the event to your calendar. Please try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "บันทึกกิจกรรมลงปฏิทินไม่สำเร็จ กรุณาลองอีกครั้ง"
+          }
+        }
+      }
+    },
+    "Couldn't save the file. Please try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "บันทึกไฟล์ไม่สำเร็จ กรุณาลองอีกครั้ง"
+          }
+        }
+      }
+    },
+    "Couldn't schedule reminders. Please try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตั้งการเตือนไม่สำเร็จ กรุณาลองอีกครั้ง"
+          }
+        }
+      }
+    },
+    "Couldn't update the data saved on this device.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "อัปเดตข้อมูลที่บันทึกบนเครื่องนี้ไม่สำเร็จ"
+          }
+        }
+      }
+    },
+    "Day": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "วัน"
+          }
+        }
+      }
+    },
+    "Delete": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลบ"
+          }
+        }
+      }
+    },
+    "Delete Everything": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลบทั้งหมด"
+          }
+        }
+      }
+    },
+    "Delete all TerminalAsset data?": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลบข้อมูล TerminalAsset ทั้งหมดไหม"
+          }
+        }
+      }
+    },
+    "Delete all data": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลบข้อมูลทั้งหมด"
+          }
+        }
+      }
+    },
+    "Describe it, like “lunch tomorrow 12:30”": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "อธิบายสั้น ๆ เช่น “ข้าวเที่ยงพรุ่งนี้ 12:30”"
+          }
+        }
+      }
+    },
+    "Details (optional)": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "รายละเอียด (ไม่บังคับ)"
+          }
+        }
+      }
+    },
+    "Dismiss": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่สนใจ"
+          }
+        }
+      }
+    },
+    "Dismissed": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่สนใจแล้ว"
+          }
+        }
+      }
+    },
+    "Done": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เสร็จสิ้น"
+          }
+        }
+      }
+    },
+    "Drizzle": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ฝนปรอย"
+          }
+        }
+      }
+    },
+    "Dry": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "แห้ง"
+          }
+        }
+      }
+    },
+    "Ended %lld min ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "จบไปแล้ว %lld นาที"
+          }
+        }
+      }
+    },
+    "Ends": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สิ้นสุด"
+          }
+        }
+      }
+    },
+    "Enjoy the free time.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เชิญพักผ่อนตามสบาย"
+          }
+        }
+      }
+    },
+    "Enter a title.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กรุณาใส่ชื่อ"
+          }
+        }
+      }
+    },
+    "Enter a valid web address, like example.com.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ใส่ที่อยู่เว็บที่ถูกต้อง เช่น example.com"
+          }
+        }
+      }
+    },
+    "Event": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กิจกรรม"
+          }
+        }
+      }
+    },
+    "Event is happening now": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กิจกรรมกำลังเกิดขึ้น"
+          }
+        }
+      }
+    },
+    "Event not found": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่พบกิจกรรม"
+          }
+        }
+      }
+    },
+    "Event progress": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ความคืบหน้าของกิจกรรม"
+          }
+        }
+      }
+    },
+    "Event starts in %lld h": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กิจกรรมเริ่มในอีก %lld ชม."
+          }
+        }
+      }
+    },
+    "Event starts in %lld min": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กิจกรรมเริ่มในอีก %lld นาที"
+          }
+        }
+      }
+    },
+    "Event starts tomorrow": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กิจกรรมเริ่มพรุ่งนี้"
+          }
+        }
+      }
+    },
+    "Event was %lld days ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กิจกรรมผ่านมา %lld วันแล้ว"
+          }
+        }
+      }
+    },
+    "Event was earlier today": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กิจกรรมก่อนหน้านี้ในวันนี้"
+          }
+        }
+      }
+    },
+    "Event was yesterday": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กิจกรรมเมื่อวาน"
+          }
+        }
+      }
+    },
+    "Events": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กิจกรรม"
+          }
+        }
+      }
+    },
+    "Events, notes, links, tasks": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กิจกรรม โน้ต ลิงก์ งาน"
+          }
+        }
+      }
+    },
+    "Every 2 Weeks": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ทุก 2 สัปดาห์"
+          }
+        }
+      }
+    },
+    "Every Day": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ทุกวัน"
+          }
+        }
+      }
+    },
+    "Every Month": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ทุกเดือน"
+          }
+        }
+      }
+    },
+    "Every Week": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ทุกสัปดาห์"
+          }
+        }
+      }
+    },
+    "Every Year": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ทุกปี"
+          }
+        }
+      }
+    },
+    "Every event becomes a place for the notes, links, files and tasks that belong to it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ทุกกิจกรรมกลายเป็นที่เก็บโน้ต ลิงก์ ไฟล์ และงานที่เกี่ยวข้อง"
+          }
+        }
+      }
+    },
+    "Export my data": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ส่งออกข้อมูลของฉัน"
+          }
+        }
+      }
+    },
+    "Export saves your notes, links, tasks and file names as a JSON file you choose where to keep.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "การส่งออกจะบันทึกโน้ต ลิงก์ งาน และชื่อไฟล์ของคุณเป็นไฟล์ JSON ที่คุณเลือกที่เก็บได้"
+          }
+        }
+      }
+    },
+    "Extreme": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "รุนแรงมาก"
+          }
+        }
+      }
+    },
+    "Feels cooler than the air temperature.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "รู้สึกเย็นกว่าอุณหภูมิอากาศ"
+          }
+        }
+      }
+    },
+    "Feels like": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "รู้สึกเหมือน"
+          }
+        }
+      }
+    },
+    "Feels warmer than the air temperature.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "รู้สึกอุ่นกว่าอุณหภูมิอากาศ"
+          }
+        }
+      }
+    },
+    "File": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไฟล์"
+          }
+        }
+      }
+    },
+    "Files": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไฟล์"
+          }
+        }
+      }
+    },
+    "Files you share into TerminalAsset are kept on this device. They are never moved or deleted unless you delete them or choose Delete all data.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไฟล์ที่คุณแชร์เข้า TerminalAsset เก็บไว้บนเครื่องนี้ จะไม่ถูกย้ายหรือลบ เว้นแต่คุณลบเองหรือเลือก “ลบข้อมูลทั้งหมด”"
+          }
+        }
+      }
+    },
+    "Filled in %@. Check it below.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เติม%@ให้แล้ว ตรวจสอบด้านล่าง"
+          }
+        }
+      }
+    },
+    "Fog": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "หมอก"
+          }
+        }
+      }
+    },
+    "Forecast": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "พยากรณ์อากาศ"
+          }
+        }
+      }
+    },
+    "Full access": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เข้าถึงแบบเต็ม"
+          }
+        }
+      }
+    },
+    "Get Started": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เริ่มต้นใช้งาน"
+          }
+        }
+      }
+    },
+    "Go to today": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไปที่วันนี้"
+          }
+        }
+      }
+    },
+    "H:%@  L:%@": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สูงสุด:%@  ต่ำสุด:%@"
+          }
+        }
+      }
+    },
+    "Happening now": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กำลังเกิดขึ้น"
+          }
+        }
+      }
+    },
+    "Hide": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ซ่อน"
+          }
+        }
+      }
+    },
+    "High": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สูง"
+          }
+        }
+      }
+    },
+    "Highest chance in the next 12 hours.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "โอกาสสูงสุดใน 12 ชั่วโมงข้างหน้า"
+          }
+        }
+      }
+    },
+    "Hourly forecast": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "พยากรณ์รายชั่วโมง"
+          }
+        }
+      }
+    },
+    "How to add": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "วิธีเพิ่ม"
+          }
+        }
+      }
+    },
+    "How your data is used": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "วิธีที่ใช้ข้อมูลของคุณ"
+          }
+        }
+      }
+    },
+    "Humid": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ชื้น"
+          }
+        }
+      }
+    },
+    "Humidity": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ความชื้น"
+          }
+        }
+      }
+    },
+    "If TerminalAsset ever adds a feature that sends something else, it will tell you exactly what is sent and why before it sends anything, and only after you agree.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "หาก TerminalAsset เพิ่มฟีเจอร์ที่ส่งข้อมูลอย่างอื่นในอนาคต จะบอกคุณอย่างชัดเจนว่าส่งอะไรและเพราะอะไรก่อนจะส่ง และส่งเมื่อคุณยอมรับเท่านั้น"
+          }
+        }
+      }
+    },
+    "If weather is on, a position rounded to about 1 km is sent to Apple's location service to get the name of your city.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "หากเปิดสภาพอากาศ ตำแหน่งที่ปัดเศษประมาณ 1 กม. จะถูกส่งไปยังบริการตำแหน่งของ Apple เพื่อหาชื่อเมืองของคุณ"
+          }
+        }
+      }
+    },
+    "Image": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "รูปภาพ"
+          }
+        }
+      }
+    },
+    "Inbox": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กล่องรับเข้า"
+          }
+        }
+      }
+    },
+    "Inbox zero": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กล่องรับเข้าว่าง"
+          }
+        }
+      }
+    },
+    "Items sent from other apps wait in the Inbox on this iPhone until you attach them to an event.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สิ่งที่ส่งมาจากแอปอื่นจะรออยู่ในกล่องรับเข้าบน iPhone เครื่องนี้จนกว่าคุณจะแนบกับกิจกรรม"
+          }
+        }
+      }
+    },
+    "Leaves this iPhone": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ออกจาก iPhone เครื่องนี้"
+          }
+        }
+      }
+    },
+    "Light breeze": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลมเบา"
+          }
+        }
+      }
+    },
+    "Link": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลิงก์"
+          }
+        }
+      }
+    },
+    "Links": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลิงก์"
+          }
+        }
+      }
+    },
+    "Location": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สถานที่"
+          }
+        }
+      }
+    },
+    "Location is off": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตำแหน่งปิดอยู่"
+          }
+        }
+      }
+    },
+    "Loose ends": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "งานค้าง"
+          }
+        }
+      }
+    },
+    "Low": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ต่ำ"
+          }
+        }
+      }
+    },
+    "Marks the task as done": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ทำเครื่องหมายว่างานเสร็จแล้ว"
+          }
+        }
+      }
+    },
+    "Matches": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตรงกัน"
+          }
+        }
+      }
+    },
+    "Matches event name": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตรงกับชื่อกิจกรรม"
+          }
+        }
+      }
+    },
+    "Matches link": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตรงกับลิงก์"
+          }
+        }
+      }
+    },
+    "Matches text": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตรงกับข้อความ"
+          }
+        }
+      }
+    },
+    "Matches title": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตรงกับชื่อเรื่อง"
+          }
+        }
+      }
+    },
+    "Moderate": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ปานกลาง"
+          }
+        }
+      }
+    },
+    "Moderate wind": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลมปานกลาง"
+          }
+        }
+      }
+    },
+    "Month": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เดือน"
+          }
+        }
+      }
+    },
+    "New Event": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กิจกรรมใหม่"
+          }
+        }
+      }
+    },
+    "New Link": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลิงก์ใหม่"
+          }
+        }
+      }
+    },
+    "New Note": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "โน้ตใหม่"
+          }
+        }
+      }
+    },
+    "New Task": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "งานใหม่"
+          }
+        }
+      }
+    },
+    "Next day": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "วันถัดไป"
+          }
+        }
+      }
+    },
+    "Next month": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เดือนถัดไป"
+          }
+        }
+      }
+    },
+    "No account": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่มีบัญชี"
+          }
+        }
+      }
+    },
+    "No analytics, no advertising and no data sold or shared.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่มีการวิเคราะห์การใช้งาน ไม่มีโฆษณา และไม่มีการขายหรือแบ่งปันข้อมูล"
+          }
+        }
+      }
+    },
+    "No confident match": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่พบกิจกรรมที่ตรงกันชัดเจน"
+          }
+        }
+      }
+    },
+    "No context yet": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ยังไม่มีข้อมูลแนบ"
+          }
+        }
+      }
+    },
+    "No events": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่มีกิจกรรม"
+          }
+        }
+      }
+    },
+    "No events nearby": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่มีกิจกรรมใกล้เคียง"
+          }
+        }
+      }
+    },
+    "No events scheduled": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่มีกิจกรรมที่กำหนดไว้"
+          }
+        }
+      }
+    },
+    "No events today": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "วันนี้ไม่มีกิจกรรม"
+          }
+        }
+      }
+    },
+    "No protection needed.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่ต้องป้องกัน"
+          }
+        }
+      }
+    },
+    "No rain expected in the next 24 hours.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่คาดว่าจะมีฝนใน 24 ชั่วโมงข้างหน้า"
+          }
+        }
+      }
+    },
+    "No tracking": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่มีการติดตาม"
+          }
+        }
+      }
+    },
+    "None of your calendars can take new events.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่มีปฏิทินใดของคุณที่เพิ่มกิจกรรมใหม่ได้"
+          }
+        }
+      }
+    },
+    "Not Now": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่ใช่ตอนนี้"
+          }
+        }
+      }
+    },
+    "Not asked yet": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ยังไม่ได้ขอ"
+          }
+        }
+      }
+    },
+    "Not done": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ยังไม่เสร็จ"
+          }
+        }
+      }
+    },
+    "Note": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "โน้ต"
+          }
+        }
+      }
+    },
+    "Notes": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "โน้ต"
+          }
+        }
+      }
+    },
+    "Notes, links, tasks and files": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "โน้ต ลิงก์ งาน และไฟล์"
+          }
+        }
+      }
+    },
+    "Nothing attached yet. Add a note or a link while there is time.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ยังไม่มีอะไรแนบไว้ เพิ่มโน้ตหรือลิงก์ตอนที่ยังมีเวลา"
+          }
+        }
+      }
+    },
+    "Nothing attached yet. Add a note, link or task and it will be here when it matters.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ยังไม่มีอะไรแนบไว้ เพิ่มโน้ต ลิงก์ หรืองาน แล้วจะมาแสดงตรงนี้เมื่อถึงเวลาที่ต้องใช้"
+          }
+        }
+      }
+    },
+    "Nothing else today": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "วันนี้ไม่มีอะไรอีกแล้ว"
+          }
+        }
+      }
+    },
+    "Nothing is scheduled. Context you add to events shows up here when it matters.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ยังไม่มีกิจกรรมที่กำหนดไว้ สิ่งที่คุณแนบกับกิจกรรมจะมาแสดงที่นี่เมื่อถึงเวลาที่ต้องใช้"
+          }
+        }
+      }
+    },
+    "Nothing time-sensitive right now": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตอนนี้ไม่มีอะไรที่ต้องรีบ"
+          }
+        }
+      }
+    },
+    "Nothing to search yet": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ยังไม่มีอะไรให้ค้นหา"
+          }
+        }
+      }
+    },
+    "Notifications are off for TerminalAsset. Turn them on in the Settings app to get reminders.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "การแจ้งเตือนของ TerminalAsset ปิดอยู่ เปิดในแอปการตั้งค่าเพื่อรับการเตือน"
+          }
+        }
+      }
+    },
+    "Now": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตอนนี้"
+          }
+        }
+      }
+    },
+    "OK": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตกลง"
+          }
+        }
+      }
+    },
+    "Off": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ปิด"
+          }
+        }
+      }
+    },
+    "Open": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิด"
+          }
+        }
+      }
+    },
+    "Open Settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดการตั้งค่า"
+          }
+        }
+      }
+    },
+    "Open anything": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดอะไรก็ได้"
+          }
+        }
+      }
+    },
+    "Open items for the event running now or starting soon.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "รายการค้างของกิจกรรมที่กำลังดำเนินอยู่หรือจะเริ่มเร็ว ๆ นี้"
+          }
+        }
+      }
+    },
+    "Open task": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "งานที่ยังไม่เสร็จ"
+          }
+        }
+      }
+    },
+    "Open tasks: %lld of %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "งานค้าง: %lld จาก %lld"
+          }
+        }
+      }
+    },
+    "Opens the calendar": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดปฏิทิน"
+          }
+        }
+      }
+    },
+    "Opens the event": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดกิจกรรม"
+          }
+        }
+      }
+    },
+    "Opens the event's context": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดข้อมูลแนบของกิจกรรม"
+          }
+        }
+      }
+    },
+    "Partly cloudy": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "มีเมฆบางส่วน"
+          }
+        }
+      }
+    },
+    "Pick where it goes": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เลือกว่าจะไปไหน"
+          }
+        }
+      }
+    },
+    "Previous day": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "วันก่อนหน้า"
+          }
+        }
+      }
+    },
+    "Previous month": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เดือนก่อนหน้า"
+          }
+        }
+      }
+    },
+    "Privacy & data": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ความเป็นส่วนตัวและข้อมูล"
+          }
+        }
+      }
+    },
+    "Quick add": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เพิ่มด่วน"
+          }
+        }
+      }
+    },
+    "Rain": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ฝนตก"
+          }
+        }
+      }
+    },
+    "Rain likely for the rest of the day.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "มีโอกาสฝนตกตลอดทั้งวัน"
+          }
+        }
+      }
+    },
+    "Rain likely from about %@.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "คาดว่าฝนตกตั้งแต่ประมาณ %@"
+          }
+        }
+      }
+    },
+    "Rain likely now, easing around %@.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "มีโอกาสฝนตกตอนนี้ และจะซาลงราว %@"
+          }
+        }
+      }
+    },
+    "Read from the system calendar on this iPhone to build Today, Calendar and Search. Events you add are saved to your calendar. Nothing about your calendar is uploaded.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "อ่านจากปฏิทินของระบบบน iPhone เครื่องนี้เพื่อสร้างหน้าวันนี้ ปฏิทิน และค้นหา กิจกรรมที่คุณเพิ่มจะถูกบันทึกลงในปฏิทินของคุณ ไม่มีข้อมูลปฏิทินถูกอัปโหลด"
+          }
+        }
+      }
+    },
+    "Read on this device. Nothing is sent anywhere.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ประมวลผลบนเครื่องนี้ ไม่มีการส่งข้อมูลไปที่ไหน"
+          }
+        }
+      }
+    },
+    "Recent searches": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "การค้นหาล่าสุด"
+          }
+        }
+      }
+    },
+    "Relevant now": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เกี่ยวข้องตอนนี้"
+          }
+        }
+      }
+    },
+    "Remind me before events": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เตือนฉันก่อนถึงกิจกรรม"
+          }
+        }
+      }
+    },
+    "Reminders": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "การเตือน"
+          }
+        }
+      }
+    },
+    "Repeat": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ทำซ้ำ"
+          }
+        }
+      }
+    },
+    "Restricted": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ถูกจำกัด"
+          }
+        }
+      }
+    },
+    "Retry": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลองอีกครั้ง"
+          }
+        }
+      }
+    },
+    "Save": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "บันทึก"
+          }
+        }
+      }
+    },
+    "Schedule": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตารางวัน"
+          }
+        }
+      }
+    },
+    "Search": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ค้นหา"
+          }
+        }
+      }
+    },
+    "See your day with its context": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ดูวันของคุณพร้อมข้อมูลที่เกี่ยวข้อง"
+          }
+        }
+      }
+    },
+    "Send something from Safari, Photos or Files. TerminalAsset suggests which event it belongs to.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ส่งบางอย่างจาก Safari, รูปภาพ หรือไฟล์ TerminalAsset จะแนะนำว่าควรเป็นของกิจกรรมไหน"
+          }
+        }
+      }
+    },
+    "Settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "การตั้งค่า"
+          }
+        }
+      }
+    },
+    "Share anything to TerminalAsset and it lands here with a suggested event. You never have to file it yourself.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "แชร์อะไรก็ได้มาที่ TerminalAsset แล้วมันจะมาอยู่ที่นี่พร้อมกิจกรรมที่แนะนำ คุณไม่ต้องจัดเก็บเอง"
+          }
+        }
+      }
+    },
+    "Share it. Don't file it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "แชร์เลย ไม่ต้องจัดเก็บ"
+          }
+        }
+      }
+    },
+    "Sharing isn't set up": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ยังไม่ได้ตั้งค่าการแชร์"
+          }
+        }
+      }
+    },
+    "Show the weather here?": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "แสดงสภาพอากาศที่นี่ไหม"
+          }
+        }
+      }
+    },
+    "Show weather on Today": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "แสดงสภาพอากาศในหน้าวันนี้"
+          }
+        }
+      }
+    },
+    "Similar to the air temperature.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ใกล้เคียงกับอุณหภูมิอากาศ"
+          }
+        }
+      }
+    },
+    "Similar topic": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "หัวข้อคล้ายกัน"
+          }
+        }
+      }
+    },
+    "Skip": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ข้าม"
+          }
+        }
+      }
+    },
+    "Snow": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "หิมะ"
+          }
+        }
+      }
+    },
+    "Something went wrong": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เกิดข้อผิดพลาด"
+          }
+        }
+      }
+    },
+    "Something went wrong. Please try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เกิดข้อผิดพลาด กรุณาลองอีกครั้ง"
+          }
+        }
+      }
+    },
+    "Starting now": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กำลังเริ่ม"
+          }
+        }
+      }
+    },
+    "Starts": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เริ่ม"
+          }
+        }
+      }
+    },
+    "Starts %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เริ่ม%@"
+          }
+        }
+      }
+    },
+    "Starts in %lld min": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เริ่มในอีก %lld นาที"
+          }
+        }
+      }
+    },
+    "Stays on this iPhone": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "อยู่บน iPhone เครื่องนี้"
+          }
+        }
+      }
+    },
+    "Storage": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "พื้นที่จัดเก็บ"
+          }
+        }
+      }
+    },
+    "Stored only on this iPhone, in the app's own storage. Search and quick add run on the device too.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เก็บไว้บน iPhone เครื่องนี้เท่านั้น ในพื้นที่จัดเก็บของแอปเอง การค้นหาและการเพิ่มด่วนก็ทำงานบนเครื่องเช่นกัน"
+          }
+        }
+      }
+    },
+    "Strong wind": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลมแรง"
+          }
+        }
+      }
+    },
+    "Suggested: **%@**": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "แนะนำ: **%@**"
+          }
+        }
+      }
+    },
+    "Sun protection recommended.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "แนะนำให้ป้องกันแดด"
+          }
+        }
+      }
+    },
+    "Sunrise": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ดวงอาทิตย์ขึ้น"
+          }
+        }
+      }
+    },
+    "Sunrise: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ดวงอาทิตย์ขึ้น: %@"
+          }
+        }
+      }
+    },
+    "Sunset": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ดวงอาทิตย์ตก"
+          }
+        }
+      }
+    },
+    "Sunset: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ดวงอาทิตย์ตก: %@"
+          }
+        }
+      }
+    },
+    "Tap Share": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "แตะแชร์"
+          }
+        }
+      }
+    },
+    "Task": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "งาน"
+          }
+        }
+      }
+    },
+    "Tasks": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "งาน"
+          }
+        }
+      }
+    },
+    "Temperature %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "อุณหภูมิ %@"
+          }
+        }
+      }
+    },
+    "TerminalAsset": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TerminalAsset"
+          }
+        }
+      }
+    },
+    "TerminalAsset can add events but can't read them, so Today and Search stay empty. Allow full access in Settings.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TerminalAsset เพิ่มกิจกรรมได้แต่อ่านกิจกรรมไม่ได้ หน้าวันนี้และการค้นหาจึงว่างเปล่า อนุญาตการเข้าถึงแบบเต็มในการตั้งค่า"
+          }
+        }
+      }
+    },
+    "TerminalAsset can show today's forecast for where you are. It uses your approximate location and sends only a rounded coordinate (about 1 km) to the free Open-Meteo weather service. No name, account or calendar data is sent.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TerminalAsset แสดงพยากรณ์อากาศวันนี้ตามตำแหน่งของคุณได้ โดยใช้ตำแหน่งโดยประมาณและส่งเฉพาะพิกัดที่ปัดเศษแล้ว (ประมาณ 1 กม.) ไปยังบริการสภาพอากาศฟรี Open-Meteo ไม่มีการส่งชื่อ บัญชี หรือข้อมูลปฏิทิน"
+          }
+        }
+      }
+    },
+    "TerminalAsset can't start": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TerminalAsset เริ่มทำงานไม่ได้"
+          }
+        }
+      }
+    },
+    "TerminalAsset reads your calendar on this device to show the context you need, and adds events when you create them. Your calendar is never uploaded.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TerminalAsset อ่านปฏิทินของคุณบนเครื่องนี้เพื่อแสดงข้อมูลที่คุณต้องใช้ และเพิ่มกิจกรรมเมื่อคุณสร้าง ปฏิทินของคุณจะไม่ถูกอัปโหลด"
+          }
+        }
+      }
+    },
+    "TerminalAsset shows the notes, links and tasks you need right when each event starts.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TerminalAsset แสดงโน้ต ลิงก์ และงานที่คุณต้องใช้ในตอนที่แต่ละกิจกรรมเริ่มพอดี"
+          }
+        }
+      }
+    },
+    "Text": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ข้อความ"
+          }
+        }
+      }
+    },
+    "That calendar is no longer available. Choose another one.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ปฏิทินนั้นใช้งานไม่ได้แล้ว กรุณาเลือกปฏิทินอื่น"
+          }
+        }
+      }
+    },
+    "That event is no longer in your calendar.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กิจกรรมนั้นไม่อยู่ในปฏิทินของคุณแล้ว"
+          }
+        }
+      }
+    },
+    "That kind of item can't be added here yet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ยังเพิ่มรายการประเภทนี้ที่นี่ไม่ได้"
+          }
+        }
+      }
+    },
+    "That location is too long. Keep it under %lld characters.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สถานที่ยาวเกินไป ใช้ไม่เกิน %lld ตัวอักษร"
+          }
+        }
+      }
+    },
+    "That title is too long. Keep it under %lld characters.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ชื่อยาวเกินไป ใช้ไม่เกิน %lld ตัวอักษร"
+          }
+        }
+      }
+    },
+    "The event has to end after it starts.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กิจกรรมต้องสิ้นสุดหลังเวลาเริ่ม"
+          }
+        }
+      }
+    },
+    "The file for this item is missing.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่พบไฟล์ของรายการนี้"
+          }
+        }
+      }
+    },
+    "The forecast isn't available right now.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตอนนี้ยังไม่มีพยากรณ์อากาศ"
+          }
+        }
+      }
+    },
+    "The local data store could not be opened on this device.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดที่เก็บข้อมูลบนเครื่องนี้ไม่ได้"
+          }
+        }
+      }
+    },
+    "The right thing, right on time": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สิ่งที่ใช่ ตรงเวลาพอดี"
+          }
+        }
+      }
+    },
+    "The same rounded position is sent to Open-Meteo, a free weather service, to get the forecast. It receives no name, account or calendar data.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตำแหน่งที่ปัดเศษเดียวกันจะถูกส่งไปยัง Open-Meteo บริการสภาพอากาศฟรี เพื่อขอพยากรณ์ โดยไม่ได้รับชื่อ บัญชี หรือข้อมูลปฏิทิน"
+          }
+        }
+      }
+    },
+    "There are no calendar events around the time this was shared.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่มีกิจกรรมในปฏิทินช่วงเวลาที่แชร์สิ่งนี้"
+          }
+        }
+      }
+    },
+    "There is nothing to sign up for or sign in to.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่ต้องสมัครหรือเข้าสู่ระบบใด ๆ"
+          }
+        }
+      }
+    },
+    "Things you share from Safari, Photos and Files land here until they're attached to an event.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สิ่งที่คุณแชร์จาก Safari, รูปภาพ และไฟล์จะมาอยู่ที่นี่จนกว่าจะแนบกับกิจกรรม"
+          }
+        }
+      }
+    },
+    "Things you share in": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สิ่งที่คุณแชร์เข้ามา"
+          }
+        }
+      }
+    },
+    "This build can't receive shared items yet. Everything else keeps working.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เวอร์ชันนี้ยังรับสิ่งที่แชร์ไม่ได้ ส่วนอื่นทำงานได้ตามปกติ"
+          }
+        }
+      }
+    },
+    "This event is no longer in your calendar. Its context is kept.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กิจกรรมนี้ไม่อยู่ในปฏิทินของคุณแล้ว แต่ข้อมูลที่แนบไว้ยังอยู่"
+          }
+        }
+      }
+    },
+    "This removes all notes, links, tasks, attached files and the share history from this device. Your calendar is not changed.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "การลบนี้จะเอาโน้ต ลิงก์ งาน ไฟล์ที่แนบ และประวัติการแชร์ทั้งหมดออกจากเครื่องนี้ ปฏิทินของคุณจะไม่ถูกเปลี่ยนแปลง"
+          }
+        }
+      }
+    },
+    "Thunderstorm": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "พายุฝนฟ้าคะนอง"
+          }
+        }
+      }
+    },
+    "Title": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ชื่อ"
+          }
+        }
+      }
+    },
+    "Title (optional)": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ชื่อ (ไม่บังคับ)"
+          }
+        }
+      }
+    },
+    "To prepare": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สิ่งที่ต้องเตรียม"
+          }
+        }
+      }
+    },
+    "Today": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "วันนี้"
+          }
+        }
+      }
+    },
+    "Today's progress": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ความคืบหน้าของวันนี้"
+          }
+        }
+      }
+    },
+    "Tomorrow": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "พรุ่งนี้"
+          }
+        }
+      }
+    },
+    "Try Again": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลองอีกครั้ง"
+          }
+        }
+      }
+    },
+    "Turn off “Show weather on Today” in Settings and nothing leaves this iPhone.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ปิด “แสดงสภาพอากาศในหน้าวันนี้” ในการตั้งค่า แล้วจะไม่มีอะไรออกจาก iPhone เครื่องนี้"
+          }
+        }
+      }
+    },
+    "Turn on location for TerminalAsset in Settings to see the weather. Everything else works without it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิดตำแหน่งให้ TerminalAsset ในการตั้งค่าเพื่อดูสภาพอากาศ ส่วนอื่นใช้งานได้ตามปกติโดยไม่ต้องใช้ตำแหน่ง"
+          }
+        }
+      }
+    },
+    "Type to search everything you've attached to your events.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "พิมพ์เพื่อค้นหาทุกอย่างที่คุณแนบกับกิจกรรม"
+          }
+        }
+      }
+    },
+    "UV index": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ดัชนี UV"
+          }
+        }
+      }
+    },
+    "Undo": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เลิกทำ"
+          }
+        }
+      }
+    },
+    "Up next": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ถัดไป"
+          }
+        }
+      }
+    },
+    "Updated %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "อัปเดต %@"
+          }
+        }
+      }
+    },
+    "Used as the title. Add a day or time, like “tomorrow 3pm”.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ใช้เป็นชื่อกิจกรรม เพิ่มวันหรือเวลา เช่น “พรุ่งนี้ 3 โมงเย็น”"
+          }
+        }
+      }
+    },
+    "Uses your approximate location. A position rounded to about 1 km is used to look up the city name (Apple) and to get the forecast (Open-Meteo). No account, name or calendar data is sent. Turn this off to stop using your location.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ใช้ตำแหน่งโดยประมาณของคุณ ตำแหน่งที่ปัดเศษประมาณ 1 กม. ใช้หาชื่อเมือง (Apple) และขอพยากรณ์ (Open-Meteo) ไม่มีการส่งบัญชี ชื่อ หรือข้อมูลปฏิทิน ปิดตัวเลือกนี้เพื่อเลิกใช้ตำแหน่งของคุณ"
+          }
+        }
+      }
+    },
+    "Version": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เวอร์ชัน"
+          }
+        }
+      }
+    },
+    "Very high": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สูงมาก"
+          }
+        }
+      }
+    },
+    "Very humid": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ชื้นมาก"
+          }
+        }
+      }
+    },
+    "Very strong wind": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลมแรงมาก"
+          }
+        }
+      }
+    },
+    "View": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "มุมมอง"
+          }
+        }
+      }
+    },
+    "Weather": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สภาพอากาศ"
+          }
+        }
+      }
+    },
+    "Weather data by Open-Meteo.com": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ข้อมูลสภาพอากาศโดย Open-Meteo.com"
+          }
+        }
+      }
+    },
+    "Web address": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ที่อยู่เว็บ"
+          }
+        }
+      }
+    },
+    "What needs doing?": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ต้องทำอะไร"
+          }
+        }
+      }
+    },
+    "What we never do": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สิ่งที่เราไม่ทำ"
+          }
+        }
+      }
+    },
+    "When an event is close, what you need is already at the top, with no searching and no prompts to write.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เมื่อใกล้ถึงกิจกรรม สิ่งที่คุณต้องใช้จะอยู่ด้านบนสุดแล้ว ไม่ต้องค้นหา ไม่ต้องพิมพ์คำสั่ง"
+          }
+        }
+      }
+    },
+    "Wind": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ลม"
+          }
+        }
+      }
+    },
+    "Yesterday": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เมื่อวาน"
+          }
+        }
+      }
+    },
+    "You're all set": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "พร้อมแล้ว"
+          }
+        }
+      }
+    },
+    "You're offline, so the forecast isn't available.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "คุณออฟไลน์อยู่ จึงไม่มีพยากรณ์อากาศ"
+          }
+        }
+      }
+    },
+    "Your calendar": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ปฏิทินของคุณ"
+          }
+        }
+      }
+    },
+    "Your calendar is read on this device and never uploaded.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ปฏิทินของคุณถูกอ่านบนเครื่องนี้และไม่ถูกอัปโหลด"
+          }
+        }
+      }
+    },
+    "Your calendar isn't available right now.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตอนนี้ใช้ปฏิทินของคุณไม่ได้"
+          }
+        }
+      }
+    },
+    "Your calendar, with context": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ปฏิทินของคุณ พร้อมข้อมูลที่เกี่ยวข้อง"
+          }
+        }
+      }
+    },
+    "Your data": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ข้อมูลของคุณ"
+          }
+        }
+      }
+    },
+    "Your data stays on this device unless you choose otherwise.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ข้อมูลของคุณอยู่บนเครื่องนี้ เว้นแต่คุณเลือกเป็นอย่างอื่น"
+          }
+        }
+      }
+    },
+    "all-day": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ทั้งวัน"
+          }
+        }
+      }
+    },
+    "date": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "วันที่"
+          }
+        }
+      }
+    },
+    "events done": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กิจกรรมเสร็จแล้ว"
+          }
+        }
+      }
+    },
+    "in %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "อีก %@"
+          }
+        }
+      }
+    },
+    "length": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ระยะเวลา"
+          }
+        }
+      }
+    },
+    "place": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "สถานที่"
+          }
+        }
+      }
+    },
+    "repeat": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "การทำซ้ำ"
+          }
+        }
+      }
+    },
+    "repeat.never": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่ทำซ้ำ"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Never"
+          }
+        }
+      }
+    },
+    "time": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เวลา"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

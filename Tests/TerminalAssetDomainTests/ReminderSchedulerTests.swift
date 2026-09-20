@@ -9,8 +9,9 @@ private func reminder(_ name: String) -> PrepReminder {
         id: PrepReminderPlanner.idPrefix + name,
         eventKey: EventKey(rawValue: name),
         fireDate: now + 600,
-        title: name,
-        body: ""
+        eventTitle: name,
+        minutesBefore: 10,
+        preparation: .nothingAttached
     )
 }
 
@@ -20,7 +21,7 @@ struct ReminderSchedulerTests {
         let scheduler = InMemoryReminderScheduler()
         try await scheduler.replaceAll(with: [reminder("a"), reminder("b")])
         try await scheduler.replaceAll(with: [reminder("b"), reminder("c")])
-        #expect(await scheduler.scheduled.map(\.title) == ["b", "c"])
+        #expect(await scheduler.scheduled.map(\.eventTitle) == ["b", "c"])
     }
 
     @Test func anEmptyListClearsEverything() async throws {

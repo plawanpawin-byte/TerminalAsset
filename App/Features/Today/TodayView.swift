@@ -59,7 +59,7 @@ struct TodayView: View {
                 }
             }
             .background { background.ignoresSafeArea() }
-            .navigationTitle(sky == nil ? "Today" : "")
+            .navigationTitle(sky == nil ? String(localized: "Today") : "")
             .navigationBarTitleDisplayMode(sky == nil ? .large : .inline)
             .toolbarColorScheme(sky == nil ? nil : .dark, for: .navigationBar)
             .navigationDestination(for: EventKey.self) { key in
@@ -176,7 +176,7 @@ private struct TodayContent: View {
 
                         if snapshot.stats.missing > 0 {
                             Label(
-                                "\(snapshot.stats.missing) event\(snapshot.stats.missing == 1 ? "" : "s") no longer in Calendar. Their context is kept.",
+                                "\(snapshot.stats.missing) events no longer in Calendar. Their context is kept.",
                                 systemImage: "tray.full"
                             )
                             .font(.footnote)
@@ -286,8 +286,7 @@ private struct LooseEndRow: View {
 
     private var subtitle: String {
         let open = event.summary.openTasks
-        let tasks = "\(open) task\(open == 1 ? "" : "s") open"
-        return "\(tasks) · \(TimeText.relative(event.endDate, to: now))"
+        return String(localized: "\(open) tasks open") + " · " + TimeText.relative(event.endDate, to: now)
     }
 }
 

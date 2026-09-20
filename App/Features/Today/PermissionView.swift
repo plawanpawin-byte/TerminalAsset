@@ -57,7 +57,7 @@ struct PermissionView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    private var explanation: String {
+    private var explanation: LocalizedStringKey {
         switch status {
         case .notDetermined:
             "TerminalAsset shows the notes, links and tasks you need right when each event starts."

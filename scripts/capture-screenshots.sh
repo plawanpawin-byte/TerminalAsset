@@ -58,6 +58,16 @@ shot settings light -tab settings
 shot privacy light -tab settings -privacy
 shot onboarding light -onboarding
 
+# The same screens in Thai, to check the translation fits and reads well.
+shot th-today light -weather rain -AppleLanguages "(th)" -AppleLocale th_TH
+shot th-today-details light -weather clear -todaySection looseEnds -AppleLanguages "(th)" -AppleLocale th_TH
+shot th-calendar light -tab calendar -AppleLanguages "(th)" -AppleLocale th_TH
+shot th-add-event light -tab calendar -addEvent quickth -AppleLanguages "(th)" -AppleLocale th_TH
+shot th-inbox light -tab inbox -AppleLanguages "(th)" -AppleLocale th_TH
+shot th-search light -tab search -AppleLanguages "(th)" -AppleLocale th_TH
+shot th-settings light -tab settings -AppleLanguages "(th)" -AppleLocale th_TH
+shot th-privacy light -tab settings -privacy -AppleLanguages "(th)" -AppleLocale th_TH
+
 # Real location + real Open-Meteo request (needs network). The simulator is placed in Bangkok and location
 # permission is pre-granted, so this exercises CoreLocation, geocoding and the HTTP call end to end.
 xcrun simctl privacy "$UDID" grant location "$BUNDLE" || true

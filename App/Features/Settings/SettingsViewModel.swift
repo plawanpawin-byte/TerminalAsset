@@ -66,13 +66,13 @@ final class SettingsViewModel {
             let data = try DataExport.make(from: events, generatedAt: now).encoded()
             return ExportDocument(data: data, fileName: DataExport.fileName(for: now, calendar: calendar))
         } catch {
-            notice = "Couldn't prepare your data. Please try again."
+            notice = String(localized: "Couldn't prepare your data. Please try again.")
             return nil
         }
     }
 
     func exportFinished(_ result: Result<URL, Error>) {
-        if case .failure = result { notice = "Couldn't save the file. Please try again." }
+        if case .failure = result { notice = String(localized: "Couldn't save the file. Please try again.") }
     }
 
     /// Deletes everything the app stored. Order matters: the database first, then the files it pointed to, so a
@@ -85,9 +85,9 @@ final class SettingsViewModel {
             try shared?.eraseAll()
             await onDataChanged()
             await refresh()
-            notice = "All data was deleted from this device. Your calendar was not changed, so its events will appear again without notes, links or tasks."
+            notice = String(localized: "All data was deleted from this device. Your calendar was not changed, so its events will appear again without notes, links or tasks.")
         } catch {
-            notice = "Couldn't delete everything. Please try again."
+            notice = String(localized: "Couldn't delete everything. Please try again.")
         }
     }
 
@@ -97,26 +97,26 @@ final class SettingsViewModel {
 extension CalendarAuthorization {
     var settingsTitle: String {
         switch self {
-        case .fullAccess: "Full access"
-        case .writeOnly: "Add events only"
-        case .denied: "Off"
-        case .restricted: "Restricted"
-        case .notDetermined: "Not asked yet"
+        case .fullAccess: String(localized: "Full access")
+        case .writeOnly: String(localized: "Add events only")
+        case .denied: String(localized: "Off")
+        case .restricted: String(localized: "Restricted")
+        case .notDetermined: String(localized: "Not asked yet")
         }
     }
 
     var settingsExplanation: String {
         switch self {
         case .fullAccess:
-            "TerminalAsset reads your calendar on this device to show the context you need, and adds events when you create them. Your calendar is never uploaded."
+            String(localized: "TerminalAsset reads your calendar on this device to show the context you need, and adds events when you create them. Your calendar is never uploaded.")
         case .writeOnly:
-            "TerminalAsset can add events but can't read them, so Today and Search stay empty. Allow full access in Settings."
+            String(localized: "TerminalAsset can add events but can't read them, so Today and Search stay empty. Allow full access in Settings.")
         case .denied:
-            "Calendar access is off, so TerminalAsset can't show your day. Turn it on in the Settings app."
+            String(localized: "Calendar access is off, so TerminalAsset can't show your day. Turn it on in the Settings app.")
         case .restricted:
-            "Calendar access is restricted on this device, for example by Screen Time or a device profile."
+            String(localized: "Calendar access is restricted on this device, for example by Screen Time or a device profile.")
         case .notDetermined:
-            "Allow access so TerminalAsset can show your events. Your calendar stays on this device."
+            String(localized: "Allow access so TerminalAsset can show your events. Your calendar stays on this device.")
         }
     }
 }

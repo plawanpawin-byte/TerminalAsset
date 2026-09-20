@@ -37,9 +37,9 @@ public enum SearchEngine {
             let recency = recencyWeight(of: document, at: now)
             let score = match.score * (0.55 + 0.30 * temporal.weight + 0.15 * recency)
 
-            var signals = [SearchSignal(kind: .match, text: match.label)]
-            if let label = temporal.label { signals.append(SearchSignal(kind: .temporal, text: label)) }
-            if let label = recencyLabel(of: document, at: now) { signals.append(SearchSignal(kind: .recent, text: label)) }
+            var signals = [SearchSignal(kind: .match, reason: match.reason)]
+            if let reason = temporal.reason { signals.append(SearchSignal(kind: .temporal, reason: reason)) }
+            if let reason = recencyReason(of: document, at: now) { signals.append(SearchSignal(kind: .recent, reason: reason)) }
 
             hits.append(SearchHit(
                 document: document,
@@ -62,8 +62,8 @@ public enum SearchEngine {
             let recency = recencyWeight(of: document, at: now)
 
             var signals: [SearchSignal] = []
-            if let label = temporal.label { signals.append(SearchSignal(kind: .temporal, text: label)) }
-            if let label = recencyLabel(of: document, at: now) { signals.append(SearchSignal(kind: .recent, text: label)) }
+            if let reason = temporal.reason { signals.append(SearchSignal(kind: .temporal, reason: reason)) }
+            if let reason = recencyReason(of: document, at: now) { signals.append(SearchSignal(kind: .recent, reason: reason)) }
 
             hits.append(SearchHit(
                 document: document,
@@ -79,7 +79,7 @@ public enum SearchEngine {
 
     private struct LexicalMatch {
         let score: Double
-        let label: String
+        let reason: SearchSignal.Reason
     }
 
     private static func lexicalMatch(_ queryWords: [String], in document: SearchDocument) -> LexicalMatch? {
@@ -102,17 +102,17 @@ public enum SearchEngine {
             if best == title { matchedTitle = true } else if best == event { matchedEvent = true } else { matchedBody = true }
         }
 
-        let label: String
+        let reason: SearchSignal.Reason
         if matchedTitle {
-            label = "Matches title"
+            reason = .matchesTitle
         } else if matchedBody {
-            label = document.kind == .link ? "Matches link" : "Matches text"
+            reason = document.kind == .link ? .matchesLink : .matchesText
         } else if matchedEvent {
-            label = "Matches event name"
+            reason = .matchesEventName
         } else {
-            label = "Matches"
+            reason = .matches
         }
-        return LexicalMatch(score: total / (3.0 * Double(queryWords.count)), label: label)
+        return LexicalMatch(score: total / (3.0 * Double(queryWords.count)), reason: reason)
     }
 
     private static func matchFactor(_ query: String, in words: [String]) -> Double {
@@ -138,39 +138,39 @@ public enum SearchEngine {
 
     private struct TemporalWeight {
         let weight: Double
-        let label: String?
+        let reason: SearchSignal.Reason?
         let isCurrentOrUpcoming: Bool
     }
 
     private static func temporalWeight(of document: SearchDocument, at now: Date) -> TemporalWeight {
         if document.eventStart <= now && now < document.eventEnd {
-            return TemporalWeight(weight: 1.0, label: "Event is happening now", isCurrentOrUpcoming: true)
+            return TemporalWeight(weight: 1.0, reason: .eventHappeningNow, isCurrentOrUpcoming: true)
         }
         if document.eventStart > now {
             let hours = document.eventStart.timeIntervalSince(now) / 3600
             guard hours <= 48 else {
-                return TemporalWeight(weight: 0.1, label: nil, isCurrentOrUpcoming: false)
+                return TemporalWeight(weight: 0.1, reason: nil, isCurrentOrUpcoming: false)
             }
             let weight = 0.9 - 0.5 * (hours / 48)
-            return TemporalWeight(weight: weight, label: "Event \(futureLabel(hours: hours))", isCurrentOrUpcoming: true)
+            return TemporalWeight(weight: weight, reason: futureReason(hours: hours), isCurrentOrUpcoming: true)
         }
         let daysAgo = now.timeIntervalSince(document.eventEnd) / 86_400
         if daysAgo <= 7 {
-            return TemporalWeight(weight: 0.4, label: "Event \(pastLabel(days: daysAgo))", isCurrentOrUpcoming: false)
+            return TemporalWeight(weight: 0.4, reason: pastReason(days: daysAgo), isCurrentOrUpcoming: false)
         }
-        return TemporalWeight(weight: 0.1, label: nil, isCurrentOrUpcoming: false)
+        return TemporalWeight(weight: 0.1, reason: nil, isCurrentOrUpcoming: false)
     }
 
-    private static func futureLabel(hours: Double) -> String {
-        if hours < 1 { return "starts in \(max(1, Int((hours * 60).rounded()))) min" }
-        if hours < 24 { return "starts in \(Int(hours.rounded())) h" }
-        return "starts tomorrow"
+    private static func futureReason(hours: Double) -> SearchSignal.Reason {
+        if hours < 1 { return .eventStartsInMinutes(max(1, Int((hours * 60).rounded()))) }
+        if hours < 24 { return .eventStartsInHours(Int(hours.rounded())) }
+        return .eventStartsTomorrow
     }
 
-    private static func pastLabel(days: Double) -> String {
-        if days < 1 { return "was earlier today" }
-        if days < 2 { return "was yesterday" }
-        return "was \(Int(days.rounded(.down))) days ago"
+    private static func pastReason(days: Double) -> SearchSignal.Reason {
+        if days < 1 { return .eventWasEarlierToday }
+        if days < 2 { return .eventWasYesterday }
+        return .eventWasDaysAgo(Int(days.rounded(.down)))
     }
 
     private static func recencyWeight(of document: SearchDocument, at now: Date) -> Double {
@@ -178,13 +178,13 @@ public enum SearchEngine {
         return 1 / (1 + ageDays / 14)
     }
 
-    private static func recencyLabel(of document: SearchDocument, at now: Date) -> String? {
+    private static func recencyReason(of document: SearchDocument, at now: Date) -> SearchSignal.Reason? {
         guard document.kind != .event else { return nil }
         let ageDays = now.timeIntervalSince(document.createdAt) / 86_400
         guard ageDays >= 0, ageDays <= 7 else { return nil }
-        if ageDays < 1 { return "Added today" }
-        if ageDays < 2 { return "Added yesterday" }
-        return "Added \(Int(ageDays.rounded(.down))) days ago"
+        if ageDays < 1 { return .addedToday }
+        if ageDays < 2 { return .addedYesterday }
+        return .addedDaysAgo(Int(ageDays.rounded(.down)))
     }
 
     // MARK: - Presentation helpers
@@ -198,9 +198,7 @@ public enum SearchEngine {
     /// A short excerpt of the body, centred on the first match when there is one.
     private static func snippet(for document: SearchDocument, around queryWords: [String]) -> String {
         let body = document.body.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !body.isEmpty else {
-            return document.kind == .task ? (document.isDone ? "Done" : "Open task") : ""
-        }
+        guard !body.isEmpty else { return "" }
         let limit = 90
         guard body.count > limit else { return body }
 

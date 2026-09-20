@@ -67,7 +67,7 @@ struct CalendarScreen: View {
     }
 
     /// The month or day is already shown in the screen itself, so the bar only names the screen.
-    private var title: String { "Calendar" }
+    private var title: String { String(localized: "Calendar") }
 
     @discardableResult
     private func presentAddEvent() -> AddEventViewModel {
@@ -85,8 +85,10 @@ struct CalendarScreen: View {
         guard let mode = LaunchOptions.addEvent else { return }
         let form = presentAddEvent()
         await form.loadCalendars()
-        if mode == "quick" {
-            form.quickText = "Lunch with Anna tomorrow 12:30 at Cafe Amazon"
+        if mode == "quick" || mode == "quickth" {
+            form.quickText = mode == "quick"
+                ? "Lunch with Anna tomorrow 12:30 at Cafe Amazon"
+                : "ประชุมทีมพรุ่งนี้ 10 โมง ที่ห้องประชุม 2"
             form.applyQuickText()
             return
         }
@@ -210,7 +212,7 @@ private struct DayCell: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(day.date.formatted(date: .complete, time: .omitted))
-        .accessibilityValue(eventCount == 0 ? "No events" : "\(eventCount) event\(eventCount == 1 ? "" : "s")")
+        .accessibilityValue(eventCount == 0 ? String(localized: "No events") : String(localized: "\(eventCount) events"))
         .accessibilityAddTraits(isSelected ? [.isSelected, .isButton] : .isButton)
     }
 

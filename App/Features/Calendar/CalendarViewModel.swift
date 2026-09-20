@@ -14,8 +14,8 @@ final class CalendarViewModel {
 
         var title: String {
             switch self {
-            case .month: "Month"
-            case .day: "Day"
+            case .month: String(localized: "Month")
+            case .day: String(localized: "Day")
             }
         }
     }

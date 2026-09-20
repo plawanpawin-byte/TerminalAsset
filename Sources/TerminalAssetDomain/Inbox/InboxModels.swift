@@ -98,22 +98,38 @@ public struct InboxManifest: Sendable, Codable, Equatable, Identifiable {
         }
     }
 
-    /// One-line description shown under the title in the Inbox.
-    public var subtitle: String {
+    /// What to show under the title in the Inbox, as facts the app can word.
+    public var subtitle: InboxSubtitle {
         switch kind {
         case .url:
-            return urlString.flatMap { URL(string: $0)?.host(percentEncoded: false) } ?? "Link"
+            if let host = urlString.flatMap({ URL(string: $0)?.host(percentEncoded: false) }) { return .host(host) }
+            return .link
         case .text:
             let body = (text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
             // The title is already the start of the text; repeating it under itself adds nothing.
-            return body.isEmpty || body == title || body.hasPrefix(title) ? "Text" : String(body.prefix(80))
+            return body.isEmpty || body == title || body.hasPrefix(title) ? .text : .excerpt(String(body.prefix(80)))
         case .image:
-            return "Image"
+            return .image
         case .file:
             let ext = payloadFileName.map { URL(fileURLWithPath: $0).pathExtension.uppercased() } ?? ""
-            return ext.isEmpty ? "File" : "\(ext) file"
+            return ext.isEmpty ? .file : .fileType(ext)
         }
     }
+}
+
+/// The line under an Inbox item's title.
+public enum InboxSubtitle: Sendable, Hashable {
+    /// A web link; the site it points to.
+    case host(String)
+    case link
+    /// Text whose title already says it all.
+    case text
+    /// The start of a longer text.
+    case excerpt(String)
+    case image
+    /// A file with a known extension, upper-cased ("XLSX").
+    case fileType(String)
+    case file
 }
 
 /// A shared item as the Inbox screen sees it.
@@ -121,7 +137,7 @@ public struct InboxItemValue: Sendable, Hashable, Identifiable {
     public let id: UUID
     public let kind: InboxPayloadKind
     public let title: String
-    public let subtitle: String
+    public let subtitle: InboxSubtitle
     public let receivedAt: Date
     public let suggestion: EventSuggestion?
 
@@ -129,7 +145,7 @@ public struct InboxItemValue: Sendable, Hashable, Identifiable {
         id: UUID,
         kind: InboxPayloadKind,
         title: String,
-        subtitle: String,
+        subtitle: InboxSubtitle,
         receivedAt: Date,
         suggestion: EventSuggestion?
     ) {

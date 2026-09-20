@@ -83,14 +83,29 @@ public enum SearchSignalKind: String, Sendable {
     case recent
 }
 
-/// A human-readable reason a result ranked where it did.
+/// Why a result ranked where it did. Carries the facts (with their numbers), never display text, so the app can
+/// word them in the user's language.
 public struct SearchSignal: Sendable, Hashable {
-    public let kind: SearchSignalKind
-    public let text: String
+    public enum Reason: Sendable, Hashable {
+        case matchesTitle, matchesLink, matchesText, matchesEventName, matches
+        case eventHappeningNow
+        case eventStartsInMinutes(Int)
+        case eventStartsInHours(Int)
+        case eventStartsTomorrow
+        case eventWasEarlierToday
+        case eventWasYesterday
+        case eventWasDaysAgo(Int)
+        case addedToday
+        case addedYesterday
+        case addedDaysAgo(Int)
+    }
 
-    public init(kind: SearchSignalKind, text: String) {
+    public let kind: SearchSignalKind
+    public let reason: Reason
+
+    public init(kind: SearchSignalKind, reason: Reason) {
         self.kind = kind
-        self.text = text
+        self.reason = reason
     }
 }
 

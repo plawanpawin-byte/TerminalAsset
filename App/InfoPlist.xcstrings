@@ -1,0 +1,40 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "NSCalendarsFullAccessUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TerminalAsset reads your calendar on this device to show the context you need for each event, and adds events to it when you create them. Your calendar data is never uploaded."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TerminalAsset อ่านปฏิทินบนเครื่องนี้เพื่อแสดงข้อมูลที่คุณต้องใช้สำหรับแต่ละกิจกรรม และเพิ่มกิจกรรมลงในปฏิทินเมื่อคุณสร้าง ข้อมูลปฏิทินของคุณจะไม่ถูกอัปโหลด"
+          }
+        }
+      }
+    },
+    "NSLocationWhenInUseUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TerminalAsset uses your approximate location to show the weather for where you are. Only a rounded coordinate is sent to the weather service."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TerminalAsset ใช้ตำแหน่งโดยประมาณของคุณเพื่อแสดงสภาพอากาศตรงที่คุณอยู่ โดยส่งเฉพาะพิกัดที่ปัดเศษแล้วไปยังบริการสภาพอากาศ"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

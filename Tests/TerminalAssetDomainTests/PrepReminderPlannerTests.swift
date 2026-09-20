@@ -33,14 +33,15 @@ struct PrepReminderPlannerTests {
         )
         #expect(plan.count == 1)
         #expect(plan[0].fireDate == now + 2 * hour - 15 * minute)
-        #expect(plan[0].title == "Audit · in 15 min")
-        #expect(plan[0].body == "1 task to do · 1 note")
+        #expect(plan[0].eventTitle == "Audit")
+        #expect(plan[0].minutesBefore == 15)
+        #expect(plan[0].preparation == .waiting(tasks: 1, notes: 1, links: 0, files: 0))
     }
 
     @Test func aQuietEventWithNothingAttachedGetsANudgeToAddContext() {
         let plan = PrepReminderPlanner.plan(from: [event("Kickoff", in: hour)], now: now)
         #expect(plan.count == 1)
-        #expect(plan[0].body.contains("Nothing attached yet"))
+        #expect(plan[0].preparation == .nothingAttached)
     }
 
     @Test func anEventWhoseTasksAreAllDoneIsLeftAlone() {
@@ -78,7 +79,7 @@ struct PrepReminderPlannerTests {
         let plan = PrepReminderPlanner.plan(from: [event("Soon", in: 5 * minute)], now: now)
         #expect(plan.count == 1)
         #expect(plan[0].fireDate == now + minute)
-        #expect(plan[0].title == "Soon · in 4 min")
+        #expect(plan[0].minutesBefore == 4)
     }
 
     @Test func anEventStartingWithinAMinuteIsNotWorthAReminder() {
@@ -98,11 +99,11 @@ struct PrepReminderPlannerTests {
         #expect(first.first?.id.hasPrefix(PrepReminderPlanner.idPrefix) == true)
     }
 
-    @Test func pluralsAreCorrect() {
+    @Test func preparationCountsEachKindOfContext() {
         let plan = PrepReminderPlanner.plan(
             from: [event("Big", in: hour, items: [item(.task), item(.task), item(.link), item(.link), item(.file)])],
             now: now
         )
-        #expect(plan.first?.body == "2 tasks to do · 2 links · 1 file")
+        #expect(plan.first?.preparation == .waiting(tasks: 2, notes: 0, links: 2, files: 1))
     }
 }

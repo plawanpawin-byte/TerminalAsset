@@ -16,7 +16,7 @@ enum AddKind: String, Identifiable {
         }
     }
 
-    var title: String {
+    var title: LocalizedStringKey {
         switch self {
         case .task: "New Task"
         case .note: "New Note"
@@ -60,7 +60,7 @@ struct EventDetailView: View {
                 ContentUnavailableView("Event not found", systemImage: "calendar.badge.exclamationmark")
             }
         }
-        .navigationTitle(model.event?.title ?? "Event")
+        .navigationTitle(model.event?.title ?? String(localized: "Event"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -133,7 +133,7 @@ struct EventDetailView: View {
                                 .foregroundStyle(Color.accentColor)
                         }
                     }
-                    .accessibilityValue(task.isDone ? "Done" : "Not done")
+                    .accessibilityValue(task.isDone ? String(localized: "Done") : String(localized: "Not done"))
                     .swipeActions { deleteAction(task.id) }
                 }
             }
@@ -205,7 +205,7 @@ struct EventDetailView: View {
         .padding(.vertical, 12)
     }
 
-    private func addButton(_ kind: AddKind, _ title: String, _ symbol: String) -> some View {
+    private func addButton(_ kind: AddKind, _ title: LocalizedStringKey, _ symbol: String) -> some View {
         Button { adding = kind } label: { Label(title, systemImage: symbol) }
     }
 

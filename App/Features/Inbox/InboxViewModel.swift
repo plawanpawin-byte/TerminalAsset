@@ -44,8 +44,10 @@ final class InboxViewModel {
                 let report = try await store.ingest(from: shared, now: .now)
                 if let first = report.autoAttached.first {
                     let extra = report.autoAttached.count - 1
-                    let more = extra > 0 ? " and \(extra) more" : ""
-                    banner = Banner(message: "Added “\(first.title)”\(more) to \(first.eventTitle)", undoTarget: nil)
+                    let message = extra > 0
+                        ? String(localized: "Added “\(first.title)” and \(extra) more to \(first.eventTitle)")
+                        : String(localized: "Added “\(first.title)” to \(first.eventTitle)")
+                    banner = Banner(message: message, undoTarget: nil)
                     await onContextChanged()
                 }
             }
@@ -66,7 +68,7 @@ final class InboxViewModel {
     }
 
     func dismiss(_ item: InboxItemValue) async {
-        await run(message: "Dismissed", undoTarget: item.id) {
+        await run(message: String(localized: "Dismissed"), undoTarget: item.id) {
             try await self.store.dismissInbox(id: item.id)
         }
     }
@@ -103,7 +105,7 @@ final class InboxViewModel {
     // MARK: - Private
 
     private func attach(_ item: InboxItemValue, toKey key: EventKey, eventTitle: String) async {
-        await run(message: "Attached to \(eventTitle)", undoTarget: item.id) {
+        await run(message: String(localized: "Attached to \(eventTitle)"), undoTarget: item.id) {
             _ = try await self.store.attachInbox(id: item.id, to: key, now: .now)
         }
         await onContextChanged()

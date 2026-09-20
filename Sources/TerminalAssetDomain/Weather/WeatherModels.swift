@@ -10,19 +10,6 @@ public enum WeatherCondition: String, Sendable, Codable, CaseIterable {
     case thunderstorm
     case snow
 
-    public var title: String {
-        switch self {
-        case .clear: "Clear"
-        case .partlyCloudy: "Partly cloudy"
-        case .cloudy: "Cloudy"
-        case .fog: "Fog"
-        case .drizzle: "Drizzle"
-        case .rain: "Rain"
-        case .thunderstorm: "Thunderstorm"
-        case .snow: "Snow"
-        }
-    }
-
     /// Maps a WMO weather interpretation code (as used by Open-Meteo) to a condition.
     /// Unknown codes fall back to `.cloudy` rather than failing.
     public static func fromWMO(_ code: Int) -> WeatherCondition {

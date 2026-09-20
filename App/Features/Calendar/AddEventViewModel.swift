@@ -73,13 +73,14 @@ final class AddEventViewModel: Identifiable {
         quickText = ""
 
         let order: [(ParsedEvent.Recognized, String)] = [
-            (.allDay, "all-day"), (.date, "date"), (.time, "time"), (.duration, "length"),
-            (.repeatRule, "repeat"), (.location, "place")
+            (.allDay, String(localized: "all-day")), (.date, String(localized: "date")),
+            (.time, String(localized: "time")), (.duration, String(localized: "length")),
+            (.repeatRule, String(localized: "repeat")), (.location, String(localized: "place"))
         ]
         let found = order.filter { parsed.recognized.contains($0.0) }.map(\.1)
         understood = found.isEmpty
-            ? "Used as the title. Add a day or time, like “tomorrow 3pm”."
-            : "Filled in " + found.formatted(.list(type: .and)) + ". Check it below."
+            ? String(localized: "Used as the title. Add a day or time, like “tomorrow 3pm”.")
+            : String(localized: "Filled in \(found.formatted(.list(type: .and))). Check it below.")
     }
 
     /// Returns true when the event was written and the form can close.
@@ -106,10 +107,10 @@ final class AddEventViewModel: Identifiable {
 extension EventDraftError {
     var userMessage: String {
         switch self {
-        case .emptyTitle: "Enter a title."
-        case .titleTooLong: "That title is too long. Keep it under \(NewEventDraft.maxTitleLength) characters."
-        case .locationTooLong: "That location is too long. Keep it under \(NewEventDraft.maxLocationLength) characters."
-        case .endNotAfterStart: "The event has to end after it starts."
+        case .emptyTitle: String(localized: "Enter a title.")
+        case .titleTooLong: String(localized: "That title is too long. Keep it under \(NewEventDraft.maxTitleLength) characters.")
+        case .locationTooLong: String(localized: "That location is too long. Keep it under \(NewEventDraft.maxLocationLength) characters.")
+        case .endNotAfterStart: String(localized: "The event has to end after it starts.")
         }
     }
 }

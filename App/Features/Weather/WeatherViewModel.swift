@@ -91,15 +91,15 @@ final class WeatherViewModel {
             }
         } catch {
             if case .ready = state {} else {
-                state = .unavailable("Couldn't find your location. Try again in a moment.")
+                state = .unavailable(String(localized: "Couldn't find your location. Try again in a moment."))
             }
         }
     }
 
     private static func message(for error: WeatherError?) -> String {
         switch error {
-        case .offline: "You're offline, so the forecast isn't available."
-        case .serviceUnavailable, .invalidResponse, .none: "The forecast isn't available right now."
+        case .offline: String(localized: "You're offline, so the forecast isn't available.")
+        case .serviceUnavailable, .invalidResponse, .none: String(localized: "The forecast isn't available right now.")
         }
     }
 }

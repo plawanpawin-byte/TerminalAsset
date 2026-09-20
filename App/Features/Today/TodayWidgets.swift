@@ -80,7 +80,7 @@ private struct UpNextWidget: View {
         }
     }
 
-    private func eyebrow(for kind: HeroKind) -> (text: String, symbol: String) {
+    private func eyebrow(for kind: HeroKind) -> (text: LocalizedStringKey, symbol: String) {
         switch kind {
         case .now: ("Happening now", "dot.radiowaves.left.and.right")
         case .upNext: ("Up next", "clock")
@@ -126,7 +126,7 @@ private struct DayProgressWidget: View {
                                 .font(.caption)
                                 .opacity(0.8)
                             if openTasks > 0 {
-                                Text("\(openTasks) \(openTasks == 1 ? "task" : "tasks") open")
+                                Text("\(openTasks) tasks open")
                                     .font(.caption2)
                                     .opacity(0.6)
                             }
@@ -161,8 +161,8 @@ private struct DayProgressWidget: View {
     }
 
     private var accessibilityValue: String {
-        if stats.total == 0 { return "No events today" }
-        let tasks = openTasks > 0 ? ", \(openTasks) open \(openTasks == 1 ? "task" : "tasks")" : ""
-        return "\(stats.completed) of \(stats.total) events done\(tasks)"
+        if stats.total == 0 { return String(localized: "No events today") }
+        let tasks = openTasks > 0 ? ", " + String(localized: "\(openTasks) open tasks") : ""
+        return String(localized: "\(stats.completed) of \(stats.total) events done") + tasks
     }
 }

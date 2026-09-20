@@ -108,7 +108,7 @@ struct SearchView: View {
             ContentUnavailableView.search(text: model.trimmedQuery)
                 .listRowBackground(Color.clear)
         } else {
-            Section("\(model.results.count) result\(model.results.count == 1 ? "" : "s")") {
+            Section("\(model.results.count) results") {
                 ForEach(model.results) { hit in
                     ResultRow(hit: hit)
                 }
@@ -142,6 +142,10 @@ private struct ResultRow: View {
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
+                    } else if document.kind == .task {
+                        Text(document.isDone ? LocalizedStringKey("Done") : LocalizedStringKey("Open task"))
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
                     }
                     Text(eventLine)
                         .font(.footnote)
@@ -171,6 +175,28 @@ private struct ResultRow: View {
 
     /// Why the result ranked here, on one quiet line ("Event is happening now · Added today").
     private var reasons: String? {
-        hit.signals.isEmpty ? nil : hit.signals.map(\.text).joined(separator: " · ")
+        hit.signals.isEmpty ? nil : hit.signals.map(\.reason.text).joined(separator: " · ")
+    }
+}
+
+extension SearchSignal.Reason {
+    var text: String {
+        switch self {
+        case .matchesTitle: String(localized: "Matches title")
+        case .matchesLink: String(localized: "Matches link")
+        case .matchesText: String(localized: "Matches text")
+        case .matchesEventName: String(localized: "Matches event name")
+        case .matches: String(localized: "Matches")
+        case .eventHappeningNow: String(localized: "Event is happening now")
+        case .eventStartsInMinutes(let minutes): String(localized: "Event starts in \(minutes) min")
+        case .eventStartsInHours(let hours): String(localized: "Event starts in \(hours) h")
+        case .eventStartsTomorrow: String(localized: "Event starts tomorrow")
+        case .eventWasEarlierToday: String(localized: "Event was earlier today")
+        case .eventWasYesterday: String(localized: "Event was yesterday")
+        case .eventWasDaysAgo(let days): String(localized: "Event was \(days) days ago")
+        case .addedToday: String(localized: "Added today")
+        case .addedYesterday: String(localized: "Added yesterday")
+        case .addedDaysAgo(let days): String(localized: "Added \(days) days ago")
+        }
     }
 }

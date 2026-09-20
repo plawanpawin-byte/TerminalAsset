@@ -77,7 +77,7 @@ struct GlassCard<Content: View>: View {
 
 /// Small uppercase heading with an icon, used at the top of glass cards and detail tiles.
 struct GlassHeading: View {
-    let text: String
+    let text: LocalizedStringKey
     let symbol: String
 
     var body: some View {

@@ -1,0 +1,138 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%lld to do": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ต้องทำ %lld งาน"
+          }
+        }
+      }
+    },
+    "NEXT": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ถัดไป"
+          }
+        }
+      }
+    },
+    "NOW": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตอนนี้"
+          }
+        }
+      }
+    },
+    "Next": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ถัดไป"
+          }
+        }
+      }
+    },
+    "Nothing attached": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ยังไม่มีอะไรแนบ"
+          }
+        }
+      }
+    },
+    "Nothing coming up": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไม่มีอะไรที่กำลังจะมาถึง"
+          }
+        }
+      }
+    },
+    "Now": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตอนนี้"
+          }
+        }
+      }
+    },
+    "Open TerminalAsset to see your day.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เปิด TerminalAsset เพื่อดูวันของคุณ"
+          }
+        }
+      }
+    },
+    "Ready": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "พร้อมแล้ว"
+          }
+        }
+      }
+    },
+    "Shows the event in progress or coming next, and what to prepare.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "แสดงกิจกรรมที่กำลังดำเนินอยู่หรือกิจกรรมถัดไป และสิ่งที่ต้องเตรียม"
+          }
+        }
+      }
+    },
+    "The event in progress or coming next, and what to prepare for it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กิจกรรมที่กำลังดำเนินอยู่หรือถัดไป และสิ่งที่ต้องเตรียม"
+          }
+        }
+      }
+    },
+    "Up Next": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ถัดไป"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

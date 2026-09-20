@@ -94,12 +94,12 @@ final class SearchViewModel {
 extension SearchScope {
     var title: String {
         switch self {
-        case .all: "All"
-        case .events: "Events"
-        case .tasks: "Tasks"
-        case .notes: "Notes"
-        case .links: "Links"
-        case .files: "Files"
+        case .all: String(localized: "All")
+        case .events: String(localized: "Events")
+        case .tasks: String(localized: "Tasks")
+        case .notes: String(localized: "Notes")
+        case .links: String(localized: "Links")
+        case .files: String(localized: "Files")
         }
     }
 }

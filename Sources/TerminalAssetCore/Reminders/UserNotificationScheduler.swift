@@ -41,8 +41,8 @@ public struct UserNotificationScheduler: ReminderScheduler {
 
         for reminder in reminders {
             let content = UNMutableNotificationContent()
-            content.title = reminder.title
-            content.body = reminder.body
+            content.title = ReminderText.title(for: reminder)
+            content.body = ReminderText.body(for: reminder)
             content.sound = .default
             content.threadIdentifier = "prep"
             content.userInfo = ["eventKey": reminder.eventKey.rawValue]

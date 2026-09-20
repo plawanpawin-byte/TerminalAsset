@@ -57,7 +57,7 @@ enum AppBootstrap {
             UNUserNotificationCenter.current().delegate = notificationDelegate
             return .success(model)
         } catch {
-            return .failure(BootstrapFailure(message: "The local data store could not be opened on this device."))
+            return .failure(BootstrapFailure(message: String(localized: "The local data store could not be opened on this device.")))
         }
     }
 

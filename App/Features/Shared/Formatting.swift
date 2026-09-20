@@ -5,7 +5,7 @@ import TerminalAssetDomain
 enum TimeText {
     /// "9:00 – 10:00 AM"
     static func range(of event: TimelineEvent) -> String {
-        if event.isAllDay { return "All day" }
+        if event.isAllDay { return String(localized: "All day") }
         let interval = event.startDate..<max(event.startDate, event.endDate)
         return interval.formatted(Date.IntervalFormatStyle(date: .omitted, time: .shortened))
     }
@@ -16,12 +16,12 @@ enum TimeText {
             [.day], from: calendar.startOfDay(for: now), to: calendar.startOfDay(for: start)
         ).day
         let day = switch daysAway ?? Int.max {
-        case 0: "Today"
-        case 1: "Tomorrow"
-        case -1: "Yesterday"
+        case 0: String(localized: "Today")
+        case 1: String(localized: "Tomorrow")
+        case -1: String(localized: "Yesterday")
         default: start.formatted(.dateTime.month(.abbreviated).day())
         }
-        if isAllDay { return "\(day) · All day" }
+        if isAllDay { return String(localized: "\(day) · All day") }
         return "\(day), \(start.formatted(date: .omitted, time: .shortened))"
     }
 
@@ -35,11 +35,11 @@ enum TimeText {
     /// "in 1h 30m"; rounds up so it never reads "in 0m", and says "Starting now" inside the last minute.
     static func countdown(to start: Date, from now: Date) -> String {
         let seconds = start.timeIntervalSince(now)
-        guard seconds > 60 else { return "Starting now" }
+        guard seconds > 60 else { return String(localized: "Starting now") }
         let roundedUp = (seconds / 60).rounded(.up) * 60
         let text = Duration.seconds(roundedUp)
             .formatted(.units(allowed: [.hours, .minutes], width: .narrow))
-        return "in \(text)"
+        return String(localized: "in \(text)")
     }
 
     /// "35 min left"; rounds up so an event with seconds left never reads "0 min left".
@@ -48,17 +48,17 @@ enum TimeText {
         let roundedUp = (seconds / 60).rounded(.up) * 60
         let text = Duration.seconds(roundedUp)
             .formatted(.units(allowed: [.hours, .minutes], width: .abbreviated))
-        return "\(text) left"
+        return String(localized: "\(text) left")
     }
 }
 
 extension ContextSummary {
     var accessibilityDescription: String {
         var parts: [String] = []
-        if tasks > 0 { parts.append("\(openTasks) of \(tasks) tasks open") }
-        if notes > 0 { parts.append("\(notes) \(notes == 1 ? "note" : "notes")") }
-        if links > 0 { parts.append("\(links) \(links == 1 ? "link" : "links")") }
-        if attachments > 0 { parts.append("\(attachments) \(attachments == 1 ? "attachment" : "attachments")") }
+        if tasks > 0 { parts.append(String(localized: "Open tasks: \(openTasks) of \(tasks)")) }
+        if notes > 0 { parts.append(String(localized: "\(notes) notes")) }
+        if links > 0 { parts.append(String(localized: "\(links) links")) }
+        if attachments > 0 { parts.append(String(localized: "\(attachments) attachments")) }
         return parts.joined(separator: ", ")
     }
 }

@@ -1,13 +1,23 @@
 import Foundation
 
-/// One notification to schedule: "ISO Audit Preparation · in 15 min", with what is waiting for the user.
+/// One notification to schedule: what the event is, how soon it starts, and what is waiting for the user. It holds
+/// facts, not wording, so the notification can be phrased in the user's language where it is scheduled.
 public struct PrepReminder: Sendable, Equatable, Identifiable {
+    public enum Preparation: Sendable, Equatable {
+        /// The event has nothing attached at all.
+        case nothingAttached
+        /// The event has open tasks (and maybe other context).
+        case waiting(tasks: Int, notes: Int, links: Int, files: Int)
+    }
+
     /// Stable per event occurrence, so replanning replaces a reminder instead of adding a second one.
     public let id: String
     public let eventKey: EventKey
     public let fireDate: Date
-    public let title: String
-    public let body: String
+    public let eventTitle: String
+    /// Whole minutes between the reminder and the start of the event (at least 1).
+    public let minutesBefore: Int
+    public let preparation: Preparation
 }
 
 /// Decides which prep reminders should exist for the coming events. Pure and deterministic: same events and
@@ -59,24 +69,14 @@ public enum PrepReminderPlanner {
             id: idPrefix + event.key.rawValue,
             eventKey: event.key,
             fireDate: fire,
-            title: title(for: event, fire: fire),
-            body: body(for: summary)
+            eventTitle: event.title,
+            minutesBefore: max(1, Int((event.startDate.timeIntervalSince(fire) / 60).rounded())),
+            preparation: summary.isEmpty
+                ? .nothingAttached
+                : .waiting(
+                    tasks: summary.openTasks, notes: summary.notes,
+                    links: summary.links, files: summary.attachments
+                )
         )
-    }
-
-    private static func title(for event: TimelineEvent, fire: Date) -> String {
-        let minutes = max(1, Int((event.startDate.timeIntervalSince(fire) / 60).rounded()))
-        return "\(event.title) · in \(minutes) min"
-    }
-
-    private static func body(for summary: ContextSummary) -> String {
-        guard !summary.isEmpty else { return "Nothing attached yet. Add a note or a link while there is time." }
-
-        var parts: [String] = []
-        parts.append("\(summary.openTasks) task\(summary.openTasks == 1 ? "" : "s") to do")
-        if summary.notes > 0 { parts.append("\(summary.notes) note\(summary.notes == 1 ? "" : "s")") }
-        if summary.links > 0 { parts.append("\(summary.links) link\(summary.links == 1 ? "" : "s")") }
-        if summary.attachments > 0 { parts.append("\(summary.attachments) file\(summary.attachments == 1 ? "" : "s")") }
-        return parts.joined(separator: " · ")
     }
 }

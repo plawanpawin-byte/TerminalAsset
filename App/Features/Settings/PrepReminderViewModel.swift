@@ -45,14 +45,14 @@ final class PrepReminderViewModel {
             do {
                 status = try await scheduler.requestAuthorization()
             } catch {
-                notice = "Couldn't ask for notification permission. Please try again."
+                notice = String(localized: "Couldn't ask for notification permission. Please try again.")
                 return
             }
         }
         authorization = status
         guard status == .allowed else {
             store(enabled: false)
-            notice = "Notifications are off for TerminalAsset. Turn them on in the Settings app to get reminders."
+            notice = String(localized: "Notifications are off for TerminalAsset. Turn them on in the Settings app to get reminders.")
             return
         }
         store(enabled: true)
@@ -76,9 +76,9 @@ final class PrepReminderViewModel {
         } catch ReminderError.permissionDenied {
             authorization = .denied
             store(enabled: false)
-            notice = "Notifications are off for TerminalAsset. Turn them on in the Settings app to get reminders."
+            notice = String(localized: "Notifications are off for TerminalAsset. Turn them on in the Settings app to get reminders.")
         } catch {
-            notice = "Couldn't schedule reminders. Please try again."
+            notice = String(localized: "Couldn't schedule reminders. Please try again.")
         }
     }
 

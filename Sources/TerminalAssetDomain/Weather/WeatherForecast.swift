@@ -83,16 +83,6 @@ public enum UVLevel: Sendable, Equatable {
         default: self = .extreme
         }
     }
-
-    public var title: String {
-        switch self {
-        case .low: "Low"
-        case .moderate: "Moderate"
-        case .high: "High"
-        case .veryHigh: "Very high"
-        case .extreme: "Extreme"
-        }
-    }
 }
 
 /// What the next day looks like for rain, in a form the UI can phrase.

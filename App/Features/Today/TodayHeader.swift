@@ -104,9 +104,9 @@ struct TodayHeader: View {
     }
 
     private var summary: String {
-        guard stats.total > 0 else { return "No events scheduled" }
-        if stats.remaining == 0 { return "All \(stats.total) done for today" }
-        return "\(stats.remaining) left today · \(stats.completed) done"
+        guard stats.total > 0 else { return String(localized: "No events scheduled") }
+        if stats.remaining == 0 { return String(localized: "All \(stats.total) done for today") }
+        return String(localized: "\(stats.remaining) left today · \(stats.completed) done")
     }
 
     // MARK: - Permission and problems
@@ -145,10 +145,10 @@ struct TodayHeader: View {
     }
 
     private func promptCard(
-        title: String,
-        message: String,
-        primary: (String, () -> Void),
-        secondary: (String, () -> Void)
+        title: LocalizedStringKey,
+        message: LocalizedStringKey,
+        primary: (LocalizedStringKey, () -> Void),
+        secondary: (LocalizedStringKey, () -> Void)
     ) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Label(title, systemImage: "location.circle.fill")

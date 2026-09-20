@@ -66,7 +66,7 @@ struct ItemExtractor {
             let text = try await loadObject(String.self, from: provider)
             let firstLine = text.split(whereSeparator: \.isNewline).first.map(String.init) ?? text
             let title = firstLine.count > 60 ? String(firstLine.prefix(60)) + "…" : firstLine
-            return SharedContent(title: title.isEmpty ? "Shared text" : title, payload: .text(text))
+            return SharedContent(title: title.isEmpty ? String(localized: "Shared text") : title, payload: .text(text))
         }
 
         throw ExtractionError.unreadable

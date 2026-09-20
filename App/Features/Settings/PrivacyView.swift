@@ -6,8 +6,8 @@ struct PrivacyView: View {
     private struct Row: Identifiable {
         let id: String
         let symbol: String
-        let title: String
-        let detail: String
+        let title: LocalizedStringKey
+        let detail: LocalizedStringKey
     }
 
     private let onDevice = [
@@ -52,7 +52,7 @@ struct PrivacyView: View {
             Section {
                 ForEach(never) { item in rowView(item, tint: .green) }
             } header: {
-                Text("Never")
+                Text("What we never do")
             } footer: {
                 Text("If TerminalAsset ever adds a feature that sends something else, it will tell you exactly what is sent and why before it sends anything, and only after you agree.")
             }

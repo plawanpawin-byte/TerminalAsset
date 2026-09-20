@@ -71,7 +71,7 @@ struct HeroCard: View {
         .contentShape(Rectangle())
     }
 
-    private var eyebrow: (text: String, symbol: String) {
+    private var eyebrow: (text: LocalizedStringKey, symbol: String) {
         switch hero.kind {
         case .now: ("Happening now", "dot.radiowaves.left.and.right")
         case .upNext: ("Up next", "clock")
@@ -82,7 +82,7 @@ struct HeroCard: View {
     private var countdown: String {
         switch hero.kind {
         case .now: TimeText.remaining(until: event.endDate, from: now)
-        case .upNext, .tomorrow: "Starts \(TimeText.relative(event.startDate, to: now))"
+        case .upNext, .tomorrow: String(localized: "Starts \(TimeText.relative(event.startDate, to: now))")
         }
     }
 
@@ -120,7 +120,7 @@ struct HeroCard: View {
                 ContextChips(summary: summary)
                 Spacer()
                 NavigationLink(value: event.key) {
-                    Text(summary.isEmpty ? "Add context" : "Open")
+                    Text(summary.isEmpty ? LocalizedStringKey("Add context") : LocalizedStringKey("Open"))
                         .font(.subheadline.weight(.semibold))
                 }
             }

@@ -149,7 +149,7 @@ struct UpNextWidgetView: View {
     private var lockScreen: some View {
         VStack(alignment: .leading, spacing: 1) {
             if let focus {
-                Text(focus.start <= entry.date ? "Now" : "Next")
+                Text(focus.start <= entry.date ? LocalizedStringKey("Now") : LocalizedStringKey("Next"))
                     .font(.caption2.weight(.semibold))
                     .widgetAccentable()
                 Text(focus.title)

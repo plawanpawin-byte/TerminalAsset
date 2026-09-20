@@ -18,7 +18,7 @@ struct AddEventView: View {
                 } header: {
                     Text("Quick add")
                 } footer: {
-                    Text(model.understood.isEmpty ? "Read on this device. Nothing is sent anywhere." : model.understood)
+                    Text(model.understood.isEmpty ? String(localized: "Read on this device. Nothing is sent anywhere.") : model.understood)
                 }
 
                 Section {
@@ -103,14 +103,14 @@ struct AddEventView: View {
 }
 
 extension RepeatRule {
-    var title: String {
+    var title: LocalizedStringKey {
         switch self {
-        case .never: "Never"
-        case .daily: "Every Day"
-        case .weekly: "Every Week"
-        case .biweekly: "Every 2 Weeks"
-        case .monthly: "Every Month"
-        case .yearly: "Every Year"
+        case .never: LocalizedStringKey("repeat.never")
+        case .daily: LocalizedStringKey("Every Day")
+        case .weekly: LocalizedStringKey("Every Week")
+        case .biweekly: LocalizedStringKey("Every 2 Weeks")
+        case .monthly: LocalizedStringKey("Every Month")
+        case .yearly: LocalizedStringKey("Every Year")
         }
     }
 }

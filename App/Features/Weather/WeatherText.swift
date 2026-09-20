@@ -19,19 +19,19 @@ enum WeatherText {
     }
 
     static func hourLabel(_ date: Date, isFirst: Bool, in zone: TimeZone) -> String {
-        isFirst ? "Now" : hour(date, in: zone)
+        isFirst ? String(localized: "Now") : hour(date, in: zone)
     }
 
     static func rainOutlook(_ outlook: RainOutlook, in zone: TimeZone) -> String {
         switch outlook {
         case .none:
-            "No rain expected in the next 24 hours."
+            String(localized: "No rain expected in the next 24 hours.")
         case .expected(let date, _):
-            "Rain likely from about \(hour(date, in: zone))."
+            String(localized: "Rain likely from about \(hour(date, in: zone)).")
         case .raining(_, let until?):
-            "Rain likely now, easing around \(hour(until, in: zone))."
+            String(localized: "Rain likely now, easing around \(hour(until, in: zone)).")
         case .raining(_, nil):
-            "Rain likely for the rest of the day."
+            String(localized: "Rain likely for the rest of the day.")
         }
     }
 
@@ -46,35 +46,62 @@ enum WeatherText {
 
     static func windCaption(kph: Double) -> String {
         switch kph {
-        case ..<6: "Calm"
-        case ..<20: "Light breeze"
-        case ..<39: "Moderate wind"
-        case ..<62: "Strong wind"
-        default: "Very strong wind"
+        case ..<6: String(localized: "Calm")
+        case ..<20: String(localized: "Light breeze")
+        case ..<39: String(localized: "Moderate wind")
+        case ..<62: String(localized: "Strong wind")
+        default: String(localized: "Very strong wind")
         }
     }
 
     static func humidityCaption(_ percent: Int) -> String {
         switch percent {
-        case ..<30: "Dry"
-        case ..<60: "Comfortable"
-        case ..<80: "Humid"
-        default: "Very humid"
+        case ..<30: String(localized: "Dry")
+        case ..<60: String(localized: "Comfortable")
+        case ..<80: String(localized: "Humid")
+        default: String(localized: "Very humid")
         }
     }
 
     static func feelsLikeCaption(feelsLike: Double, actual: Double) -> String {
         let difference = feelsLike - actual
-        if difference >= 2 { return "Feels warmer than the air temperature." }
-        if difference <= -2 { return "Feels cooler than the air temperature." }
-        return "Similar to the air temperature."
+        if difference >= 2 { return String(localized: "Feels warmer than the air temperature.") }
+        if difference <= -2 { return String(localized: "Feels cooler than the air temperature.") }
+        return String(localized: "Similar to the air temperature.")
     }
 
     static func uvCaption(_ level: UVLevel) -> String {
         switch level {
-        case .low: "No protection needed."
-        case .moderate, .high: "Sun protection recommended."
-        case .veryHigh, .extreme: "Avoid the midday sun."
+        case .low: String(localized: "No protection needed.")
+        case .moderate, .high: String(localized: "Sun protection recommended.")
+        case .veryHigh, .extreme: String(localized: "Avoid the midday sun.")
+        }
+    }
+}
+
+extension WeatherCondition {
+    var title: String {
+        switch self {
+        case .clear: String(localized: "Clear sky")
+        case .partlyCloudy: String(localized: "Partly cloudy")
+        case .cloudy: String(localized: "Cloudy")
+        case .fog: String(localized: "Fog")
+        case .drizzle: String(localized: "Drizzle")
+        case .rain: String(localized: "Rain")
+        case .thunderstorm: String(localized: "Thunderstorm")
+        case .snow: String(localized: "Snow")
+        }
+    }
+}
+
+extension UVLevel {
+    var title: String {
+        switch self {
+        case .low: String(localized: "Low")
+        case .moderate: String(localized: "Moderate")
+        case .high: String(localized: "High")
+        case .veryHigh: String(localized: "Very high")
+        case .extreme: String(localized: "Extreme")
         }
     }
 }

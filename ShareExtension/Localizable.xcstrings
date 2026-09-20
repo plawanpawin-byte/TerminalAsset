@@ -1,0 +1,160 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Add": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เพิ่ม"
+          }
+        }
+      }
+    },
+    "Add to TerminalAsset": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เพิ่มไปที่ TerminalAsset"
+          }
+        }
+      }
+    },
+    "Attach to": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "แนบกับ"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ยกเลิก"
+          }
+        }
+      }
+    },
+    "Couldn't save this. Please try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "บันทึกไม่สำเร็จ กรุณาลองอีกครั้ง"
+          }
+        }
+      }
+    },
+    "Current event": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กิจกรรมปัจจุบัน"
+          }
+        }
+      }
+    },
+    "Let TerminalAsset decide": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ให้ TerminalAsset เลือกให้"
+          }
+        }
+      }
+    },
+    "Next event": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "กิจกรรมถัดไป"
+          }
+        }
+      }
+    },
+    "Shared text": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ข้อความที่แชร์"
+          }
+        }
+      }
+    },
+    "Sharing": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "การแชร์"
+          }
+        }
+      }
+    },
+    "TerminalAsset can't add this kind of item yet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TerminalAsset ยังเพิ่มรายการประเภทนี้ไม่ได้"
+          }
+        }
+      }
+    },
+    "TerminalAsset can't receive shared items on this device yet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TerminalAsset ยังรับสิ่งที่แชร์บนเครื่องนี้ไม่ได้"
+          }
+        }
+      }
+    },
+    "That file is too large to share (limit %lld MB).": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไฟล์นี้ใหญ่เกินกว่าจะแชร์ได้ (จำกัด %lld MB)"
+          }
+        }
+      }
+    },
+    "You can change where it goes later in the TerminalAsset Inbox.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "คุณเปลี่ยนปลายทางได้ภายหลังในกล่องรับเข้าของ TerminalAsset"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}
