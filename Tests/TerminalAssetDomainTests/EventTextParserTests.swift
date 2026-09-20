@@ -215,6 +215,23 @@ struct EventTextParserThaiTests {
         #expect(parse("ไปตลาดวัน").recognized.isEmpty)
     }
 
+    @Test func thaiMonthNamesAreDates() {
+        #expect(parse("ประชุมวันที่ 25 กุมภาพันธ์ 10 โมง").draft.start == at(2, 25, 10))
+        #expect(parse("นัดหมอ 3 มี.ค. บ่ายสองโมง").draft.start == at(3, 3, 14))
+        #expect(parse("ส่งรายงาน 9 ก.ย ทั้งวัน").draft.start == at(9, 9, 0))
+    }
+
+    @Test func aBuddhistEraYearIsConverted() {
+        let result = parse("ประชุมใหญ่ 3 มีนาคม 2570 10 โมง")
+        #expect(result.draft.title == "ประชุมใหญ่")
+        #expect(result.draft.start == at(3, 3, 10))
+    }
+
+    @Test func aThaiDateWithoutAYearMeansTheNextOccurrence() {
+        // 3 January has already passed in 2027, so it means 2028.
+        #expect(parse("ขึ้นปีใหม่ 3 ม.ค. ทั้งวัน").draft.start == at(1, 3, 0, year: 2028))
+    }
+
     @Test func everyDayRepeatsDaily() {
         let result = parse("ออกกำลังกายทุกวัน 6 โมงเย็น")
         #expect(result.draft.title == "ออกกำลังกาย")

@@ -69,6 +69,10 @@ public enum EventTextParser {
                 date(year: int(g[3]), month: month(g[1]), day: int(g[2]), today: today, calendar: calendar) != nil
             }) {
                 day = date(year: int(g[3]), month: month(g[1]), day: int(g[2]), today: today, calendar: calendar)
+            } else if let g = scanner.take("(?:วันที่\\s*)?(\\d{1,2})\\s*(\(thaiMonths))(?:\\s*(\\d{4}))?", where: { g in
+                date(year: gregorianYear(g[3]), month: thaiMonth(g[2]), day: int(g[1]), today: today, calendar: calendar) != nil
+            }) {
+                day = date(year: gregorianYear(g[3]), month: thaiMonth(g[2]), day: int(g[1]), today: today, calendar: calendar)
             } else if let g = scanner.take("(?:\\bon\\s+)?\\b(day after tomorrow)\\b|มะรืน(?:นี้)?") {
                 _ = g
                 day = calendar.date(byAdding: .day, value: 2, to: today)
@@ -204,6 +208,36 @@ public enum EventTextParser {
     /// "อาทิตย์" alone also means "week", so Sunday needs its "วัน".
     private static let thaiWeekdays = "จันทร์|อังคาร|พุธ|พฤหัสบดี|พฤหัส|ศุกร์|เสาร์|วันอาทิตย์"
     private static let thaiNumber = "\\d{1,2}|สิบเอ็ด|สิบสอง|สิบ|หนึ่ง|สอง|สาม|สี่|ห้า|หก|เจ็ด|แปด|เก้า"
+
+    /// Full names and the usual abbreviations, with or without the dots ("ก.ย." / "ก.ย").
+    private static let thaiMonthNames: [(month: Int, names: [String])] = [
+        (1, ["มกราคม", "ม.ค."]), (2, ["กุมภาพันธ์", "ก.พ."]), (3, ["มีนาคม", "มี.ค."]),
+        (4, ["เมษายน", "เม.ย."]), (5, ["พฤษภาคม", "พ.ค."]), (6, ["มิถุนายน", "มิ.ย."]),
+        (7, ["กรกฎาคม", "ก.ค."]), (8, ["สิงหาคม", "ส.ค."]), (9, ["กันยายน", "ก.ย."]),
+        (10, ["ตุลาคม", "ต.ค."]), (11, ["พฤศจิกายน", "พ.ย."]), (12, ["ธันวาคม", "ธ.ค."])
+    ]
+
+    /// A regex alternation of every Thai month name; abbreviations may drop their final dot.
+    private static var thaiMonths: String {
+        thaiMonthNames.flatMap(\.names).map { name in
+            let escaped = name.replacingOccurrences(of: ".", with: "\\.")
+            return name.hasSuffix(".") ? escaped + "?" : escaped
+        }.joined(separator: "|")
+    }
+
+    private static func thaiMonth(_ name: String?) -> Int? {
+        guard let name else { return nil }
+        let bare = name.replacingOccurrences(of: ".", with: "")
+        return thaiMonthNames.first { entry in
+            entry.names.contains { $0.replacingOccurrences(of: ".", with: "") == bare }
+        }?.month
+    }
+
+    /// Thai dates are often written in the Buddhist Era (2570 = 2027).
+    private static func gregorianYear(_ text: String?) -> Int? {
+        guard let value = int(text) else { return nil }
+        return value > 2400 ? value - 543 : value
+    }
 
     private static func month(_ name: String?) -> Int? {
         guard let prefix = name?.lowercased().prefix(3) else { return nil }
