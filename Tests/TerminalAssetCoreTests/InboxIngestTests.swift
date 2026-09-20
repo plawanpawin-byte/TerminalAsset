@@ -139,9 +139,9 @@ struct InboxIngestTests {
     @Test func oneShareThatCannotBeAttachedDoesNotBlockTheRest() async throws {
         let f = try await makeFixture()
         defer { try? FileManager.default.removeItem(at: f.root) }
-        // An explicit "current event" share whose title is too long to become an item.
+        // An explicit "current event" share whose address is not a usable link, so it cannot become an item.
         try f.inbox.enqueue(InboxDraft(
-            kind: .text, title: String(repeating: "x", count: 300), text: "long", intent: .currentEvent, receivedAt: base
+            kind: .url, title: "broken", urlString: "not a url", intent: .currentEvent, receivedAt: base
         ))
         try f.inbox.enqueue(InboxDraft(kind: .text, title: "fine", text: "fine", receivedAt: base + 1))
 
