@@ -8,13 +8,10 @@ private let base = Date(timeIntervalSince1970: 1_800_000_000)
 private let hour: TimeInterval = 3600
 private let day: TimeInterval = 86_400
 
-private func newEvent(_ title: String = "Dentist", start: Date = base + hour) -> ValidatedNewEvent {
+private func newEvent(_ title: String = "Dentist", start: Date = base + hour) throws -> ValidatedNewEvent {
     var calendar = Calendar(identifier: .gregorian)
     calendar.timeZone = .gmt
-    let draft = NewEventDraft(title: title, start: start, end: start + hour)
-    // The draft is valid by construction; a failure here would be a bug in the test data.
-    return (try? draft.validated(calendar: calendar))
-        ?? ValidatedNewEvent(title: title, start: start, end: start + hour, isAllDay: false, location: nil, calendarID: nil)
+    return try NewEventDraft(title: title, start: start, end: start + hour).validated(calendar: calendar)
 }
 
 @Suite("Adding events")
@@ -33,7 +30,7 @@ struct CalendarWritingTests {
     @Test func createdEventIsInTheAppImmediately() async throws {
         let (service, store) = try makeService()
 
-        let key = try await service.createEvent(newEvent())
+        let key = try await service.createEvent(try newEvent())
 
         let events = try await store.events(from: base - day, to: base + 2 * day)
         #expect(events.map(\.key) == [key])
@@ -42,7 +39,7 @@ struct CalendarWritingTests {
 
     @Test func syncingAgainDoesNotDuplicateTheCreatedEvent() async throws {
         let (service, store) = try makeService()
-        let key = try await service.createEvent(newEvent())
+        let key = try await service.createEvent(try newEvent())
 
         try await service.sync(window: DateInterval(start: base - day, end: base + 2 * day))
 
@@ -59,7 +56,7 @@ struct CalendarWritingTests {
     @Test func permissionFailuresAreReportedAsSyncErrors() async throws {
         let (service, _) = try makeService(authorization: .denied)
         await #expect(throws: SyncError.calendar(.permissionDenied)) {
-            try await service.createEvent(newEvent())
+            try await service.createEvent(try newEvent())
         }
     }
 }

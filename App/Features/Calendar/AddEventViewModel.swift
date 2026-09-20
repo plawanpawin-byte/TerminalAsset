@@ -16,7 +16,7 @@ final class AddEventViewModel: Identifiable {
     private(set) var isSaving = false
     private(set) var errorMessage: String?
 
-    var id: ObjectIdentifier { ObjectIdentifier(self) }
+    nonisolated var id: ObjectIdentifier { ObjectIdentifier(self) }
 
     @ObservationIgnored private let sync: CalendarSyncService
     @ObservationIgnored private let calendar: Calendar
