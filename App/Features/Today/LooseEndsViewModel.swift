@@ -25,16 +25,19 @@ final class LooseEndsViewModel {
         self.calendar = calendar
     }
 
-    func load(now: Date = .now) async {
+    /// `readCalendar` asks the calendar for the past 60 days first (at launch and when the app returns to the
+    /// foreground). Without it only the stored copy is read, which is cheap enough to do on every change.
+    func load(now: Date = .now, readCalendar: Bool = false) async {
         let today = calendar.startOfDay(for: now)
         let start = calendar.date(byAdding: .day, value: -pastDays, to: today) ?? today
-        let window = DateInterval(start: start, end: max(start, today))
 
-        do {
-            try await sync.sync(window: window)
-        } catch {
-            // Local-first: keep whatever is stored even if the calendar can't be read right now.
-            problem = TodayViewModel.message(for: error)
+        if readCalendar {
+            do {
+                try await sync.sync(window: DateInterval(start: start, end: max(start, today)))
+            } catch {
+                // Local-first: keep whatever is stored even if the calendar can't be read right now.
+                problem = TodayViewModel.message(for: error)
+            }
         }
         do {
             let stored = try await store.events(from: start, to: today)

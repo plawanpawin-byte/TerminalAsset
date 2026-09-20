@@ -71,13 +71,13 @@ struct TodayView: View {
         }
         .task { await model.start() }
         .task { await weather.reconcile() }
-        .task { await looseEnds.load() }
+        .task { await looseEnds.load(readCalendar: true) }
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
             Task {
                 await model.didBecomeActive()
                 await weather.reconcile()
-                await looseEnds.load()
+                await looseEnds.load(readCalendar: true)
             }
         }
         .onChange(of: model.events) { Task { await looseEnds.load() } }
