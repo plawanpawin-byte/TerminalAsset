@@ -94,13 +94,16 @@ struct SettingsView: View {
                     Spacer(minLength: 8)
                     Text("Upgrade")
                         .font(.subheadline)
+                        .foregroundStyle(Color.accentColor)
                     Image(systemName: "chevron.right")
                         .font(.footnote.weight(.semibold))
                         .foregroundStyle(.tertiary)
                         .accessibilityHidden(true)
                 }
                 .padding(.vertical, 4)
+                .contentShape(Rectangle())
             }
+            .buttonStyle(.plain)
             .accessibilityHint("Shows the Pro plan")
         }
     }

@@ -117,6 +117,7 @@ private struct PrepRow: View {
                 localItems
             }
         }
+        .labelStyle(.titleAndIcon)
         .padding(.vertical, 4)
     }
 
