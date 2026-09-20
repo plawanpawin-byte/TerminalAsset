@@ -21,7 +21,7 @@ public struct OpenMeteoWeatherProvider: WeatherProvider {
             (data, response) = try await session.data(for: request)
         } catch let error as URLError {
             // Leaving the screen cancels the request; that is not an outage and must not be reported as one.
-            if error.code == .cancelled { throw CancellationError() }
+            if error.code == .cancelled, Task.isCancelled { throw CancellationError() }
             throw Self.map(error)
         } catch is CancellationError {
             throw CancellationError()

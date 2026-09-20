@@ -79,13 +79,15 @@ public actor EventKitRepository: CalendarRepository {
 
     public nonisolated func storeChanges() -> AsyncStream<Void> {
         AsyncStream(bufferingPolicy: .bufferingNewest(1)) { continuation in
-            let task = Task {
-                for await _ in NotificationCenter.default.notifications(named: .EKEventStoreChanged) {
+            // The observer is registered right here, before the stream is returned, so a change that happens while
+            // the caller does its first sync is buffered instead of lost.
+            let center = NotificationCenter.default
+            let token = ObserverToken(
+                center.addObserver(forName: .EKEventStoreChanged, object: nil, queue: nil) { _ in
                     continuation.yield(())
                 }
-                continuation.finish()
-            }
-            continuation.onTermination = { _ in task.cancel() }
+            )
+            continuation.onTermination = { _ in center.removeObserver(token.value) }
         }
     }
 
@@ -147,6 +149,15 @@ public actor EventKitRepository: CalendarRepository {
         case .denied: throw CalendarError.permissionDenied
         case .writeOnly: throw CalendarError.writeOnlyAccess
         }
+    }
+}
+
+/// Carries a notification observer into a `@Sendable` termination handler.
+private final class ObserverToken: @unchecked Sendable {
+    let value: NSObjectProtocol
+
+    init(_ value: NSObjectProtocol) {
+        self.value = value
     }
 }
 #endif

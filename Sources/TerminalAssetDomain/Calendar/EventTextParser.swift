@@ -55,21 +55,21 @@ public enum EventTextParser {
         // MARK: Dates
         if day == nil {
             if let g = scanner.take("(\\d{4})-(\\d{1,2})-(\\d{1,2})", where: { g in
-                date(year: int(g[1]), month: int(g[2]), day: int(g[3]), today: today, calendar: calendar) != nil
+                date(year: gregorianYear(g[1]), month: int(g[2]), day: int(g[3]), today: today, calendar: calendar) != nil
             }) {
-                day = date(year: int(g[1]), month: int(g[2]), day: int(g[3]), today: today, calendar: calendar)
+                day = date(year: gregorianYear(g[1]), month: int(g[2]), day: int(g[3]), today: today, calendar: calendar)
             } else if let g = scanner.take("(?:^|\\s)(\\d{1,2})/(\\d{1,2})(?:/(\\d{2,4}))?(?![\\d:/])", where: { g in
                 date(year: year(g[3]), month: int(g[2]), day: int(g[1]), today: today, calendar: calendar) != nil
             }) {
                 day = date(year: year(g[3]), month: int(g[2]), day: int(g[1]), today: today, calendar: calendar)
             } else if let g = scanner.take("(\\d{1,2})(?:st|nd|rd|th)?\\s+(\(monthNames))\\b(?:\\s+(\\d{4}))?", where: { g in
-                date(year: int(g[3]), month: month(g[2]), day: int(g[1]), today: today, calendar: calendar) != nil
+                date(year: gregorianYear(g[3]), month: month(g[2]), day: int(g[1]), today: today, calendar: calendar) != nil
             }) {
-                day = date(year: int(g[3]), month: month(g[2]), day: int(g[1]), today: today, calendar: calendar)
+                day = date(year: gregorianYear(g[3]), month: month(g[2]), day: int(g[1]), today: today, calendar: calendar)
             } else if let g = scanner.take("\\b(\(monthNames))\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b(?:,?\\s+(\\d{4}))?", where: { g in
-                date(year: int(g[3]), month: month(g[1]), day: int(g[2]), today: today, calendar: calendar) != nil
+                date(year: gregorianYear(g[3]), month: month(g[1]), day: int(g[2]), today: today, calendar: calendar) != nil
             }) {
-                day = date(year: int(g[3]), month: month(g[1]), day: int(g[2]), today: today, calendar: calendar)
+                day = date(year: gregorianYear(g[3]), month: month(g[1]), day: int(g[2]), today: today, calendar: calendar)
             } else if let g = scanner.take("(?:วันที่\\s*)?(\\d{1,2})\\s*(\(thaiMonths))(?:\\s*(\\d{4}))?", where: { g in
                 date(year: gregorianYear(g[3]), month: thaiMonth(g[2]), day: int(g[1]), today: today, calendar: calendar) != nil
             }) {
@@ -303,6 +303,7 @@ public enum EventTextParser {
     }
 
     /// Thai dates are often written in the Buddhist Era (2570 = 2027).
+    /// Years above 2400 are Buddhist-era (as Thai users write them) and are converted to Gregorian.
     private static func gregorianYear(_ text: String?) -> Int? {
         guard let value = int(text) else { return nil }
         return value > 2400 ? value - 543 : value
@@ -448,7 +449,7 @@ public enum EventTextParser {
     /// Two-digit years mean 20xx. A missing year stays nil so the date logic can pick the coming one.
     private static func year(_ text: String?) -> Int? {
         guard let value = int(text) else { return nil }
-        return value < 100 ? 2000 + value : value
+        return value < 100 ? 2000 + value : gregorianYear(text)
     }
 
     private static func matches(_ text: String, _ pattern: String) -> Bool {

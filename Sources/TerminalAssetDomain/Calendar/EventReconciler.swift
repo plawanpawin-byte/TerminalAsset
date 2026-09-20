@@ -161,6 +161,8 @@ public enum EventReconciler {
     /// Sorts deterministically, then resolves key collisions (same external ID + occurrence in two calendars)
     /// by qualifying the key with the calendar. Events that are still indistinguishable (two "Standup"s at the same
     /// time in one calendar) get an ordinal, so each keeps its own context instead of one silently disappearing.
+    /// The ordinal follows a best-effort stable order; genuinely identical events cannot be told apart any better,
+    /// and keeping both is safer than merging or dropping one.
     private static func assignKeys(to snapshots: [CalendarEventSnapshot]) -> [KeyedSnapshot] {
         let ordered = snapshots.sorted { lhs, rhs in
             if lhs.calendarID != rhs.calendarID { return lhs.calendarID < rhs.calendarID }

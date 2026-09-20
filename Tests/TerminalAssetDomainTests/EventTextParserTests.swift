@@ -182,6 +182,13 @@ struct BuddhistCalendarParserTests {
         #expect(passed.draft.start == at(1, 5, 12, year: 2028))
     }
 
+    @Test func buddhistEraYearsAreConvertedInEveryDateFormat() {
+        for text in ["dentist 15/3/2570 10:00", "dentist 2570-03-15 10:00", "dentist 15 March 2570 10:00", "dentist March 15 2570 10:00"] {
+            let parsed = EventTextParser.parse(text, now: now, calendar: buddhist)
+            #expect(parsed.draft.start == at(3, 15, 10), Comment(rawValue: text))
+        }
+    }
+
     @Test func aThaiBuddhistEraYearIsConverted() {
         let parsed = EventTextParser.parse("ทันตแพทย์ 15 มีนาคม 2570 10:00", now: now, calendar: buddhist)
         #expect(parsed.draft.start == at(3, 15, 10))
