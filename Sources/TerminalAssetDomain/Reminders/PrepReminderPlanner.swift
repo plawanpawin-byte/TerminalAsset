@@ -23,8 +23,10 @@ public struct PrepReminder: Sendable, Equatable, Identifiable {
 /// Decides which prep reminders should exist for the coming events. Pure and deterministic: same events and
 /// clock in, same reminders out, so it is fully testable without notifications, a device or a network.
 ///
-/// A reminder is only worth interrupting for when the event has something to prepare (open tasks) or nothing at
-/// all attached to a meeting-sized event. A quiet event with notes or links already attached gets no reminder.
+/// A reminder is only worth interrupting for when the event has something to prepare (open tasks) or nothing
+/// at all attached (a nudge to add some). A quiet event with notes or links already attached gets no reminder.
+/// The user opts in to reminders and the count is capped (`limit`), so this is the whole filter: no event kind or
+/// length is guessed at.
 public enum PrepReminderPlanner {
     public struct Settings: Sendable, Equatable {
         /// How long before the event the reminder fires.
