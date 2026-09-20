@@ -165,7 +165,7 @@ private struct TodayContent: View {
 
                         if let forecast {
                             if !forecast.daily.isEmpty {
-                                DailyForecastCard(snapshot: forecast)
+                                DailyForecastCard(snapshot: forecast, now: context.date)
                                     .id(TodaySection.daily)
                             }
                             WeatherDetailsGrid(snapshot: forecast, now: context.date)

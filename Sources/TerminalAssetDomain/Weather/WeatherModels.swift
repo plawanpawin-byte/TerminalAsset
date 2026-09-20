@@ -91,6 +91,8 @@ public struct WeatherSnapshot: Sendable, Codable, Equatable {
     public let hourly: [HourlyForecast]
     public let daily: [DailyForecast]
     public let details: WeatherDetails?
+    /// Offset of the forecast place from UTC. Days, hours and sun times are read in this zone, not the device's.
+    public let utcOffsetSeconds: Int?
 
     public init(
         temperatureC: Double,
@@ -103,7 +105,8 @@ public struct WeatherSnapshot: Sendable, Codable, Equatable {
         fetchedAt: Date,
         hourly: [HourlyForecast] = [],
         daily: [DailyForecast] = [],
-        details: WeatherDetails? = nil
+        details: WeatherDetails? = nil,
+        utcOffsetSeconds: Int? = nil
     ) {
         self.temperatureC = temperatureC
         self.condition = condition
@@ -116,6 +119,7 @@ public struct WeatherSnapshot: Sendable, Codable, Equatable {
         self.hourly = hourly
         self.daily = daily
         self.details = details
+        self.utcOffsetSeconds = utcOffsetSeconds
     }
 
     /// Forecasts cached by an earlier version have no hourly, daily or detail fields, so those decode as empty.
@@ -132,7 +136,8 @@ public struct WeatherSnapshot: Sendable, Codable, Equatable {
             fetchedAt: try container.decode(Date.self, forKey: .fetchedAt),
             hourly: try container.decodeIfPresent([HourlyForecast].self, forKey: .hourly) ?? [],
             daily: try container.decodeIfPresent([DailyForecast].self, forKey: .daily) ?? [],
-            details: try container.decodeIfPresent(WeatherDetails.self, forKey: .details)
+            details: try container.decodeIfPresent(WeatherDetails.self, forKey: .details),
+            utcOffsetSeconds: try container.decodeIfPresent(Int.self, forKey: .utcOffsetSeconds)
         )
     }
 
@@ -141,7 +146,7 @@ public struct WeatherSnapshot: Sendable, Codable, Equatable {
             temperatureC: temperatureC, condition: condition, isDaytime: isDaytime,
             highC: highC, lowC: lowC, precipitationChance: precipitationChance,
             cityName: name ?? cityName, fetchedAt: fetchedAt,
-            hourly: hourly, daily: daily, details: details
+            hourly: hourly, daily: daily, details: details, utcOffsetSeconds: utcOffsetSeconds
         )
     }
 }

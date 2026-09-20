@@ -4,18 +4,32 @@ import TerminalAssetDomain
 /// Wording and unit formatting for the forecast. Presentation only; the decisions (what counts as likely rain,
 /// which UV band) live in the Domain module.
 enum WeatherText {
-    static func hourLabel(_ date: Date, isFirst: Bool) -> String {
-        isFirst ? "Now" : date.formatted(.dateTime.hour())
+    // Forecast times are read in the forecast place's zone so "6 AM" means 6 AM there.
+
+    static func hour(_ date: Date, in zone: TimeZone) -> String {
+        date.formatted(Date.FormatStyle(timeZone: zone).hour())
     }
 
-    static func rainOutlook(_ outlook: RainOutlook) -> String {
+    static func time(_ date: Date, in zone: TimeZone) -> String {
+        date.formatted(Date.FormatStyle(timeZone: zone).hour().minute())
+    }
+
+    static func weekday(_ date: Date, in zone: TimeZone) -> String {
+        date.formatted(Date.FormatStyle(timeZone: zone).weekday(.abbreviated))
+    }
+
+    static func hourLabel(_ date: Date, isFirst: Bool, in zone: TimeZone) -> String {
+        isFirst ? "Now" : hour(date, in: zone)
+    }
+
+    static func rainOutlook(_ outlook: RainOutlook, in zone: TimeZone) -> String {
         switch outlook {
         case .none:
             "No rain expected in the next 24 hours."
         case .expected(let date, _):
-            "Rain likely from about \(date.formatted(.dateTime.hour()))."
+            "Rain likely from about \(hour(date, in: zone))."
         case .raining(_, let until?):
-            "Rain likely now, easing around \(until.formatted(.dateTime.hour()))."
+            "Rain likely now, easing around \(hour(until, in: zone))."
         case .raining(_, nil):
             "Rain likely for the rest of the day."
         }

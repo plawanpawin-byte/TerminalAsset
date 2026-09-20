@@ -83,6 +83,21 @@ struct OpenMeteoForecastTests {
         #expect(result.precipitationChance == 20)
     }
 
+    @Test func daysAreReadInTheForecastPlacesZoneNotTheDevices() throws {
+        // Bangkok midnight of 2027-01-16 is 17:00 UTC on the 15th: on a UTC device that instant is still "the 15th".
+        let bangkokMidnight = Date(timeIntervalSince1970: 1_800_032_400)
+        let withOffset = """
+        {"utc_offset_seconds": 25200,
+         "current": {"temperature_2m": 30.0, "weather_code": 0, "is_day": 1}}
+        """
+        let result = try OpenMeteo.snapshot(from: Data(withOffset.utf8), now: now)
+        #expect(result.utcOffsetSeconds == 25_200)
+        #expect(result.timeZone.secondsFromGMT() == 25_200)
+        let localNoon = bangkokMidnight.addingTimeInterval(12 * 3_600)
+        #expect(result.calendar.isDate(bangkokMidnight, inSameDayAs: localNoon))
+        #expect(result.calendar.component(.day, from: bangkokMidnight) == 16)
+    }
+
     @Test func aResponseWithoutForecastSectionsStillGivesCurrentConditions() throws {
         let minimal = """
         {"current": {"temperature_2m": 20.0, "weather_code": 0, "is_day": 1}}

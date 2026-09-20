@@ -15,13 +15,13 @@ struct HourlyForecastCard: View {
         GlassCard {
             VStack(alignment: .leading, spacing: 10) {
                 GlassHeading(text: "Hourly forecast", symbol: "clock")
-                Text(WeatherText.rainOutlook(snapshot.rainOutlook(from: now)))
+                Text(WeatherText.rainOutlook(snapshot.rainOutlook(from: now), in: snapshot.timeZone))
                     .font(.subheadline)
                 Divider().overlay(.white.opacity(0.25))
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 20) {
                         ForEach(Array(hours.enumerated()), id: \.element.id) { index, hour in
-                            HourColumn(hour: hour, isFirst: index == 0)
+                            HourColumn(hour: hour, isFirst: index == 0, zone: snapshot.timeZone)
                         }
                     }
                 }
@@ -33,12 +33,15 @@ struct HourlyForecastCard: View {
 private struct HourColumn: View {
     let hour: HourlyForecast
     let isFirst: Bool
+    let zone: TimeZone
+
+    private var label: String { WeatherText.hourLabel(hour.date, isFirst: isFirst, in: zone) }
 
     private var showsRain: Bool { hour.precipitationChance >= 20 }
 
     var body: some View {
         VStack(spacing: 8) {
-            Text(WeatherText.hourLabel(hour.date, isFirst: isFirst))
+            Text(label)
                 .font(.subheadline.weight(.medium))
             VStack(spacing: 2) {
                 Image(systemName: hour.condition.symbol(isDaytime: hour.isDaytime))
@@ -54,7 +57,7 @@ private struct HourColumn: View {
         }
         .frame(minWidth: 40)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(WeatherText.hourLabel(hour.date, isFirst: isFirst))
+        .accessibilityLabel(label)
         .accessibilityValue(
             "\(TemperatureText.format(celsius: hour.temperatureC)), \(hour.condition.title)"
                 + (showsRain ? ", \(hour.precipitationChance) percent chance of rain" : "")
@@ -66,6 +69,7 @@ private struct HourColumn: View {
 
 struct DailyForecastCard: View {
     let snapshot: WeatherSnapshot
+    let now: Date
 
     var body: some View {
         let days = snapshot.daily
@@ -77,7 +81,7 @@ struct DailyForecastCard: View {
                     .padding(.bottom, 6)
                 ForEach(Array(days.enumerated()), id: \.element.id) { index, day in
                     if index > 0 { Divider().overlay(.white.opacity(0.2)) }
-                    DayRow(day: day, weekLow: low, weekHigh: high)
+                    DayRow(day: day, weekLow: low, weekHigh: high, isToday: snapshot.calendar.isDate(day.date, inSameDayAs: now), zone: snapshot.timeZone)
                 }
             }
         }
@@ -88,11 +92,13 @@ private struct DayRow: View {
     let day: DailyForecast
     let weekLow: Double
     let weekHigh: Double
+    let isToday: Bool
+    let zone: TimeZone
 
     private var showsRain: Bool { day.precipitationChance >= 20 }
 
     private var name: String {
-        Calendar.current.isDateInToday(day.date) ? "Today" : day.date.formatted(.dateTime.weekday(.abbreviated))
+        isToday ? "Today" : WeatherText.weekday(day.date, in: zone)
     }
 
     var body: some View {
@@ -207,16 +213,16 @@ struct WeatherDetailsGrid: View {
 
     private func sunTile(_ details: WeatherDetails) -> Tile? {
         guard let sunrise = details.sunrise, let sunset = details.sunset else { return nil }
-        let time = Date.FormatStyle.dateTime.hour().minute()
+        let zone = snapshot.timeZone
         if now < sunrise {
             return Tile(
                 title: "Sunrise", symbol: "sunrise.fill",
-                value: sunrise.formatted(time), caption: "Sunset: \(sunset.formatted(time))"
+                value: WeatherText.time(sunrise, in: zone), caption: "Sunset: \(WeatherText.time(sunset, in: zone))"
             )
         }
         return Tile(
             title: "Sunset", symbol: "sunset.fill",
-            value: sunset.formatted(time), caption: "Sunrise: \(sunrise.formatted(time))"
+            value: WeatherText.time(sunset, in: zone), caption: "Sunrise: \(WeatherText.time(sunrise, in: zone))"
         )
     }
 

@@ -110,6 +110,18 @@ extension WeatherSnapshot {
     /// Below this the rain is considered to have eased.
     public static let easedRainChance = 30
 
+    /// The zone of the forecast place, falling back to the device's when the service did not say.
+    public var timeZone: TimeZone {
+        utcOffsetSeconds.flatMap { TimeZone(secondsFromGMT: $0) } ?? .current
+    }
+
+    /// A calendar in the forecast place's zone, for deciding which day an instant falls on there.
+    public var calendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = timeZone
+        return calendar
+    }
+
     /// The current hour and the following ones, at most `limit` of them.
     public func upcomingHours(from now: Date, limit: Int = 24) -> [HourlyForecast] {
         // The provider's first hour is the current one, so an hour that started up to 59 minutes ago still counts.

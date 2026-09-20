@@ -59,7 +59,8 @@ public enum OpenMeteo {
             fetchedAt: now,
             hourly: hourly,
             daily: daily,
-            details: details(from: response)
+            details: details(from: response),
+            utcOffsetSeconds: response.utcOffsetSeconds
         )
     }
 
@@ -207,16 +208,19 @@ public enum OpenMeteo {
         let current: Current
         let hourly: Hourly?
         let daily: Daily?
+        let utcOffsetSeconds: Int?
 
         init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             current = try container.decode(Current.self, forKey: .current)
+            utcOffsetSeconds = container.lenient(Int.self, forKey: .utcOffsetSeconds)
             hourly = container.lenient(Hourly.self, forKey: .hourly)
             daily = container.lenient(Daily.self, forKey: .daily)
         }
 
         enum CodingKeys: String, CodingKey {
             case current, hourly, daily
+            case utcOffsetSeconds = "utc_offset_seconds"
         }
     }
 }
