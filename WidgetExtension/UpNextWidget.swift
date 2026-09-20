@@ -94,6 +94,8 @@ struct UpNextWidgetView: View {
             }
         }
         .containerBackground(.fill.tertiary, for: .widget)
+        // Tapping opens that event in the app; with nothing to show it just opens the app.
+        .widgetURL(focus.flatMap { DeepLink.event(EventKey(rawValue: $0.id)).url })
     }
 
     // MARK: Small

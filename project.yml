@@ -28,6 +28,10 @@ targets:
       properties:
         CFBundleDisplayName: TerminalAsset
         ITSAppUsesNonExemptEncryption: false
+        CFBundleURLTypes:
+          - CFBundleURLName: com.terminalasset.app
+            CFBundleURLSchemes:
+              - terminalasset
         UILaunchScreen: {}
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait

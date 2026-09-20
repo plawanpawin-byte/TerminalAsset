@@ -4,6 +4,7 @@ import TerminalAssetDomain
 struct TodayView: View {
     let model: TodayViewModel
     let briefing: BriefingViewModel
+    let router: AppRouter
     let weather: WeatherViewModel
 
     @Environment(\.scenePhase) private var scenePhase
@@ -14,12 +15,14 @@ struct TodayView: View {
     init(
         model: TodayViewModel,
         briefing: BriefingViewModel,
+        router: AppRouter,
         weather: WeatherViewModel,
         initialPath: [EventKey] = [],
         initialCalendar: CalendarViewModel.Mode? = nil
     ) {
         self.model = model
         self.briefing = briefing
+        self.router = router
         self.weather = weather
         _path = State(initialValue: initialPath)
         _showingCalendar = State(initialValue: initialCalendar != nil)
@@ -78,6 +81,11 @@ struct TodayView: View {
             }
         }
         .onChange(of: model.events) { Task { await briefing.load() } }
+        .onChange(of: router.pendingEvent, initial: true) { _, pending in
+            guard let pending else { return }
+            path = [pending]
+            router.clearEvent()
+        }
     }
 
     @ViewBuilder
@@ -308,13 +316,13 @@ private struct AllDayStrip: View {
 #if DEBUG
 #Preview("Today · sample") {
     if let app = try? AppBootstrap.makeSampleModel() {
-        TodayView(model: app.today, briefing: app.briefing, weather: app.weather)
+        TodayView(model: app.today, briefing: app.briefing, router: app.router, weather: app.weather)
     }
 }
 
 #Preview("Today · dark") {
     if let app = try? AppBootstrap.makeSampleModel() {
-        TodayView(model: app.today, briefing: app.briefing, weather: app.weather)
+        TodayView(model: app.today, briefing: app.briefing, router: app.router, weather: app.weather)
             .preferredColorScheme(.dark)
     }
 }

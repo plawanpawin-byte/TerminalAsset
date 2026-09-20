@@ -1,6 +1,7 @@
 import Foundation
 import TerminalAssetCore
 import TerminalAssetDomain
+import UserNotifications
 
 struct BootstrapFailure: Error {
     let message: String
@@ -16,6 +17,7 @@ struct AppModel {
     let settings: SettingsViewModel
     let reminders: PrepReminderViewModel
     let widgets: WidgetPublisher
+    let router: AppRouter
     let weather: WeatherViewModel
 
     /// Loads Today, then imports shared items (they may auto-attach to events, so events must exist first).
@@ -29,6 +31,8 @@ struct AppModel {
 /// Composition root: the only place that knows which concrete repository and store back the app.
 @MainActor
 enum AppBootstrap {
+    private static var notificationDelegate: NotificationDelegate?
+
     static func make() -> Result<AppModel, BootstrapFailure> {
         do {
             #if DEBUG
@@ -44,10 +48,14 @@ enum AppBootstrap {
             let store = ContextStore(modelContainer: container)
             // Without the App Group container (missing entitlement) sharing is off; the rest of the app works.
             let shared = try? SharedInbox.appGroup()
-            return .success(makeModel(
+            let model = makeModel(
                 sync: sync, store: store, shared: shared, weather: makeLiveWeather(),
                 scheduler: UserNotificationScheduler()
-            ))
+            )
+            // The center keeps only a weak reference, so the delegate lives for the whole run.
+            notificationDelegate = NotificationDelegate(router: model.router)
+            UNUserNotificationCenter.current().delegate = notificationDelegate
+            return .success(model)
         } catch {
             return .failure(BootstrapFailure(message: "The local data store could not be opened on this device."))
         }
@@ -90,7 +98,7 @@ enum AppBootstrap {
         let reminders = PrepReminderViewModel(scheduler: scheduler)
         return AppModel(
             today: today, inbox: inbox, search: search, briefing: briefing, settings: settings,
-            reminders: reminders, widgets: widgets, weather: weather
+            reminders: reminders, widgets: widgets, router: AppRouter(), weather: weather
         )
     }
 

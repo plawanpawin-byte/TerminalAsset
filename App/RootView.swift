@@ -34,6 +34,13 @@ struct RootView: View {
                 await app.widgets.publish()
             }
         }
+        // A tapped reminder or widget opens its event on the Today tab.
+        .onOpenURL { url in
+            if let link = DeepLink(url: url) { app.router.open(link) }
+        }
+        .onChange(of: app.router.pendingEvent, initial: true) { _, pending in
+            if pending != nil { selection = .today }
+        }
         .onChange(of: scenePhase) { _, phase in
             // Items shared while the app was closed are waiting in the queue.
             if phase == .active { Task { await app.inbox.refresh() } }
@@ -46,6 +53,7 @@ struct RootView: View {
                 TodayView(
                     model: app.today,
                     briefing: app.briefing,
+                    router: app.router,
                     weather: app.weather,
                     initialPath: initialTodayPath,
                     initialCalendar: initialCalendarMode
