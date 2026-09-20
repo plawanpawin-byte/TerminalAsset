@@ -1,29 +1,24 @@
 import SwiftUI
 import TerminalAssetDomain
 
-/// The Assistant tab: your whole calendar as an Apple-News-style "Top Stories" wall of cards, with a
-/// Siri-style liquid-glass voice orb pinned near the top. Pull the orb down to start speaking; drag it
-/// back up to dismiss. The history stays visible behind the glass while listening.
+/// The Assistant tab: your whole calendar as an Apple-News-style "Top Stories" wall of story cards,
+/// with a liquid-glass "Ask" bar pinned at the bottom. Tap it (or the mic) to talk; the history stays
+/// visible behind the glass while listening.
 struct AssistantView: View {
     let model: AssistantViewModel
     let today: TodayViewModel
 
-    /// 0 = orb resting at the top, 1 = full listening state.
-    @State private var progress: CGFloat = 0
-    @GestureState private var dragOffset: CGFloat = 0
+    @State private var listening = false
 
     private let calendar = Calendar.current
 
-    /// Live value while a drag is in flight.
-    private var effective: CGFloat { min(max(progress + dragOffset / 240, 0), 1) }
-    private var listening: Bool { effective > 0.5 }
-
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .top) {
+            ZStack(alignment: .bottom) {
                 background
                 feed
-                voiceLayer
+                if listening { listeningOverlay }
+                askBar
             }
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(for: EventKey.self) { key in
@@ -31,7 +26,7 @@ struct AssistantView: View {
             }
             .task {
                 #if DEBUG
-                if LaunchOptions.assistantListening { progress = 1 }
+                if LaunchOptions.assistantListening { listening = true }
                 #endif
                 await model.load()
             }
@@ -53,7 +48,9 @@ struct AssistantView: View {
 
     private var feed: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 18) {
+                header
+
                 if let problem = model.problem {
                     Label(problem, systemImage: "exclamationmark.triangle.fill")
                         .font(.footnote)
@@ -71,13 +68,30 @@ struct AssistantView: View {
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.top, 118)
-            .padding(.bottom, 40)
+            .padding(.top, 12)
+            .padding(.bottom, 96) // room for the floating Ask bar
         }
-        .scrollDisabled(effective > 0.05)
     }
 
-    /// Two balanced columns of story cards, newest first.
+    private var header: some View {
+        HStack(alignment: .firstTextBaseline) {
+            Text("Timeline")
+                .font(.largeTitle.weight(.bold))
+                .foregroundStyle(.white)
+            Spacer()
+            Text(headerSubtitle)
+                .font(.footnote)
+                .foregroundStyle(.white.opacity(0.5))
+        }
+    }
+
+    private var headerSubtitle: String {
+        let count = model.days.reduce(0) { $0 + $1.events.count }
+        guard count > 0 else { return "" }
+        return "\(count) events"
+    }
+
+    /// Two balanced columns of story cards, newest day first.
     private var masonry: some View {
         let split = balancedColumns(events)
         return HStack(alignment: .top, spacing: 12) {
@@ -122,8 +136,9 @@ struct AssistantView: View {
 
     /// Rough card height so the greedy split balances; exact layout is still done by SwiftUI.
     private func estimatedHeight(_ event: TimelineEvent) -> CGFloat {
+        let style = StoryStyle(seed: event.key.rawValue)
         let titleLines = max(1, ceil(CGFloat(event.title.count) / 15))
-        var height: CGFloat = 58 + titleLines * 24
+        var height = style.heroHeight + 44 + titleLines * 24
         if let location = event.location, !location.isEmpty { height += 18 }
         if !event.summary.isEmpty { height += 26 }
         return height
@@ -153,120 +168,160 @@ struct AssistantView: View {
         return day.formatted(date: .numeric, time: .omitted)
     }
 
-    // MARK: - Voice orb
+    // MARK: - Ask bar
 
-    private var voiceLayer: some View {
+    private var askBar: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "sparkles")
+                .font(.title3)
+                .foregroundStyle(Color(hex: 0x7A78F0))
+            Text("Ask Assistant…")
+                .font(.body)
+                .foregroundStyle(.white.opacity(0.5))
+            Spacer(minLength: 0)
+            Image(systemName: "mic.fill")
+                .font(.title3)
+                .foregroundStyle(.white.opacity(0.9))
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 15)
+        .background(.ultraThinMaterial, in: Capsule())
+        .overlay(Capsule().strokeBorder(.white.opacity(0.12), lineWidth: 1))
+        .shadow(color: .black.opacity(0.4), radius: 16, y: 6)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 8)
+        .contentShape(Capsule())
+        .onTapGesture { startListening() }
+        .opacity(listening ? 0 : 1)
+    }
+
+    // MARK: - Listening overlay
+
+    private var listeningOverlay: some View {
         ZStack(alignment: .top) {
-            // Only a soft top vignette while listening — the history behind stays readable, never blurred out.
+            // Soft top vignette only — the history behind stays readable, never blurred out.
             LinearGradient(
-                colors: [Color.black.opacity(0.55 * effective), .clear],
-                startPoint: .top, endPoint: .center
+                colors: [.black.opacity(0.5), .black.opacity(0.1)],
+                startPoint: .top, endPoint: .bottom
             )
             .ignoresSafeArea()
-            .allowsHitTesting(false)
-
-            // A transparent catcher so a tap anywhere cancels once we're actually listening.
-            if listening {
-                Color.clear
-                    .contentShape(Rectangle())
-                    .ignoresSafeArea()
-                    .onTapGesture { collapse() }
-            }
-
-            VStack(spacing: 14) {
-                AssistantOrb(active: listening)
-                    .frame(width: orbSize, height: orbSize)
-
-                ZStack {
-                    collapsedHint.opacity(hintOpacity)
-                    listeningCaption.opacity(captionOpacity)
-                }
-                .frame(height: 44)
-            }
-            .padding(.top, 6 + 30 * effective)
-            .frame(maxWidth: .infinity)
             .contentShape(Rectangle())
-            .gesture(drag)
-        }
-    }
+            .onTapGesture { stopListening() }
 
-    private var orbSize: CGFloat { 56 + 96 * effective }
-    private var hintOpacity: Double { Double(max(0, 1 - effective * 4)) }
-    private var captionOpacity: Double { Double(max(0, (effective - 0.5) * 2)) }
-
-    private var collapsedHint: some View {
-        VStack(spacing: 2) {
-            Image(systemName: "line.3.horizontal")
-                .font(.subheadline.weight(.semibold))
-            Text("Drag down to speak")
-                .font(.caption)
-        }
-        .foregroundStyle(.white.opacity(0.5))
-    }
-
-    private var listeningCaption: some View {
-        VStack(spacing: 4) {
-            Text("Listening…")
-                .font(.title3.weight(.semibold))
-                .foregroundStyle(.white)
-            Text("Drag up to cancel")
-                .font(.caption)
-                .foregroundStyle(.white.opacity(0.6))
-        }
-    }
-
-    private var drag: some Gesture {
-        DragGesture()
-            .updating($dragOffset) { value, state, _ in state = value.translation.height }
-            .onEnded { value in
-                let projected = progress + value.translation.height / 240
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
-                    progress = projected > 0.4 ? 1 : 0
-                }
+            VStack(spacing: 16) {
+                AssistantOrb(active: true)
+                    .frame(width: 156, height: 156)
+                Text("Listening…")
+                    .font(.title2.weight(.semibold))
+                    .foregroundStyle(.white)
+                Text("Tap anywhere to cancel")
+                    .font(.footnote)
+                    .foregroundStyle(.white.opacity(0.6))
             }
+            .padding(.top, 150)
+        }
+        .transition(.opacity)
     }
 
-    private func collapse() {
-        withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) { progress = 0 }
+    private func startListening() {
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) { listening = true }
+    }
+
+    private func stopListening() {
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) { listening = false }
     }
 }
 
-/// One event as an Apple-News-style story card on the dark Assistant wall.
+/// Deterministic look for a story card's hero: a gradient, an SF Symbol, and a height. Same event → same
+/// look every launch (seeded from the event key), and different events vary so the wall reads like a
+/// magazine rather than a uniform list.
+private struct StoryStyle {
+    let heroHeight: CGFloat
+    let colors: [Color]
+    let symbol: String
+
+    init(seed: String) {
+        let palettes: [[Color]] = [
+            [Color(hex: 0x3A2E4D), Color(hex: 0x6C5B9E)],
+            [Color(hex: 0x1F3A5F), Color(hex: 0x3E77A8)],
+            [Color(hex: 0x24463A), Color(hex: 0x4E8C6A)],
+            [Color(hex: 0x4A2E3A), Color(hex: 0x9E5B72)],
+            [Color(hex: 0x3A3320), Color(hex: 0x8C7A3E)],
+            [Color(hex: 0x2C2C46), Color(hex: 0x5B5B8C)]
+        ]
+        let symbols = [
+            "calendar", "person.2.fill", "doc.text.fill", "checklist",
+            "bubble.left.and.bubble.right.fill", "chart.bar.xaxis",
+            "briefcase.fill", "mappin.and.ellipse"
+        ]
+        let heights: [CGFloat] = [96, 118, 140]
+
+        var hash = 5381
+        for scalar in seed.unicodeScalars {
+            hash = (hash &* 33 &+ Int(scalar.value)) & 0x7fffffff
+        }
+        colors = palettes[hash % palettes.count]
+        symbol = symbols[(hash / 7) % symbols.count]
+        heroHeight = heights[(hash / 13) % heights.count]
+    }
+}
+
+/// One event as an Apple-News-style story card: a gradient hero, then day label, bold headline and detail.
 private struct StoryCard: View {
     let event: TimelineEvent
     let label: String
 
+    private var style: StoryStyle { StoryStyle(seed: event.key.rawValue) }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(label)
-                .font(.caption.weight(.medium))
-                .foregroundStyle(.white.opacity(0.45))
+        VStack(alignment: .leading, spacing: 0) {
+            hero
+            VStack(alignment: .leading, spacing: 6) {
+                Text(label)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.white.opacity(0.45))
 
-            Text(event.title)
-                .font(.title3.weight(.bold))
-                .foregroundStyle(.white)
-                .fixedSize(horizontal: false, vertical: true)
-                .lineLimit(4)
+                Text(event.title)
+                    .font(.title3.weight(.bold))
+                    .foregroundStyle(.white)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .lineLimit(3)
 
-            Text(subtitle)
-                .font(.footnote)
-                .foregroundStyle(.white.opacity(0.55))
-                .fixedSize(horizontal: false, vertical: true)
-                .lineLimit(3)
+                Text(subtitle)
+                    .font(.footnote)
+                    .foregroundStyle(.white.opacity(0.55))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .lineLimit(2)
 
-            if !event.summary.isEmpty {
-                ContextChips(summary: event.summary)
-                    .padding(.top, 2)
+                if !event.summary.isEmpty {
+                    ContextChips(summary: event.summary)
+                        .padding(.top, 2)
+                }
             }
+            .padding(14)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(Color(hex: 0x1C1C22), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .background(Color(hex: 0x1C1C22))
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .strokeBorder(.white.opacity(0.06), lineWidth: 1)
         )
         .contentShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+    }
+
+    private var hero: some View {
+        ZStack(alignment: .bottomLeading) {
+            LinearGradient(colors: style.colors, startPoint: .topLeading, endPoint: .bottomTrailing)
+            Image(systemName: style.symbol)
+                .font(.system(size: 30, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.9))
+                .padding(14)
+                .shadow(color: .black.opacity(0.25), radius: 6, y: 2)
+        }
+        .frame(height: style.heroHeight)
+        .frame(maxWidth: .infinity)
+        .clipped()
     }
 
     private var subtitle: String {
