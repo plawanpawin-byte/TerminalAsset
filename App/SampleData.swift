@@ -15,13 +15,16 @@ enum SampleData {
         let startOfToday = calendar.startOfDay(for: now)
         let tomorrowMorning = (calendar.date(byAdding: .day, value: 1, to: startOfToday) ?? startOfToday)
             .addingTimeInterval(9 * 60 * minute)
+        let yesterdayAfternoon = (calendar.date(byAdding: .day, value: -1, to: startOfToday) ?? startOfToday)
+            .addingTimeInterval(15 * 60 * minute)
         return [
             make("standup", "Team standup", start: now - 150 * minute, minutes: 30, location: "Room 2"),
             make("audit", "ISO Audit Preparation", start: now - 25 * minute, minutes: 60, location: "Conference Room A"),
             make("vendor", "Vendor security review", start: now + 90 * minute, minutes: 60, location: "Zoom"),
             make("risk", "Risk register walkthrough", start: now + 240 * minute, minutes: 45, location: nil),
             make("allday", "Audit week", start: startOfToday, minutes: 24 * 60, location: nil, allDay: true),
-            make("board", "Board prep", start: tomorrowMorning, minutes: 60, location: "HQ")
+            make("board", "Board prep", start: tomorrowMorning, minutes: 60, location: "HQ"),
+            make("kickoff", "Vendor kickoff", start: yesterdayAfternoon, minutes: 45, location: "Zoom")
         ]
     }
 
@@ -49,9 +52,12 @@ enum SampleData {
             try await add(store, vendor, .task, "Review questionnaire answers", now: now)
             try await add(store, vendor, .link, "Vendor portal", url: "example.com/vendors", now: now)
 
-            let standup = key("standup", now: now)
-            try await add(store, standup, .note, "Blocked on access request", now: now)
-            try await add(store, standup, .task, "Share notes with the team", now: now)
+            try await add(store, key("standup", now: now), .note, "Blocked on access request", now: now)
+
+            // Left over from yesterday: shows up under Loose ends on Today.
+            let kickoff = key("kickoff", now: now)
+            try await add(store, kickoff, .task, "Send the follow-up email", now: now)
+            try await add(store, kickoff, .task, "File the vendor questionnaire", now: now)
         } catch {
             // Demo data is best-effort; the app still runs with whatever was seeded.
             return

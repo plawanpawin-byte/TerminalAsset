@@ -15,11 +15,17 @@ the pieces the App Store and users expect around that: privacy, data control, an
 | Coarse location | Forecast and city-name lookup both use a position rounded to ~1 km. |
 | Encryption export flag | `ITSAppUsesNonExemptEncryption = false` (only standard HTTPS is used). |
 | No fake UI | Controls for features that do not exist yet (Pro, background prep, iCloud, decay, hybrid AI) were removed. |
+| Add events | Calendar tab "+": New Event form (all-day, repeat, calendar picker) and a Quick add sentence field (Thai and English, parsed on the device). |
+| Prep reminders | Opt-in local notifications ~15 minutes before an event with open tasks or nothing attached. No push service, no network. |
+| Widget | Up Next home-screen (small, medium) and lock-screen widget, fed by a snapshot file in the App Group. |
+| Deep links | A tapped reminder or widget opens the event (`terminalasset://event?key=...`, strict parser). |
+| Thai | String catalogs (app, widget, share extension, permission prompts) with Thai plurals; CI captures the main screens in Thai. |
 
 ## Only the owner can do these
 
 1. **Apple Developer Program** membership, then in App Store Connect: create the app record, the bundle IDs
-   `com.terminalasset.app` and `com.terminalasset.app.share`, and the App Group `group.com.terminalasset.app`.
+   `com.terminalasset.app`, `com.terminalasset.app.share` and `com.terminalasset.app.widget`, and the App Group
+   `group.com.terminalasset.app` (all three targets use it).
 2. **Signing**: set the team in Xcode (or CI secrets). CI builds with `CODE_SIGNING_ALLOWED=NO`, so it cannot
    produce an installable build.
 3. **Privacy policy URL** and **support URL**: App Store Connect requires both. The policy must say what
@@ -28,8 +34,12 @@ the pieces the App Store and users expect around that: privacy, data control, an
    (Coarse Location, not linked to the user, not used for tracking, app functionality).
 5. **Store listing**: name, subtitle, description, keywords, screenshots (CI already produces simulator
    screenshots in `screenshots/`), age rating, category.
-6. **Test on a real iPhone**: EventKit writes and the Share Extension only run for real on a device. CI uses a stub
-   calendar, so adding events to a real calendar (iCloud, Google, Exchange) has not been exercised yet.
+6. **Test on a real iPhone**: EventKit writes, the Share Extension, notification delivery and the widget only run for
+   real on a device. CI uses a stub calendar and a stub notification scheduler, so adding events to a real calendar
+   (iCloud, Google, Exchange), tapping a real reminder, and the widget on a real home screen have not been exercised.
+7. **Review the Thai wording** with a native reader before release (`App/Localizable.xcstrings`, `th` column). It was
+   written by the assistant and has not been proofread. Strings that come from calendar data or sample content stay as
+   they are.
 
 ## Not built yet (and therefore not offered in the app)
 

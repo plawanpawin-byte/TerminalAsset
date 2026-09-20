@@ -13,7 +13,7 @@ struct AppModel {
     let today: TodayViewModel
     let inbox: InboxViewModel
     let search: SearchViewModel
-    let briefing: BriefingViewModel
+    let looseEnds: LooseEndsViewModel
     let settings: SettingsViewModel
     let reminders: PrepReminderViewModel
     let widgets: WidgetPublisher
@@ -85,19 +85,19 @@ enum AppBootstrap {
         #else
         let search = SearchViewModel(store: store)
         #endif
-        let briefing = BriefingViewModel(sync: sync, store: store)
+        let looseEnds = LooseEndsViewModel(sync: sync, store: store)
         let widgets = WidgetPublisher(store: store, directory: shared?.rootURL)
-        let settings = SettingsViewModel(sync: sync, store: store, shared: shared) { [today, inbox, search, briefing] in
+        let settings = SettingsViewModel(sync: sync, store: store, shared: shared) { [today, inbox, search, looseEnds] in
             search.clearRecentSearches()
             await today.reload()
             await inbox.refresh()
-            await briefing.load()
+            await looseEnds.load()
             await search.loadCorpus()
             await widgets.publish()
         }
         let reminders = PrepReminderViewModel(scheduler: scheduler)
         return AppModel(
-            today: today, inbox: inbox, search: search, briefing: briefing, settings: settings,
+            today: today, inbox: inbox, search: search, looseEnds: looseEnds, settings: settings,
             reminders: reminders, widgets: widgets, router: AppRouter(), weather: weather
         )
     }

@@ -52,7 +52,7 @@ struct RootView: View {
             Tab("Today", systemImage: "calendar.day.timeline.left", value: AppTab.today) {
                 TodayView(
                     model: app.today,
-                    briefing: app.briefing,
+                    looseEnds: app.looseEnds,
                     router: app.router,
                     weather: app.weather,
                     initialPath: initialTodayPath,

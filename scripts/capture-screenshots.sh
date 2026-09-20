@@ -58,6 +58,19 @@ shot settings light -tab settings
 shot privacy light -tab settings -privacy
 shot onboarding light -onboarding
 
+# Dark mode for the newer screens.
+shot calendar-dark dark -tab calendar
+shot add-event-dark dark -tab calendar -addEvent form
+shot settings-dark dark -tab settings
+
+# Largest accessibility text size: layouts must still read and nothing may be cut off.
+xcrun simctl ui "$UDID" content_size accessibility-extra-extra-extra-large
+shot ax-today light -weather clear
+shot ax-calendar light -tab calendar
+shot ax-add-event light -tab calendar -addEvent form
+shot ax-settings light -tab settings
+xcrun simctl ui "$UDID" content_size large
+
 # The same screens in Thai, to check the translation fits and reads well.
 shot th-today light -weather rain -AppleLanguages "(th)" -AppleLocale th_TH
 shot th-today-details light -weather clear -todaySection looseEnds -AppleLanguages "(th)" -AppleLocale th_TH

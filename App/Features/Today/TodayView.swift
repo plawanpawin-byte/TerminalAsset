@@ -3,7 +3,7 @@ import TerminalAssetDomain
 
 struct TodayView: View {
     let model: TodayViewModel
-    let briefing: BriefingViewModel
+    let looseEnds: LooseEndsViewModel
     let router: AppRouter
     let weather: WeatherViewModel
 
@@ -14,14 +14,14 @@ struct TodayView: View {
 
     init(
         model: TodayViewModel,
-        briefing: BriefingViewModel,
+        looseEnds: LooseEndsViewModel,
         router: AppRouter,
         weather: WeatherViewModel,
         initialPath: [EventKey] = [],
         initialCalendar: CalendarViewModel.Mode? = nil
     ) {
         self.model = model
-        self.briefing = briefing
+        self.looseEnds = looseEnds
         self.router = router
         self.weather = weather
         _path = State(initialValue: initialPath)
@@ -53,7 +53,7 @@ struct TodayView: View {
                         Button("Try Again") { Task { await model.reload() } }
                     }
                 case .ready:
-                    TodayContent(model: model, briefing: briefing, weather: weather, sky: sky) {
+                    TodayContent(model: model, looseEnds: looseEnds, weather: weather, sky: sky) {
                         showingCalendar = true
                     }
                 }
@@ -71,16 +71,16 @@ struct TodayView: View {
         }
         .task { await model.start() }
         .task { await weather.reconcile() }
-        .task { await briefing.load() }
+        .task { await looseEnds.load() }
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
             Task {
                 await model.didBecomeActive()
                 await weather.reconcile()
-                await briefing.load()
+                await looseEnds.load()
             }
         }
-        .onChange(of: model.events) { Task { await briefing.load() } }
+        .onChange(of: model.events) { Task { await looseEnds.load() } }
         .onChange(of: router.pendingEvent, initial: true) { _, pending in
             guard let pending else { return }
             path = [pending]
@@ -114,7 +114,7 @@ enum TodaySection: String, Hashable {
 
 private struct TodayContent: View {
     let model: TodayViewModel
-    let briefing: BriefingViewModel
+    let looseEnds: LooseEndsViewModel
     let weather: WeatherViewModel
     let sky: SkyStyle?
     let openCalendar: () -> Void
@@ -158,8 +158,8 @@ private struct TodayContent: View {
                             AllDayStrip(entries: snapshot.allDay)
                         }
 
-                        if !briefing.briefing.looseEnds.isEmpty {
-                            looseEnds(events: briefing.briefing.looseEnds, now: context.date)
+                        if !looseEnds.events.isEmpty {
+                            looseEndsSection(events: looseEnds.events, now: context.date)
                                 .id(TodaySection.looseEnds)
                         }
 
@@ -231,7 +231,7 @@ private struct TodayContent: View {
 
     /// Past events that still have open tasks: a friendly "you left this behind" nudge. Grouped section
     /// so it reads as its own thing, above the day's schedule.
-    private func looseEnds(events: [TimelineEvent], now: Date) -> some View {
+    private func looseEndsSection(events: [TimelineEvent], now: Date) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Loose ends")
                 .font(.title3.weight(.semibold))
@@ -315,13 +315,13 @@ private struct AllDayStrip: View {
 #if DEBUG
 #Preview("Today · sample") {
     if let app = try? AppBootstrap.makeSampleModel() {
-        TodayView(model: app.today, briefing: app.briefing, router: app.router, weather: app.weather)
+        TodayView(model: app.today, looseEnds: app.looseEnds, router: app.router, weather: app.weather)
     }
 }
 
 #Preview("Today · dark") {
     if let app = try? AppBootstrap.makeSampleModel() {
-        TodayView(model: app.today, briefing: app.briefing, router: app.router, weather: app.weather)
+        TodayView(model: app.today, looseEnds: app.looseEnds, router: app.router, weather: app.weather)
             .preferredColorScheme(.dark)
     }
 }

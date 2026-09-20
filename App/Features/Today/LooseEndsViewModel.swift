@@ -3,23 +3,21 @@ import Observation
 import TerminalAssetCore
 import TerminalAssetDomain
 
-/// Powers the "what needs your attention" section on Today: the next event to prepare for and past events
-/// that still have open tasks. Loads a wider window than Today's own hero (past 60 days, next 30) so it
-/// can surface real loose ends, and stays local-first — a failed calendar refresh keeps whatever was
-/// already stored on device.
+/// Powers "Loose ends" on Today: events from earlier days that still have open tasks. It reads further back than
+/// Today's own two-day window (60 days) and stays local-first: a failed calendar refresh keeps whatever is already
+/// stored on the device.
 @MainActor
 @Observable
-final class BriefingViewModel {
-    private(set) var briefing = AssistantBriefing(upNext: nil, looseEnds: [])
+final class LooseEndsViewModel {
+    private(set) var events: [TimelineEvent] = []
     private(set) var problem: String?
 
     @ObservationIgnored private let sync: CalendarSyncService
     @ObservationIgnored private let store: ContextStore
     @ObservationIgnored private let calendar: Calendar
 
-    /// How far back and forward the briefing looks.
+    /// How far back it looks.
     private let pastDays = 60
-    private let futureDays = 30
 
     init(sync: CalendarSyncService, store: ContextStore, calendar: Calendar = .current) {
         self.sync = sync
@@ -28,9 +26,9 @@ final class BriefingViewModel {
     }
 
     func load(now: Date = .now) async {
-        let start = calendar.date(byAdding: .day, value: -pastDays, to: calendar.startOfDay(for: now)) ?? now
-        let end = calendar.date(byAdding: .day, value: futureDays, to: calendar.startOfDay(for: now)) ?? now
-        let window = DateInterval(start: start, end: max(start, end))
+        let today = calendar.startOfDay(for: now)
+        let start = calendar.date(byAdding: .day, value: -pastDays, to: today) ?? today
+        let window = DateInterval(start: start, end: max(start, today))
 
         do {
             try await sync.sync(window: window)
@@ -39,8 +37,8 @@ final class BriefingViewModel {
             problem = TodayViewModel.message(for: error)
         }
         do {
-            let events = try await store.events(from: start, to: end)
-            briefing = AssistantBriefing.make(from: events, now: now)
+            let stored = try await store.events(from: start, to: today)
+            events = LooseEnds.make(from: stored, now: now, calendar: calendar)
             if sync.authorizationStatus() == .fullAccess { problem = nil }
         } catch {
             problem = TodayViewModel.message(for: error)
