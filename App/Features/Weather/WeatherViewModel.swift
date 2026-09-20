@@ -32,6 +32,12 @@ final class WeatherViewModel {
         UserDefaults.standard.object(forKey: Self.enabledKey) as? Bool ?? true
     }
 
+    /// The forecast being shown, or nil when there is none.
+    var forecast: WeatherSnapshot? {
+        guard case .ready(let snapshot, _) = state else { return nil }
+        return snapshot
+    }
+
     /// The sky palette for the current forecast, or nil when there is none to show.
     var sky: SkyStyle? {
         guard case .ready(let snapshot, _) = state else { return nil }

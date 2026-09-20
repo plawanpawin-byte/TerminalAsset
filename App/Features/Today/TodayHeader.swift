@@ -68,11 +68,14 @@ struct TodayHeader: View {
             }
 
             VStack(alignment: .leading, spacing: 1) {
+                Text(now, format: .dateTime.hour().minute())
+                    .font(.title3.weight(.semibold))
+                    .monospacedDigit()
                 Text(now, format: .dateTime.weekday(.wide).day().month(.wide))
                 Text(summary)
             }
             .font(.footnote)
-            .opacity(0.8)
+            .opacity(0.85)
             .padding(.top, 6)
 
             if isStale {
@@ -88,6 +91,9 @@ struct TodayHeader: View {
 
     private var dateOnly: some View {
         VStack(alignment: .leading, spacing: 4) {
+            Text(now, format: .dateTime.hour().minute())
+                .font(.system(size: 44, weight: .thin, design: .rounded))
+                .monospacedDigit()
             Text(now, format: .dateTime.weekday(.wide).day().month(.wide))
                 .font(.title3.weight(.semibold))
             Text(summary)

@@ -62,25 +62,21 @@ enum SampleData {
     @MainActor
     static func weatherModel(now: Date) -> WeatherViewModel {
         let condition = LaunchOptions.weatherCondition.flatMap(WeatherCondition.init(rawValue:)) ?? .partlyCloudy
-        let rainChance: Int
-        switch condition {
-        case .thunderstorm: rainChance = 90
-        case .rain: rainChance = 80
-        case .drizzle: rainChance = 60
-        case .snow: rainChance = 70
-        case .partlyCloudy: rainChance = 40
-        case .cloudy: rainChance = 20
-        case .fog, .clear: rainChance = 0
-        }
+        let isDaytime = !LaunchOptions.night
+        let hourly = sampleHours(now: now, condition: condition)
+        let daily = sampleDays(now: now, condition: condition, hourly: hourly)
         let snapshot = WeatherSnapshot(
             temperatureC: condition == .snow ? -2 : 31,
             condition: condition,
-            isDaytime: !LaunchOptions.night,
-            highC: condition == .snow ? 1 : 33,
-            lowC: condition == .snow ? -6 : 26,
-            precipitationChance: rainChance,
+            isDaytime: isDaytime,
+            highC: daily.first?.highC ?? 33,
+            lowC: daily.first?.lowC ?? 26,
+            precipitationChance: hourly.prefix(12).map(\.precipitationChance).max() ?? 0,
             cityName: "Bangkok",
-            fetchedAt: now
+            fetchedAt: now,
+            hourly: hourly,
+            daily: daily,
+            details: sampleDetails(now: now)
         )
         let place = WeatherPlace(coordinate: WeatherCoordinate(latitude: 13.7563, longitude: 100.5018), cityName: "Bangkok")
         let location = StubLocationService(
@@ -90,6 +86,70 @@ enum SampleData {
         return WeatherViewModel(
             location: location,
             service: WeatherService(provider: StubWeatherProvider(snapshot: snapshot), cacheURL: nil)
+        )
+    }
+
+    /// 24 hours starting at the current hour. Rain-type scenes are wet now and ease; partly cloudy turns wet later.
+    private static func sampleHours(now: Date, condition: WeatherCondition, calendar: Calendar = .current) -> [HourlyForecast] {
+        let firstHour = Date(timeIntervalSince1970: (now.timeIntervalSince1970 / 3_600).rounded(.down) * 3_600)
+        let wetNow: Set<WeatherCondition> = [.rain, .drizzle, .thunderstorm, .snow]
+        let peak: Double = wetNow.contains(condition) ? 0 : 5
+        let base: Double = switch condition {
+        case .thunderstorm: 90
+        case .rain, .snow: 80
+        case .drizzle: 65
+        case .partlyCloudy: 75
+        case .cloudy: 25
+        case .fog, .clear: 0
+        }
+        return (0..<24).map { index in
+            let date = firstHour.addingTimeInterval(TimeInterval(index) * 3_600)
+            let hourOfDay = calendar.component(.hour, from: date)
+            let chance = Int(max(0, base - abs(Double(index) - peak) * 15))
+            let wet = chance >= 50
+            let hourCondition: WeatherCondition = wet ? (wetNow.contains(condition) ? condition : .rain)
+                : (wetNow.contains(condition) ? .cloudy : condition)
+            let temperature = 29 + 4 * sin(Double(hourOfDay - 9) * .pi / 12)
+            return HourlyForecast(
+                date: date,
+                temperatureC: condition == .snow ? -2 : temperature,
+                condition: hourCondition,
+                isDaytime: (6..<18).contains(hourOfDay),
+                precipitationChance: chance
+            )
+        }
+    }
+
+    private static func sampleDays(
+        now: Date,
+        condition: WeatherCondition,
+        hourly: [HourlyForecast],
+        calendar: Calendar = .current
+    ) -> [DailyForecast] {
+        let today = calendar.startOfDay(for: now)
+        let conditions: [WeatherCondition] = [condition, .partlyCloudy, .rain, .thunderstorm, .cloudy, .partlyCloudy, .clear]
+        let highs: [Double] = [33, 32, 30, 29, 31, 33, 34]
+        let lows: [Double] = [26, 26, 25, 25, 26, 26, 27]
+        let chances: [Int] = [hourly.map(\.precipitationChance).max() ?? 0, 30, 80, 90, 40, 20, 0]
+        return (0..<7).compactMap { offset in
+            calendar.date(byAdding: .day, value: offset, to: today).map { date in
+                DailyForecast(
+                    date: date, highC: highs[offset], lowC: lows[offset],
+                    condition: conditions[offset], precipitationChance: chances[offset]
+                )
+            }
+        }
+    }
+
+    private static func sampleDetails(now: Date, calendar: Calendar = .current) -> WeatherDetails {
+        let today = calendar.startOfDay(for: now)
+        return WeatherDetails(
+            feelsLikeC: 36,
+            humidity: 74,
+            windKph: 14,
+            uvIndex: 9,
+            sunrise: today.addingTimeInterval(6 * 3_600 + 5 * 60),
+            sunset: today.addingTimeInterval(18 * 3_600 + 20 * 60)
         )
     }
 

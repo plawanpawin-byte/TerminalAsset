@@ -123,6 +123,16 @@ struct TodayTimelineTests {
         #expect(snapshot.hero?.entry.event.title == "Call")
     }
 
+    @Test func openTasksIgnoreEventsThatAreAlreadyOver() {
+        let done = event("Done", from: now - 3 * hour, items: [item(.task), item(.task)])
+        let running = event("Running", from: now - 10 * minute, items: [item(.task), item(.task, done: true)])
+        let later = event("Later", from: now + hour, items: [item(.task), item(.note)])
+
+        let snapshot = TodayTimeline.build(events: [done, running, later], now: now, calendar: calendar)
+
+        #expect(snapshot.openTasks == 2)
+    }
+
     @Test func progressIsClampedAndSafeForZeroDuration() {
         let instant = event("Ping", from: now, lasting: 0)
         let running = event("Run", from: now - hour, lasting: 4 * hour)

@@ -87,6 +87,10 @@ public struct WeatherSnapshot: Sendable, Codable, Equatable {
     public let precipitationChance: Int
     public let cityName: String?
     public let fetchedAt: Date
+    /// Empty when the forecast came from an older cache or the service sent no hourly data.
+    public let hourly: [HourlyForecast]
+    public let daily: [DailyForecast]
+    public let details: WeatherDetails?
 
     public init(
         temperatureC: Double,
@@ -96,7 +100,10 @@ public struct WeatherSnapshot: Sendable, Codable, Equatable {
         lowC: Double,
         precipitationChance: Int,
         cityName: String?,
-        fetchedAt: Date
+        fetchedAt: Date,
+        hourly: [HourlyForecast] = [],
+        daily: [DailyForecast] = [],
+        details: WeatherDetails? = nil
     ) {
         self.temperatureC = temperatureC
         self.condition = condition
@@ -106,13 +113,35 @@ public struct WeatherSnapshot: Sendable, Codable, Equatable {
         self.precipitationChance = precipitationChance
         self.cityName = cityName
         self.fetchedAt = fetchedAt
+        self.hourly = hourly
+        self.daily = daily
+        self.details = details
+    }
+
+    /// Forecasts cached by an earlier version have no hourly, daily or detail fields, so those decode as empty.
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(
+            temperatureC: try container.decode(Double.self, forKey: .temperatureC),
+            condition: try container.decode(WeatherCondition.self, forKey: .condition),
+            isDaytime: try container.decode(Bool.self, forKey: .isDaytime),
+            highC: try container.decode(Double.self, forKey: .highC),
+            lowC: try container.decode(Double.self, forKey: .lowC),
+            precipitationChance: try container.decode(Int.self, forKey: .precipitationChance),
+            cityName: try container.decodeIfPresent(String.self, forKey: .cityName),
+            fetchedAt: try container.decode(Date.self, forKey: .fetchedAt),
+            hourly: try container.decodeIfPresent([HourlyForecast].self, forKey: .hourly) ?? [],
+            daily: try container.decodeIfPresent([DailyForecast].self, forKey: .daily) ?? [],
+            details: try container.decodeIfPresent(WeatherDetails.self, forKey: .details)
+        )
     }
 
     public func withCity(_ name: String?) -> WeatherSnapshot {
         WeatherSnapshot(
             temperatureC: temperatureC, condition: condition, isDaytime: isDaytime,
             highC: highC, lowC: lowC, precipitationChance: precipitationChance,
-            cityName: name ?? cityName, fetchedAt: fetchedAt
+            cityName: name ?? cityName, fetchedAt: fetchedAt,
+            hourly: hourly, daily: daily, details: details
         )
     }
 }

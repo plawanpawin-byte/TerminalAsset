@@ -27,6 +27,8 @@ enum LaunchOptions {
     static var weatherPermission: Bool { arguments.contains("-weatherPermission") }
     /// Uses the real location service and Open-Meteo instead of the sample forecast.
     static var liveWeather: Bool { arguments.contains("-liveWeather") }
+    /// `-todaySection hourly|daily|details|widgets` scrolls Today to that section after it loads.
+    static var todaySection: String? { defaults.string(forKey: "todaySection") }
     /// `-calendar month` or `-calendar day` opens the full calendar from Today.
     static var calendarMode: String? { defaults.string(forKey: "calendar") }
 }

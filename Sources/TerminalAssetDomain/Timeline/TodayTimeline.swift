@@ -45,6 +45,12 @@ public struct TodaySnapshot: Sendable, Equatable {
     public let stats: DayStats
 
     public var isEmpty: Bool { hero == nil && allDay.isEmpty && timeline.isEmpty }
+
+    /// Unchecked tasks on today's events that have not finished yet. Tasks on past events are not counted:
+    /// they no longer help the user get ready for anything.
+    public var openTasks: Int {
+        timeline.filter { $0.phase != .past }.reduce(0) { $0 + $1.event.summary.openTasks }
+    }
 }
 
 /// Deterministic Today-screen logic. Pure: same events + same clock → same result.

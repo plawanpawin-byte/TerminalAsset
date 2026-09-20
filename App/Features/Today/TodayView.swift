@@ -93,6 +93,11 @@ struct TodayView: View {
     }
 }
 
+/// Scroll targets on Today.
+enum TodaySection: String, Hashable {
+    case widgets, hourly, daily, details
+}
+
 private struct TodayContent: View {
     let model: TodayViewModel
     let weather: WeatherViewModel
@@ -107,53 +112,82 @@ private struct TodayContent: View {
         // Re-evaluated every minute so countdowns, progress and past/now/upcoming stay current.
         TimelineView(.everyMinute) { context in
             let snapshot = model.snapshot(at: context.date)
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 20) {
-                    TodayHeader(now: context.date, stats: snapshot.stats, weather: weather, onOpenCalendar: openCalendar)
-                        .foregroundStyle(outerText)
+            let forecast = weather.forecast
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 20) {
+                        TodayHeader(now: context.date, stats: snapshot.stats, weather: weather, onOpenCalendar: openCalendar)
+                            .foregroundStyle(outerText)
 
-                    if let problem = model.problem {
-                        Label(problem, systemImage: "exclamationmark.triangle.fill")
+                        TodayWidgets(snapshot: snapshot, now: context.date, onOpenCalendar: openCalendar)
+                            .id(TodaySection.widgets)
+
+                        if let forecast, !forecast.upcomingHours(from: context.date).isEmpty {
+                            HourlyForecastCard(snapshot: forecast, now: context.date)
+                                .id(TodaySection.hourly)
+                        }
+
+                        if let problem = model.problem {
+                            Label(problem, systemImage: "exclamationmark.triangle.fill")
+                                .font(.footnote)
+                                .foregroundStyle(.orange)
+                        }
+
+                        if let hero = snapshot.hero {
+                            HeroCard(hero: hero, now: context.date) { id, done in
+                                Task { await model.setTask(id, done: done) }
+                            }
+                        }
+
+                        if !snapshot.allDay.isEmpty {
+                            AllDayStrip(entries: snapshot.allDay)
+                        }
+
+                        if !snapshot.timeline.isEmpty {
+                            schedule(snapshot)
+                        } else if snapshot.isEmpty {
+                            ContentUnavailableView(
+                                "A clear day",
+                                systemImage: "sun.max",
+                                description: Text("Nothing is scheduled. Context you add to events shows up here when it matters.")
+                            )
+                            .foregroundStyle(outerText)
+                        }
+
+                        if snapshot.stats.missing > 0 {
+                            Label(
+                                "\(snapshot.stats.missing) event\(snapshot.stats.missing == 1 ? "" : "s") no longer in Calendar. Their context is kept.",
+                                systemImage: "tray.full"
+                            )
                             .font(.footnote)
-                            .foregroundStyle(.orange)
-                    }
+                            .foregroundStyle(outerSecondary)
+                        }
 
-                    if let hero = snapshot.hero {
-                        HeroCard(hero: hero, now: context.date) { id, done in
-                            Task { await model.setTask(id, done: done) }
+                        if let forecast {
+                            if !forecast.daily.isEmpty {
+                                DailyForecastCard(snapshot: forecast)
+                                    .id(TodaySection.daily)
+                            }
+                            WeatherDetailsGrid(snapshot: forecast, now: context.date)
+                                .id(TodaySection.details)
+                            WeatherAttribution()
                         }
                     }
-
-                    if !snapshot.allDay.isEmpty {
-                        AllDayStrip(entries: snapshot.allDay)
-                    }
-
-                    if !snapshot.timeline.isEmpty {
-                        schedule(snapshot)
-                    } else if snapshot.isEmpty {
-                        ContentUnavailableView(
-                            "A clear day",
-                            systemImage: "sun.max",
-                            description: Text("Nothing is scheduled. Context you add to events shows up here when it matters.")
-                        )
-                        .foregroundStyle(outerText)
-                    }
-
-                    if snapshot.stats.missing > 0 {
-                        Label(
-                            "\(snapshot.stats.missing) event\(snapshot.stats.missing == 1 ? "" : "s") no longer in Calendar. Their context is kept.",
-                            systemImage: "tray.full"
-                        )
-                        .font(.footnote)
-                        .foregroundStyle(outerSecondary)
-                    }
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 24)
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 24)
-            }
-            .refreshable {
-                await model.reload()
-                await weather.refresh(force: true)
+                .refreshable {
+                    await model.reload()
+                    await weather.refresh(force: true)
+                }
+                #if DEBUG
+                .task {
+                    // Lets CI screenshot the lower half of Today without scripting a swipe.
+                    guard let section = LaunchOptions.todaySection.flatMap(TodaySection.init(rawValue:)) else { return }
+                    try? await Task.sleep(for: .milliseconds(1500))
+                    proxy.scrollTo(section, anchor: .top)
+                }
+                #endif
             }
         }
     }

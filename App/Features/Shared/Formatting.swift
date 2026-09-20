@@ -25,6 +25,16 @@ enum TimeText {
         return formatter.localizedString(for: date, relativeTo: now)
     }
 
+    /// "in 1h 30m"; rounds up so it never reads "in 0m", and says "Starting now" inside the last minute.
+    static func countdown(to start: Date, from now: Date) -> String {
+        let seconds = start.timeIntervalSince(now)
+        guard seconds > 60 else { return "Starting now" }
+        let roundedUp = (seconds / 60).rounded(.up) * 60
+        let text = Duration.seconds(roundedUp)
+            .formatted(.units(allowed: [.hours, .minutes], width: .narrow))
+        return "in \(text)"
+    }
+
     /// "35 min left"; rounds up so an event with seconds left never reads "0 min left".
     static func remaining(until end: Date, from now: Date) -> String {
         let seconds = max(0, end.timeIntervalSince(now))

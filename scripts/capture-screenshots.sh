@@ -35,6 +35,9 @@ shot() {
 shot today-light light
 shot today-dark dark
 shot weather-clear light -weather clear
+shot today-hourly light -weather rain -todaySection hourly
+shot today-daily light -weather partlyCloudy -todaySection daily
+shot today-details dark -weather clear -night -todaySection details
 shot weather-rain light -weather rain
 shot weather-night dark -weather clear -night
 shot weather-storm dark -weather thunderstorm
@@ -63,5 +66,11 @@ xcrun simctl terminate "$UDID" "$BUNDLE" 2>/dev/null || true
 xcrun simctl launch "$UDID" "$BUNDLE" -sampleData -liveWeather >/dev/null
 sleep 16
 xcrun simctl io "$UDID" screenshot "screenshots/weather-live.png"
+
+# Same real request, scrolled to the 7-day forecast and detail tiles.
+xcrun simctl terminate "$UDID" "$BUNDLE" 2>/dev/null || true
+xcrun simctl launch "$UDID" "$BUNDLE" -sampleData -liveWeather -todaySection daily >/dev/null
+sleep 16
+xcrun simctl io "$UDID" screenshot "screenshots/weather-live-forecast.png"
 
 ls -la screenshots
