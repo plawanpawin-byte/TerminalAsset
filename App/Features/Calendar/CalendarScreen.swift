@@ -109,10 +109,15 @@ private struct MonthPane: View {
         // Re-evaluated every minute so "today" moves at midnight.
         TimelineView(.everyMinute) { context in
             VStack(spacing: 0) {
-                monthBar
-                weekdayRow
-                grid(today: context.date)
-                    .gesture(swipe)
+                // The grid has fixed-size cells, so like Apple Calendar it stops growing at a large size; the
+                // agenda below it keeps scaling all the way up.
+                VStack(spacing: 0) {
+                    monthBar
+                    weekdayRow
+                    grid(today: context.date)
+                        .gesture(swipe)
+                }
+                .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
                 Divider().padding(.top, 8)
                 AgendaList(model: model)
             }
@@ -266,44 +271,16 @@ private struct AgendaRow: View {
     let event: TimelineEvent
     let day: Date
 
+    @Environment(\.dynamicTypeSize) private var typeSize
+
     var body: some View {
         NavigationLink(value: event.key) {
-            HStack(alignment: .top, spacing: 12) {
-                VStack(alignment: .trailing, spacing: 2) {
-                    if event.isAllDay {
-                        Text("All day").font(.caption.weight(.semibold))
-                    } else {
-                        Text(event.startDate, format: .dateTime.hour().minute())
-                            .font(.subheadline.monospacedDigit())
-                        Text(event.endDate, format: .dateTime.hour().minute())
-                            .font(.caption.monospacedDigit())
-                            .foregroundStyle(.secondary)
-                    }
+            Group {
+                if typeSize.isAccessibilitySize {
+                    stacked
+                } else {
+                    sideBySide
                 }
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-                .frame(width: 84, alignment: .trailing)
-
-                RoundedRectangle(cornerRadius: 2, style: .continuous)
-                    .fill(Color.accentColor)
-                    .frame(width: 4)
-
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(event.title)
-                        .font(.body.weight(.medium))
-                        .multilineTextAlignment(.leading)
-                    if let location = event.location, !location.isEmpty {
-                        Label(location, systemImage: "mappin.and.ellipse")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
-                    ContextChips(summary: event.summary)
-                }
-                Spacer(minLength: 0)
-                Image(systemName: "chevron.right")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.tertiary)
-                    .padding(.top, 4)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
@@ -311,6 +288,72 @@ private struct AgendaRow: View {
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .combine)
+    }
+
+    /// Time on the left, event on the right.
+    private var sideBySide: some View {
+        HStack(alignment: .top, spacing: 12) {
+            VStack(alignment: .trailing, spacing: 2) {
+                if event.isAllDay {
+                    Text("All day").font(.caption.weight(.semibold))
+                } else {
+                    Text(event.startDate, format: .dateTime.hour().minute())
+                        .font(.subheadline.monospacedDigit())
+                    Text(event.endDate, format: .dateTime.hour().minute())
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+            .frame(width: 84, alignment: .trailing)
+
+            bar
+            details
+            Spacer(minLength: 0)
+            chevron
+        }
+    }
+
+    /// At accessibility sizes a fixed time column would squeeze the title, so the time goes on top instead.
+    private var stacked: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(TimeText.range(of: event))
+                .font(.subheadline.weight(.semibold))
+            HStack(alignment: .top, spacing: 12) {
+                bar
+                details
+                Spacer(minLength: 0)
+                chevron
+            }
+        }
+    }
+
+    private var bar: some View {
+        RoundedRectangle(cornerRadius: 2, style: .continuous)
+            .fill(Color.accentColor)
+            .frame(width: 4)
+    }
+
+    private var details: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(event.title)
+                .font(.body.weight(.medium))
+                .multilineTextAlignment(.leading)
+            if let location = event.location, !location.isEmpty {
+                Label(location, systemImage: "mappin.and.ellipse")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+            ContextChips(summary: event.summary)
+        }
+    }
+
+    private var chevron: some View {
+        Image(systemName: "chevron.right")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.tertiary)
+            .padding(.top, 4)
     }
 }
 

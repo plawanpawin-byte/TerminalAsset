@@ -72,7 +72,7 @@ struct SettingsView: View {
 
     private var calendarSection: some View {
         Section {
-            LabeledContent("Access") {
+            AdaptiveRow("Access") {
                 Text(model.calendarAccess.settingsTitle)
                     .foregroundStyle(model.calendarAccess == .fullAccess ? .green : .orange)
             }
@@ -124,7 +124,9 @@ struct SettingsView: View {
 
     private var storageSection: some View {
         Section {
-            LabeledContent("Attached files", value: model.attachmentsBytes.formatted(.byteCount(style: .file)))
+            AdaptiveRow("Attached files") {
+                Text(model.attachmentsBytes.formatted(.byteCount(style: .file)))
+            }
         } header: {
             Text("Storage")
         } footer: {
@@ -162,7 +164,7 @@ struct SettingsView: View {
 
     private var aboutSection: some View {
         Section("About") {
-            LabeledContent("Version", value: Self.versionText)
+            AdaptiveRow("Version") { Text(Self.versionText) }
         }
     }
 

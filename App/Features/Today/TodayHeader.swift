@@ -10,19 +10,33 @@ struct TodayHeader: View {
 
     @ScaledMetric(relativeTo: .largeTitle) private var temperatureSize: CGFloat = 68
     @Environment(\.openURL) private var openURL
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .top, spacing: 12) {
-                info
-                Spacer(minLength: 8)
-                Button(action: onOpenCalendar) {
-                    CalendarTile(date: now)
+            // The tile sits beside the weather, but at accessibility sizes the city name would be squeezed into a
+            // few letters per line, so the tile moves above it.
+            if typeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: 12) {
+                    calendarButton
+                    info
                 }
-                .buttonStyle(.plain)
+            } else {
+                HStack(alignment: .top, spacing: 12) {
+                    info
+                    Spacer(minLength: 8)
+                    calendarButton
+                }
             }
             prompt
         }
+    }
+
+    private var calendarButton: some View {
+        Button(action: onOpenCalendar) {
+            CalendarTile(date: now)
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Left side
