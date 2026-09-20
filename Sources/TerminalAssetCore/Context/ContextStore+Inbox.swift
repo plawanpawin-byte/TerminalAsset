@@ -35,7 +35,14 @@ extension ContextStore {
                     continue
                 }
 
-                let attachmentPath = try inbox.storeAttachment(for: item)
+                // A file that cannot be stored right now (disk full, say) stays in the queue for the next launch;
+                // it must not block the shares behind it.
+                let attachmentPath: String?
+                do {
+                    attachmentPath = try inbox.storeAttachment(for: item)
+                } catch {
+                    continue
+                }
                 let entry = InboxEntry(manifest: manifest, attachmentPath: attachmentPath)
                 modelContext.insert(entry)
                 imported += 1
@@ -47,8 +54,16 @@ extension ContextStore {
                     to: manifest.receivedAt.addingTimeInterval(2 * 86_400)
                 )
                 if let target = EventSuggester.resolve(intent: manifest.intent, at: manifest.receivedAt, events: nearby) {
-                    _ = try attach(entry, toEventKey: target.key, now: now)
-                    autoAttached.append(AutoAttachment(title: manifest.title, eventTitle: target.title))
+                    // If it cannot be attached (say the title is too long) it simply stays pending in the Inbox.
+                    // `attach` fails before changing anything, so nothing is left half done.
+                    do {
+                        _ = try attach(entry, toEventKey: target.key, now: now)
+                        autoAttached.append(AutoAttachment(title: manifest.title, eventTitle: target.title))
+                    } catch ContextStoreError.invalidItem {
+                        continue
+                    } catch ContextStoreError.eventNotFound {
+                        continue
+                    }
                 }
             }
             try modelContext.save()
@@ -130,6 +145,9 @@ extension ContextStore {
 
     /// Turns the entry into a context item on the event and marks the entry attached. Does not save.
     private func attach(_ entry: InboxEntry, toEventKey key: EventKey, now: Date) throws -> ContextItemValue {
+        // Attaching twice (a double tap, or an entry that was already attached automatically) would create a second
+        // item and lose track of the first.
+        guard entry.status == .pending else { throw ContextStoreError.alreadyHandled }
         guard let event = try fetchEvent(key) else { throw ContextStoreError.eventNotFound }
         let draft = entry.manifest.contextDraft(attachmentPath: entry.attachmentPath)
 

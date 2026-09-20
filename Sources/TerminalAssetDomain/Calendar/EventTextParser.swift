@@ -97,7 +97,8 @@ public enum EventTextParser {
         if let g = scanner.take(
             "\\bin\\s+(\\d+(?:\\.\\d+)?|an?|half an?)\\s*(minutes?|mins?|hours?|hrs?|days?|weeks?)\\b|อีก\\s*(\\d+)\\s*(นาที|ชั่วโมง|วัน|สัปดาห์)"
         ) {
-            let amount = offsetAmount(g[1] ?? g[3])
+            // Clamped: a silly number must not overflow the date arithmetic below.
+            let amount = min(offsetAmount(g[1] ?? g[3]), 100_000)
             let unit = (g[2] ?? g[4] ?? "").lowercased()
             let seconds: TimeInterval = switch unit {
             case "นาที": 60
@@ -110,8 +111,9 @@ public enum EventTextParser {
             default: 604_800
             }
             if seconds >= 86_400 {
-                day = calendar.date(byAdding: .second, value: Int(amount * seconds), to: today)
-                    .map(calendar.startOfDay(for:))
+                // Whole days by calendar arithmetic, so a daylight-saving change cannot shift the day.
+                let days = Int(min(amount * seconds / 86_400, 3_650))
+                day = calendar.date(byAdding: .day, value: days, to: today)
             } else {
                 // Rounded to the nearest five minutes, so "in 25 minutes" lands on a tidy time.
                 let raw = now.addingTimeInterval(amount * seconds).timeIntervalSince1970
@@ -134,6 +136,8 @@ public enum EventTextParser {
             duration = unit.hasPrefix("h") ? amount * 3600 : amount * 60
         }
         if let value = duration, value <= 0 { duration = nil }
+        // Longer than a month is a typo, not a plan.
+        duration = duration.map { min($0, 30 * 86_400) }
         if duration != nil { recognized.insert(.duration) }
 
         // MARK: Time of day (minutes since midnight)
@@ -167,10 +171,15 @@ public enum EventTextParser {
         } else if scanner.take("เที่ยง(?!คืน)|\\b(?:noon|midday)\\b") != nil {
             startMinutes = 12 * 60
         } else if let g = scanner.take(
-            "(?:\\b(?:at|@)\\s*|(?:เวลา|ตอน)\\s*)?(\\d{1,2})[:.](\\d{2})\\s*(am|pm)?(?![\\d:])",
-            where: { g in clock(hour: g[1], minute: g[2], marker: g[3], evening: evening) != nil }
+            // `12:30` is a time anywhere; `12.30` only after "at" / "@" / "เวลา" or with am/pm, so version numbers
+            // and prices ("v2.10", "5.50") stay in the title. A digit or letter right before it is not a boundary.
+            "(?:^|\\s|(?=เวลา|ตอน))((?:\\bat\\b|@|เวลา|ตอน)\\s*)?(\\d{1,2})([:.])(\\d{2})\\s*(am|pm)?(?![\\d:])",
+            where: { g in
+                clock(hour: g[2], minute: g[4], marker: g[5], evening: evening) != nil
+                    && (g[3] == ":" || g[1] != nil || g[5] != nil)
+            }
         ) {
-            startMinutes = clock(hour: g[1], minute: g[2], marker: g[3], evening: evening)
+            startMinutes = clock(hour: g[2], minute: g[4], marker: g[5], evening: evening)
         } else if let g = scanner.take(
             "(?:\\b(?:at|@)\\s*|(?:เวลา|ตอน)\\s*)?(\\d{1,2})\\s*(am|pm)\\b",
             where: { g in clock(hour: g[1], minute: nil, marker: g[2], evening: evening) != nil }

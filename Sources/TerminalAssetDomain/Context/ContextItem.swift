@@ -164,6 +164,8 @@ public enum ContextStoreError: Error, Sendable, Equatable {
     case eventNotFound
     case itemNotFound
     case notATask
+    /// The shared item was already attached or dismissed, so doing it again would duplicate it.
+    case alreadyHandled
     case invalidItem(ContextValidationError)
     case persistence(reason: String)
 }

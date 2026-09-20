@@ -98,11 +98,24 @@ public actor ContextStore {
         }
     }
 
-    public func deleteItem(id: UUID) throws {
+    /// Deletes an item and returns the stored file it pointed to when nothing else needs that file any more, so the
+    /// caller can remove the copy. A file that an Inbox entry still refers to is kept (undo needs it).
+    @discardableResult
+    public func deleteItem(id: UUID) throws -> String? {
         try perform {
             guard let item = try fetchItem(id) else { throw ContextStoreError.itemNotFound }
+            let path = item.fileName
             modelContext.delete(item)
             try modelContext.save()
+
+            guard let path, !path.isEmpty else { return nil }
+            var descriptor = FetchDescriptor<InboxEntry>(predicate: #Predicate { $0.attachmentPath == path })
+            descriptor.fetchLimit = 1
+            let stillReferenced = try !modelContext.fetch(descriptor).isEmpty
+            let sharedByAnotherItem = try modelContext.fetch(FetchDescriptor<ContextItem>(
+                predicate: #Predicate { $0.fileName == path }
+            )).isEmpty == false
+            return stillReferenced || sharedByAnotherItem ? nil : path
         }
     }
 

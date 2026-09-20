@@ -76,8 +76,10 @@ public actor CalendarSyncService {
         let start = calendar.startOfDay(for: snapshot.startDate)
         let lastDay = calendar.startOfDay(for: max(snapshot.startDate, snapshot.endDate))
         let end = calendar.date(byAdding: .day, value: 1, to: lastDay) ?? lastDay.addingTimeInterval(86_400)
-        try await sync(window: DateInterval(start: start, end: max(start, end)))
-        return EventIdentity.key(for: snapshot)
+        // The event is already in the calendar, so a failure to copy it into the app must not look like a failed
+        // add (the user would add it again and get a duplicate). The change notification syncs it a moment later.
+        _ = try? await sync(window: DateInterval(start: start, end: max(start, end)))
+        return EventIdentity.key(for: snapshot, calendar: calendar)
     }
 
     /// Syncs once, then again on every (coalesced) calendar change until the task is cancelled.

@@ -118,6 +118,65 @@ struct InboxIngestTests {
         #expect(FileManager.default.fileExists(atPath: f.inbox.attachmentURL(for: path).path))
     }
 
+    @Test func attachingTheSameEntryTwiceDoesNotDuplicateIt() async throws {
+        let f = try await makeFixture()
+        defer { try? FileManager.default.removeItem(at: f.root) }
+        try f.inbox.enqueue(InboxDraft(kind: .text, title: "note", text: "remember this", receivedAt: base))
+        _ = try await f.store.ingest(from: f.inbox, now: base)
+        let item = try #require(try await f.store.pendingInbox().first)
+
+        try await f.store.attachInbox(id: item.id, to: f.running, now: base)
+        await #expect(throws: ContextStoreError.alreadyHandled) {
+            try await f.store.attachInbox(id: item.id, to: f.running, now: base)
+        }
+
+        #expect(try await f.store.event(forKey: f.running)?.items.count == 1)
+        // Undo still removes the one item it created.
+        try await f.store.restoreInbox(id: item.id)
+        #expect(try await f.store.event(forKey: f.running)?.items.isEmpty == true)
+    }
+
+    @Test func oneShareThatCannotBeAttachedDoesNotBlockTheRest() async throws {
+        let f = try await makeFixture()
+        defer { try? FileManager.default.removeItem(at: f.root) }
+        // An explicit "current event" share whose title is too long to become an item.
+        try f.inbox.enqueue(InboxDraft(
+            kind: .text, title: String(repeating: "x", count: 300), text: "long", intent: .currentEvent, receivedAt: base
+        ))
+        try f.inbox.enqueue(InboxDraft(kind: .text, title: "fine", text: "fine", receivedAt: base + 1))
+
+        let report = try await f.store.ingest(from: f.inbox, now: base)
+        let again = try await f.store.ingest(from: f.inbox, now: base)
+
+        #expect(report.imported == 2)
+        #expect(report.autoAttached.isEmpty)
+        // Both wait in the Inbox for the user, and the next launch is not stuck on the bad one.
+        #expect(try await f.store.pendingInbox().count == 2)
+        #expect(again.imported == 0)
+        #expect(try f.inbox.pending().items.isEmpty)
+    }
+
+    @Test func deletingADirectAttachmentReportsItsFileButAnInboxOneKeepsIt() async throws {
+        let f = try await makeFixture()
+        defer { try? FileManager.default.removeItem(at: f.root) }
+
+        // Attached straight from the event: nothing else refers to the stored copy.
+        let direct = try await f.store.addItem(
+            to: f.running, draft: ContextItemDraft(kind: .file, title: "a.pdf", fileName: "dir1/a.pdf"), now: base
+        )
+        #expect(try await f.store.deleteItem(id: direct.id) == "dir1/a.pdf")
+
+        // Attached from the Inbox: the entry still points at the file, so undo can restore it.
+        let source = try tempFile(named: "b.pdf")
+        try f.inbox.enqueue(InboxDraft(kind: .file, title: "b.pdf", receivedAt: base), payload: source)
+        _ = try await f.store.ingest(from: f.inbox, now: base)
+        let pending = try #require(try await f.store.pendingInbox().first)
+        try await f.store.attachInbox(id: pending.id, to: f.next, now: base)
+        let attached = try #require(try await f.store.event(forKey: f.next)?.items.first)
+
+        #expect(try await f.store.deleteItem(id: attached.id) == nil)
+    }
+
     @Test func undoRemovesTheCreatedItemAndRestoresTheEntry() async throws {
         let f = try await makeFixture()
         defer { try? FileManager.default.removeItem(at: f.root) }

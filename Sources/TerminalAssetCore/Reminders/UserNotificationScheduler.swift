@@ -4,8 +4,8 @@ import TerminalAssetDomain
 import UserNotifications
 
 /// `ReminderScheduler` backed by local notifications. Everything is scheduled on the device; no push service and
-/// no network are involved.
-public struct UserNotificationScheduler: ReminderScheduler {
+/// no network are involved. An actor, so two replans can never interleave and leave a stale plan behind.
+public actor UserNotificationScheduler: ReminderScheduler {
     private let calendar: Calendar
 
     public init(calendar: Calendar = .current) {
@@ -27,7 +27,6 @@ public struct UserNotificationScheduler: ReminderScheduler {
     }
 
     public func replaceAll(with reminders: [PrepReminder]) async throws {
-        guard await authorizationStatus() == .allowed else { throw ReminderError.permissionDenied }
         let center = UNUserNotificationCenter.current()
 
         let pendingIDs: [String] = await withCheckedContinuation { continuation in
@@ -35,9 +34,14 @@ public struct UserNotificationScheduler: ReminderScheduler {
                 continuation.resume(returning: requests.map(\.identifier))
             }
         }
+        // Old reminders can always be removed, even if notifications were switched off in the meantime, so they do
+        // not come back if the user allows notifications again later.
         center.removePendingNotificationRequests(
             withIdentifiers: pendingIDs.filter { $0.hasPrefix(PrepReminderPlanner.idPrefix) }
         )
+
+        guard !reminders.isEmpty else { return }
+        guard await authorizationStatus() == .allowed else { throw ReminderError.permissionDenied }
 
         for reminder in reminders {
             let content = UNMutableNotificationContent()

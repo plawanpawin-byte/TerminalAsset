@@ -58,6 +58,8 @@ struct CalendarScreen: View {
         .sheet(item: $adding) { form in
             AddEventView(model: form)
         }
+        // A sync (or an edit made elsewhere in the app) can change events while this screen is open.
+        .onChange(of: today.events) { Task { await model.refreshStored() } }
         .task {
             await model.onAppear()
             #if DEBUG

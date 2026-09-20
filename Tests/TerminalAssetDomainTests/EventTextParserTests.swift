@@ -247,6 +247,49 @@ struct EventTextParserThaiTests {
     }
 }
 
+@Suite("EventTextParser · Robustness")
+struct EventTextParserRobustnessTests {
+    @Test func aHugeNumberDoesNotCrash() {
+        for sentence in [
+            "lunch in 99999999999999 weeks",
+            "call in 999999999999999999999 days",
+            "sync in 1e9 hours",
+            "workshop for 99999999999 hours tomorrow 9am",
+            "ประชุมอีก 99999999999999 วัน"
+        ] {
+            let result = parse(sentence)
+            #expect(result.draft.end >= result.draft.start)
+        }
+    }
+
+    @Test func aLongDurationIsCappedAtAMonth() {
+        let result = parse("retreat tomorrow 9am for 99999 hours")
+        #expect(result.draft.end.timeIntervalSince(result.draft.start) == 30 * 86_400)
+    }
+
+    @Test func daysAreCalendarDaysNotSeconds() {
+        // 3 days from Friday 15th is Monday 18th whatever the clock does in between.
+        #expect(parse("dentist in 3 days at 2pm").draft.start == at(1, 18, 14))
+    }
+
+    @Test func versionNumbersAndPricesStayInTheTitle() {
+        let version = parse("Review v2.10 release tomorrow")
+        #expect(version.draft.title == "Review v2.10 release")
+        #expect(version.draft.start == at(1, 16, 9))
+
+        let price = parse("Pay 5.50 rent")
+        #expect(price.draft.title == "Pay 5.50 rent")
+        #expect(price.recognized.isEmpty)
+    }
+
+    @Test func aDotTimeNeedsAnAnchorOrAMeridiem() {
+        #expect(parse("meet at 5.30").draft.start == at(1, 15, 17, 30))
+        #expect(parse("lunch 12.30pm").draft.start == at(1, 15, 12, 30))
+        #expect(parse("standup 9:30 tomorrow").draft.start == at(1, 16, 9, 30))
+        #expect(parse("นัดเวลา 10.30 พรุ่งนี้").draft.start == at(1, 16, 10, 30))
+    }
+}
+
 @Suite("EventTextParser · Relative")
 struct EventTextParserRelativeTests {
     @Test func inHoursIsFromNow() {

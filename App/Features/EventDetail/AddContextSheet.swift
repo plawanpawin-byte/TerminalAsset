@@ -18,8 +18,10 @@ struct AddContextSheet: View {
         self.kind = kind
         self.model = model
         self.editing = editing
-        // A link's title defaults to its address, so an edit only shows a title the user actually gave it.
-        _title = State(initialValue: editing?.title ?? "")
+        // A link's title defaults to its address's host. That default is not something the user chose, so it is left
+        // blank when editing: otherwise changing the address would keep the old host as the title.
+        let isDefaultLinkTitle = editing?.kind == .link && editing?.title == editing?.url?.host(percentEncoded: false)
+        _title = State(initialValue: isDefaultLinkTitle ? "" : (editing?.title ?? ""))
         _detail = State(initialValue: editing?.detail ?? "")
         _urlString = State(initialValue: editing?.url?.absoluteString ?? "")
     }

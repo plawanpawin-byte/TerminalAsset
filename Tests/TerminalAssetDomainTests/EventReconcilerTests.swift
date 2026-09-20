@@ -45,6 +45,57 @@ private func record(
     )
 }
 
+private func allDay(_ start: Date, external: String = "series", recurring: Bool = true) -> CalendarEventSnapshot {
+    CalendarEventSnapshot(
+        eventIdentifier: "evt", externalIdentifier: external, calendarID: "cal", title: "Holiday",
+        startDate: start, endDate: start + 86_400, occurrenceDate: start,
+        isAllDay: true, location: nil, isRecurring: recurring
+    )
+}
+
+@Suite("All-day identity")
+struct AllDayIdentityTests {
+    private func calendar(_ zone: String) -> Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: zone) ?? .gmt
+        return calendar
+    }
+
+    @Test func anAllDayKeySurvivesATimeZoneChange() {
+        let bangkok = calendar("Asia/Bangkok")
+        let newYork = calendar("America/New_York")
+        // "15 January 2027", as EventKit reports it before and after the device moves: local midnight each time.
+        let inBangkok = allDay(bangkok.date(from: DateComponents(year: 2027, month: 1, day: 15)) ?? .distantPast)
+        let inNewYork = allDay(newYork.date(from: DateComponents(year: 2027, month: 1, day: 15)) ?? .distantPast)
+        #expect(inBangkok.startDate != inNewYork.startDate)
+
+        #expect(EventIdentity.key(for: inBangkok, calendar: bangkok) == EventIdentity.key(for: inNewYork, calendar: newYork))
+        #expect(
+            EventIdentity.fingerprint(for: inBangkok, calendar: bangkok)
+                == EventIdentity.fingerprint(for: inNewYork, calendar: newYork)
+        )
+    }
+
+    @Test func differentDaysOfTheSameSeriesStayDistinct() {
+        let utc = calendar("UTC")
+        let first = allDay(utc.date(from: DateComponents(year: 2027, month: 1, day: 15)) ?? .distantPast)
+        let second = allDay(utc.date(from: DateComponents(year: 2027, month: 1, day: 16)) ?? .distantPast)
+        #expect(EventIdentity.key(for: first, calendar: utc) != EventIdentity.key(for: second, calendar: utc))
+    }
+
+    @Test func aTimedEventStillUsesItsInstant() {
+        let bangkok = calendar("Asia/Bangkok")
+        let newYork = calendar("America/New_York")
+        let timed = CalendarEventSnapshot(
+            eventIdentifier: "e", externalIdentifier: "x", calendarID: "cal", title: "Standup",
+            startDate: Date(timeIntervalSince1970: 1_800_000_000), endDate: Date(timeIntervalSince1970: 1_800_003_600),
+            occurrenceDate: Date(timeIntervalSince1970: 1_800_000_000), isAllDay: false, location: nil, isRecurring: false
+        )
+        #expect(EventIdentity.key(for: timed, calendar: bangkok) == EventIdentity.key(for: timed, calendar: newYork))
+        #expect(EventIdentity.key(for: timed, calendar: bangkok).rawValue == "ext:x|1800000000")
+    }
+}
+
 @Suite("EventReconciler")
 struct EventReconcilerTests {
     @Test func unchangedEventMatchesByExactKey() {

@@ -31,6 +31,8 @@ final class CalendarViewModel {
     @ObservationIgnored private let sync: CalendarSyncService
     @ObservationIgnored private let store: ContextStore
     @ObservationIgnored private var loadedRange: DateInterval?
+    /// Identifies the latest load. Two loads can overlap (tapping Next month twice); only the newest may publish.
+    @ObservationIgnored private var loadGeneration = 0
 
     init(
         sync: CalendarSyncService,
@@ -79,6 +81,17 @@ final class CalendarViewModel {
         await ensureLoaded(around: selectedDay)
     }
 
+    /// Re-reads what is stored for the months already loaded (no calendar access), for when something changed
+    /// underneath: a task added on an event, or a sync that picked up a change made in the Calendar app.
+    func refreshStored() async {
+        guard let loadedRange else { return }
+        do {
+            events = try await store.events(from: loadedRange.start, to: loadedRange.end)
+        } catch {
+            problem = TodayViewModel.message(for: error)
+        }
+    }
+
     func select(_ day: Date) async {
         selectedDay = calendar.startOfDay(for: day)
         displayedMonth = MonthGrid.startOfMonth(day, calendar: calendar)
@@ -119,8 +132,13 @@ final class CalendarViewModel {
         let monthStart = MonthGrid.startOfMonth(date, calendar: calendar)
         let monthEnd = MonthGrid.month(byAdding: 1, to: monthStart, calendar: calendar)
         if let loadedRange, loadedRange.start <= monthStart, loadedRange.end >= monthEnd {
+            // Already loaded, but returning from an event detail may have changed its context.
+            await refreshStored()
             return
         }
+
+        loadGeneration += 1
+        let generation = loadGeneration
 
         let start = MonthGrid.month(byAdding: -1, to: monthStart, calendar: calendar)
         let end = MonthGrid.month(byAdding: 2, to: monthStart, calendar: calendar)
@@ -133,7 +151,10 @@ final class CalendarViewModel {
             problem = TodayViewModel.message(for: error)
         }
         do {
-            events = try await store.events(from: start, to: end)
+            let loaded = try await store.events(from: start, to: end)
+            // A newer load started while this one was waiting: its result is the one that matches what is on screen.
+            guard generation == loadGeneration else { return }
+            events = loaded
             loadedRange = window
         } catch {
             problem = TodayViewModel.message(for: error)

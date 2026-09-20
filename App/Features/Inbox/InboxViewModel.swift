@@ -116,6 +116,9 @@ final class InboxViewModel {
             try await operation()
             banner = Banner(message: message, undoTarget: undoTarget)
             items = try await store.pendingInbox()
+        } catch ContextStoreError.alreadyHandled {
+            // A double tap: the first one already did it. Just show the current list.
+            items = (try? await store.pendingInbox()) ?? items
         } catch {
             problem = TodayViewModel.message(for: error)
         }

@@ -103,7 +103,9 @@ final class EventDetailViewModel {
         let name = "\(String(localized: "Photo")) \(Date.now.formatted(.iso8601)).\(fileExtension)"
         let temporary = FileManager.default.temporaryDirectory.appendingPathComponent(name)
         do {
-            try data.write(to: temporary, options: .atomic)
+            try await Task.detached(priority: .userInitiated) {
+                try data.write(to: temporary, options: .atomic)
+            }.value
         } catch {
             return String(localized: "Couldn't attach that file. Please try again.")
         }
@@ -130,7 +132,12 @@ final class EventDetailViewModel {
     }
 
     func delete(_ id: UUID) async {
-        await mutate { try await self.store.deleteItem(id: id) }
+        await mutate {
+            // The stored copy of an attached file goes with its item, unless an Inbox entry still needs it for undo.
+            if let path = try await self.store.deleteItem(id: id) {
+                self.attachments?.deleteAttachment(relativePath: path)
+            }
+        }
     }
 
     private func mutate(_ operation: () async throws -> Void) async {
