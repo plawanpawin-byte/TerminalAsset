@@ -120,7 +120,12 @@ struct SearchView: View {
 private struct ResultRow: View {
     let hit: SearchHit
 
+    @Environment(\.dynamicTypeSize) private var typeSize
+    @ScaledMetric(relativeTo: .title3) private var iconBox: CGFloat = 32
+
     private var document: SearchDocument { hit.document }
+    /// One-line details are cut at normal sizes; at accessibility sizes they wrap instead of leaving a few letters.
+    private var detailLines: Int? { typeSize.isAccessibilitySize ? nil : 1 }
 
     var body: some View {
         NavigationLink(value: document.eventKey) {
@@ -128,7 +133,7 @@ private struct ResultRow: View {
                 Image(systemName: document.kind.symbol(isDone: document.isDone))
                     .font(.title3)
                     .foregroundStyle(Color.accentColor)
-                    .frame(width: 32, height: 32)
+                    .frame(width: iconBox, height: iconBox)
                     .background(Color.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                     .accessibilityHidden(true)
 
@@ -136,12 +141,12 @@ private struct ResultRow: View {
                     Text(document.title)
                         .font(.body.weight(.medium))
                         .strikethrough(document.isDone)
-                        .lineLimit(2)
+                        .lineLimit(detailLines == nil ? nil : 2)
                     if !hit.snippet.isEmpty {
                         Text(hit.snippet)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
-                            .lineLimit(1)
+                            .lineLimit(detailLines)
                     } else if document.kind == .task {
                         Text(document.isDone ? LocalizedStringKey("Done") : LocalizedStringKey("Open task"))
                             .font(.subheadline)
@@ -150,12 +155,12 @@ private struct ResultRow: View {
                     Text(eventLine)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
-                        .lineLimit(1)
+                        .lineLimit(detailLines)
                     if let reasons {
                         Text(reasons)
                             .font(.caption)
                             .foregroundStyle(hasTemporalSignal ? Color.accentColor : .secondary)
-                            .lineLimit(1)
+                            .lineLimit(detailLines)
                     }
                 }
             }

@@ -148,12 +148,19 @@ private struct InboxRow: View {
     let onAttach: () -> Void
     let onChoose: () -> Void
 
+    @Environment(\.dynamicTypeSize) private var typeSize
+    /// The icon tile grows with the text, so a large icon never overflows a fixed box.
+    @ScaledMetric(relativeTo: .title3) private var iconBox: CGFloat = 36
+
+    /// Long titles are cut to a couple of lines, except at accessibility sizes where cutting them leaves too little.
+    private var titleLines: Int? { typeSize.isAccessibilitySize ? nil : 2 }
+
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: item.kind.symbol)
                 .font(.title3)
                 .foregroundStyle(Color.accentColor)
-                .frame(width: 36, height: 36)
+                .frame(width: iconBox, height: iconBox)
                 .background(Color.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
                 .accessibilityHidden(true)
 
@@ -161,11 +168,11 @@ private struct InboxRow: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(item.title)
                         .font(.body.weight(.medium))
-                        .lineLimit(2)
+                        .lineLimit(titleLines)
                     Text(verbatim: "\(item.subtitle.text) · \(item.receivedAt.formatted(.relative(presentation: .named)))")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
-                        .lineLimit(1)
+                        .lineLimit(titleLines == nil ? nil : 1)
                 }
                 destination
             }
@@ -185,11 +192,20 @@ private struct InboxRow: View {
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
-                HStack {
-                    Button("Attach", action: onAttach)
-                        .buttonStyle(.borderedProminent)
-                    Button("Choose…", action: onChoose)
-                        .buttonStyle(.bordered)
+                // Side by side when they fit, one under the other when they do not.
+                ViewThatFits(in: .horizontal) {
+                    HStack {
+                        Button("Attach", action: onAttach)
+                            .buttonStyle(.borderedProminent)
+                        Button("Choose…", action: onChoose)
+                            .buttonStyle(.bordered)
+                    }
+                    VStack(alignment: .leading) {
+                        Button("Attach", action: onAttach)
+                            .buttonStyle(.borderedProminent)
+                        Button("Choose…", action: onChoose)
+                            .buttonStyle(.bordered)
+                    }
                 }
                 .controlSize(.small)
             }
