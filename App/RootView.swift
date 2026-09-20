@@ -27,6 +27,10 @@ struct RootView: View {
             }
         }
         .task { await app.start() }
+        // Keeps the scheduled prep reminders in step with the calendar, whichever tab is showing.
+        .onChange(of: app.today.events) { _, events in
+            Task { await app.reminders.refresh(events: events) }
+        }
         .onChange(of: scenePhase) { _, phase in
             // Items shared while the app was closed are waiting in the queue.
             if phase == .active { Task { await app.inbox.refresh() } }
@@ -60,7 +64,7 @@ struct RootView: View {
             }
             .badge(app.inbox.items.count)
             Tab("Settings", systemImage: "gearshape", value: AppTab.settings) {
-                SettingsView(model: app.settings)
+                SettingsView(model: app.settings, reminders: app.reminders)
             }
         }
     }

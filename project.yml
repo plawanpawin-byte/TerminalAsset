@@ -26,6 +26,7 @@ targets:
       path: App/Info.plist
       properties:
         CFBundleDisplayName: TerminalAsset
+        ITSAppUsesNonExemptEncryption: false
         UILaunchScreen: {}
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait

@@ -14,6 +14,7 @@ struct AppModel {
     let search: SearchViewModel
     let briefing: BriefingViewModel
     let settings: SettingsViewModel
+    let reminders: PrepReminderViewModel
     let weather: WeatherViewModel
 
     /// Loads Today, then imports shared items (they may auto-attach to events, so events must exist first).
@@ -41,7 +42,10 @@ enum AppBootstrap {
             let store = ContextStore(modelContainer: container)
             // Without the App Group container (missing entitlement) sharing is off; the rest of the app works.
             let shared = try? SharedInbox.appGroup()
-            return .success(makeModel(sync: sync, store: store, shared: shared, weather: makeLiveWeather()))
+            return .success(makeModel(
+                sync: sync, store: store, shared: shared, weather: makeLiveWeather(),
+                scheduler: UserNotificationScheduler()
+            ))
         } catch {
             return .failure(BootstrapFailure(message: "The local data store could not be opened on this device."))
         }
@@ -59,6 +63,7 @@ enum AppBootstrap {
         store: ContextStore,
         shared: SharedInbox?,
         weather: WeatherViewModel,
+        scheduler: any ReminderScheduler,
         prepare: (@Sendable () async -> Void)? = nil
     ) -> AppModel {
         let today = TodayViewModel(sync: sync, store: store, prepare: prepare)
@@ -78,8 +83,10 @@ enum AppBootstrap {
             await briefing.load()
             await search.loadCorpus()
         }
+        let reminders = PrepReminderViewModel(scheduler: scheduler)
         return AppModel(
-            today: today, inbox: inbox, search: search, briefing: briefing, settings: settings, weather: weather
+            today: today, inbox: inbox, search: search, briefing: briefing, settings: settings,
+            reminders: reminders, weather: weather
         )
     }
 
@@ -98,7 +105,10 @@ enum AppBootstrap {
                 .appendingPathComponent("TerminalAssetSample-\(UUID().uuidString)", isDirectory: true)
         )
         let weather = LaunchOptions.liveWeather ? makeLiveWeather() : SampleData.weatherModel(now: now)
-        return makeModel(sync: sync, store: store, shared: shared, weather: weather) {
+        return makeModel(
+            sync: sync, store: store, shared: shared, weather: weather,
+            scheduler: InMemoryReminderScheduler(status: .notDetermined)
+        ) {
             await SampleData.seed(sync: sync, store: store, shared: shared, now: now)
         }
     }

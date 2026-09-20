@@ -3,6 +3,7 @@ import TerminalAssetDomain
 
 struct SettingsView: View {
     let model: SettingsViewModel
+    let reminders: PrepReminderViewModel
 
     @AppStorage(WeatherViewModel.enabledKey) private var showWeather = true
     @Environment(\.openURL) private var openURL
@@ -21,6 +22,7 @@ struct SettingsView: View {
         NavigationStack(path: $path) {
             Form {
                 calendarSection
+                remindersSection
                 weatherSection
                 storageSection
                 privacySection
@@ -48,16 +50,19 @@ struct SettingsView: View {
             }
             .alert(
                 "TerminalAsset",
-                isPresented: Binding(get: { model.notice != nil }, set: { if !$0 { model.clearNotice() } })
+                isPresented: Binding(
+                    get: { model.notice != nil || reminders.notice != nil },
+                    set: { if !$0 { model.clearNotice(); reminders.clearNotice() } }
+                )
             ) {
                 Button("OK", role: .cancel) {}
             } message: {
-                Text(model.notice ?? "")
+                Text(model.notice ?? reminders.notice ?? "")
             }
-            .task { await model.refresh() }
-            // The permission can be changed in the Settings app while this screen is in the background.
+            .task { await refresh() }
+            // Permissions can be changed in the Settings app while this screen is in the background.
             .onChange(of: scenePhase) { _, phase in
-                if phase == .active { Task { await model.refresh() } }
+                if phase == .active { Task { await refresh() } }
             }
             .onAppear(perform: applyLaunchOptions)
         }
@@ -85,6 +90,25 @@ struct SettingsView: View {
             Text("Calendar")
         } footer: {
             Text(model.calendarAccess.settingsExplanation)
+        }
+    }
+
+    private var remindersSection: some View {
+        Section {
+            Toggle(
+                "Remind me before events",
+                isOn: Binding(
+                    get: { reminders.isEnabled },
+                    set: { on in Task { await reminders.setEnabled(on) } }
+                )
+            )
+            if reminders.authorization == .denied {
+                Button("Open Settings") { openSystemSettings() }
+            }
+        } header: {
+            Text("Reminders")
+        } footer: {
+            Text("About 15 minutes before an event that has open tasks, or nothing attached yet, you get a notification with what to prepare. Reminders are scheduled on this iPhone; nothing is sent anywhere.")
         }
     }
 
@@ -151,6 +175,11 @@ struct SettingsView: View {
         return "\(version) (\(build))"
     }
 
+    private func refresh() async {
+        await model.refresh()
+        await reminders.loadStatus()
+    }
+
     private func openSystemSettings() {
         if let url = URL(string: "app-settings:") { openURL(url) }
     }
@@ -165,7 +194,7 @@ struct SettingsView: View {
 #if DEBUG
 #Preview("Settings") {
     if let app = try? AppBootstrap.makeSampleModel() {
-        SettingsView(model: app.settings)
+        SettingsView(model: app.settings, reminders: app.reminders)
     }
 }
 #endif
