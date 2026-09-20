@@ -43,6 +43,47 @@ struct ContextStoreTests {
         #expect(events.first?.summary.openTasks == 1)
     }
 
+    @Test func allEventsReturnsEveryStoredEventWithItsItems() async throws {
+        let (store, key) = try await makeStores()
+        try await store.addItem(to: key, draft: ContextItemDraft(kind: .note, title: "Remember"), now: base)
+
+        let events = try await store.allEvents()
+
+        #expect(events.map(\.key) == [key])
+        #expect(events.first?.items.map(\.title) == ["Remember"])
+    }
+
+    @Test func eraseEverythingRemovesEventsAndContext() async throws {
+        let (store, key) = try await makeStores()
+        try await store.addItem(to: key, draft: ContextItemDraft(kind: .task, title: "Send agenda"), now: base)
+
+        try await store.eraseEverything()
+
+        #expect(try await store.allEvents().isEmpty)
+        #expect(try await store.event(forKey: key) == nil)
+    }
+
+    @Test func eraseEverythingOnAnEmptyStoreIsHarmless() async throws {
+        let container = try TemporalStore.makeContainer(inMemory: true)
+        try await ContextStore(modelContainer: container).eraseEverything()
+    }
+
+    @Test func eventsReturnAfterAnEraseWithoutContext() async throws {
+        let container = try TemporalStore.makeContainer(inMemory: true)
+        let sync = CalendarSyncActor(modelContainer: container)
+        let store = ContextStore(modelContainer: container)
+        _ = try await sync.apply(snapshots: [snapshot], window: window, now: base)
+        let key = EventIdentity.key(for: snapshot)
+        try await store.addItem(to: key, draft: ContextItemDraft(kind: .note, title: "Old"), now: base)
+
+        try await store.eraseEverything()
+        _ = try await sync.apply(snapshots: [snapshot], window: window, now: base + hour)
+
+        let event = try await store.event(forKey: key)
+        #expect(event != nil)
+        #expect(event?.items.isEmpty == true)
+    }
+
     @Test func eventsOutsideTheRangeAreNotReturned() async throws {
         let (store, _) = try await makeStores()
         let events = try await store.events(from: base + 5 * hour, to: base + 6 * hour)

@@ -60,7 +60,7 @@ struct RootView: View {
             }
             .badge(app.inbox.items.count)
             Tab("Settings", systemImage: "gearshape", value: AppTab.settings) {
-                SettingsView()
+                SettingsView(model: app.settings)
             }
         }
     }

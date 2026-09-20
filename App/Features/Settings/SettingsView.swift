@@ -1,38 +1,16 @@
 import SwiftUI
-
-enum AIProcessingMode: String, CaseIterable, Identifiable {
-    case onDeviceOnly
-    case hybrid
-
-    var id: String { rawValue }
-
-    var title: String {
-        switch self {
-        case .onDeviceOnly: "On-device only"
-        case .hybrid: "Hybrid"
-        }
-    }
-
-    var explanation: String {
-        switch self {
-        case .onDeviceOnly: "Nothing leaves your iPhone. Briefs are simpler."
-        case .hybrid: "On-device first. The cloud is used only for long or complex briefs, and you can see what is sent."
-        }
-    }
-}
+import TerminalAssetDomain
 
 struct SettingsView: View {
-    @AppStorage("settings.aiMode") private var aiMode: AIProcessingMode = .onDeviceOnly
-    @AppStorage("settings.backgroundPrep") private var backgroundPrep = true
-    @AppStorage("settings.decayDays") private var decayDays = 30
-    @AppStorage("settings.coldStorage") private var coldStorage = false
-    @AppStorage(WeatherViewModel.enabledKey) private var showWeather = true
+    let model: SettingsViewModel
 
-    @State private var workCalendar = true
-    @State private var personalCalendar = true
-    @State private var holidaysCalendar = false
-    @State private var showingPaywall = false
+    @AppStorage(WeatherViewModel.enabledKey) private var showWeather = true
+    @Environment(\.openURL) private var openURL
+    @Environment(\.scenePhase) private var scenePhase
+
     @State private var confirmingDelete = false
+    @State private var exportDocument = ExportDocument()
+    @State private var exporting = false
     @State private var path: [SettingsRoute] = []
 
     enum SettingsRoute: Hashable {
@@ -42,28 +20,44 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack(path: $path) {
             Form {
-                planSection
                 calendarSection
                 weatherSection
-                intelligenceSection
                 storageSection
                 privacySection
                 aboutSection
-                Section { SampleDataNote() }
-                    .listRowBackground(Color.clear)
             }
             .navigationTitle("Settings")
-            .navigationDestination(for: SettingsRoute.self) { _ in CloudPrivacyView() }
-            .sheet(isPresented: $showingPaywall) { PaywallView() }
+            .navigationDestination(for: SettingsRoute.self) { _ in PrivacyView() }
+            .fileExporter(
+                isPresented: $exporting,
+                document: exportDocument,
+                contentType: .json,
+                defaultFilename: exportDocument.fileName
+            ) { model.exportFinished($0) }
             .confirmationDialog(
                 "Delete all TerminalAsset data?",
                 isPresented: $confirmingDelete,
                 titleVisibility: .visible
             ) {
-                Button("Delete Everything", role: .destructive) {}
+                Button("Delete Everything", role: .destructive) {
+                    Task { await model.eraseEverything() }
+                }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                Text("This removes all context, attachments and search indexes from this device. Your calendar is not changed.")
+                Text("This removes all notes, links, tasks, attached files and the share history from this device. Your calendar is not changed.")
+            }
+            .alert(
+                "TerminalAsset",
+                isPresented: Binding(get: { model.notice != nil }, set: { if !$0 { model.clearNotice() } })
+            ) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(model.notice ?? "")
+            }
+            .task { await model.refresh() }
+            // The permission can be changed in the Settings app while this screen is in the background.
+            .onChange(of: scenePhase) { _, phase in
+                if phase == .active { Task { await model.refresh() } }
             }
             .onAppear(perform: applyLaunchOptions)
         }
@@ -71,55 +65,26 @@ struct SettingsView: View {
 
     // MARK: - Sections
 
-    private var planSection: some View {
-        Section {
-            Button {
-                showingPaywall = true
-            } label: {
-                HStack(spacing: 14) {
-                    Image(systemName: "sparkles")
-                        .font(.title2)
-                        .foregroundStyle(.white)
-                        .frame(width: 44, height: 44)
-                        .background(Color.accentColor.gradient, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-                        .accessibilityHidden(true)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Free plan")
-                            .font(.headline)
-                            .foregroundStyle(.primary)
-                        Text("Calendar, local context and basic search")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer(minLength: 8)
-                    Text("Upgrade")
-                        .font(.subheadline)
-                        .foregroundStyle(Color.accentColor)
-                    Image(systemName: "chevron.right")
-                        .font(.footnote.weight(.semibold))
-                        .foregroundStyle(.tertiary)
-                        .accessibilityHidden(true)
-                }
-                .padding(.vertical, 4)
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityHint("Shows the Pro plan")
-        }
-    }
-
     private var calendarSection: some View {
         Section {
             LabeledContent("Access") {
-                Text("Full access").foregroundStyle(.green)
+                Text(model.calendarAccess.settingsTitle)
+                    .foregroundStyle(model.calendarAccess == .fullAccess ? .green : .orange)
             }
-            Toggle("Work", isOn: $workCalendar)
-            Toggle("Personal", isOn: $personalCalendar)
-            Toggle("Holidays", isOn: $holidaysCalendar)
+            switch model.calendarAccess {
+            case .notDetermined:
+                Button("Allow Calendar Access") {
+                    Task { await model.requestCalendarAccess() }
+                }
+            case .denied, .writeOnly:
+                Button("Open Settings") { openSystemSettings() }
+            case .fullAccess, .restricted:
+                EmptyView()
+            }
         } header: {
-            Text("Calendars")
+            Text("Calendar")
         } footer: {
-            Text("Choose which calendars TerminalAsset reads. Your calendar is never uploaded.")
+            Text(model.calendarAccess.settingsExplanation)
         }
     }
 
@@ -129,77 +94,78 @@ struct SettingsView: View {
         } header: {
             Text("Weather")
         } footer: {
-            Text("Uses your approximate location. Only a coordinate rounded to about 1 km is sent to the free Open-Meteo weather service to get the forecast: no name, account or calendar data. Turn this off to stop using your location.")
-        }
-    }
-
-    private var intelligenceSection: some View {
-        Section {
-            Picker("AI processing", selection: $aiMode) {
-                ForEach(AIProcessingMode.allCases) { mode in
-                    Text(mode.title).tag(mode)
-                }
-            }
-            Toggle("Prepare events in the background", isOn: $backgroundPrep)
-            NavigationLink(value: SettingsRoute.privacy) {
-                Label("What is sent to the cloud", systemImage: "hand.raised")
-            }
-        } header: {
-            Text("Intelligence")
-        } footer: {
-            Text(aiMode.explanation + " Background preparation runs when iOS allows it, so timing can vary.")
+            Text("Uses your approximate location. A position rounded to about 1 km is used to look up the city name (Apple) and to get the forecast (Open-Meteo). No account, name or calendar data is sent. Turn this off to stop using your location.")
         }
     }
 
     private var storageSection: some View {
         Section {
-            LabeledContent("Used on this device", value: "48 MB")
-            Picker("Compact old context after", selection: $decayDays) {
-                Text("14 days").tag(14)
-                Text("30 days").tag(30)
-                Text("60 days").tag(60)
-                Text("90 days").tag(90)
-            }
-            Toggle("Move large files to iCloud", isOn: $coldStorage)
+            LabeledContent("Attached files", value: model.attachmentsBytes.formatted(.byteCount(style: .file)))
         } header: {
             Text("Storage")
         } footer: {
-            Text("Search indexes for old events are compacted to save space and battery. Your original files are never moved or deleted without you seeing it.")
+            Text("Files you share into TerminalAsset are kept on this device. They are never moved or deleted unless you delete them or choose Delete all data.")
         }
     }
 
     private var privacySection: some View {
-        Section("Privacy & data") {
+        Section {
+            NavigationLink(value: SettingsRoute.privacy) {
+                Label("How your data is used", systemImage: "hand.raised")
+            }
             Button {
+                Task {
+                    guard let document = await model.makeExport() else { return }
+                    exportDocument = document
+                    exporting = true
+                }
             } label: {
                 Label("Export my data", systemImage: "square.and.arrow.up")
             }
+            .disabled(model.isWorking)
             Button(role: .destructive) {
                 confirmingDelete = true
             } label: {
                 Label("Delete all data", systemImage: "trash")
             }
+            .disabled(model.isWorking)
+        } header: {
+            Text("Privacy & data")
+        } footer: {
+            Text("Export saves your notes, links, tasks and file names as a JSON file you choose where to keep.")
         }
     }
 
     private var aboutSection: some View {
         Section("About") {
-            LabeledContent("Version", value: "0.1.0")
-            Button {
-            } label: {
-                Label("Send feedback", systemImage: "bubble.left")
-            }
+            LabeledContent("Version", value: Self.versionText)
         }
+    }
+
+    // MARK: - Helpers
+
+    private static var versionText: String {
+        let info = Bundle.main.infoDictionary
+        let version = info?["CFBundleShortVersionString"] as? String ?? "?"
+        let build = info?["CFBundleVersion"] as? String ?? "?"
+        return "\(version) (\(build))"
+    }
+
+    private func openSystemSettings() {
+        if let url = URL(string: "app-settings:") { openURL(url) }
     }
 
     private func applyLaunchOptions() {
         #if DEBUG
-        if LaunchOptions.showPaywall { showingPaywall = true }
         if LaunchOptions.privacyDetail, path.isEmpty { path = [.privacy] }
         #endif
     }
 }
 
+#if DEBUG
 #Preview("Settings") {
-    SettingsView()
+    if let app = try? AppBootstrap.makeSampleModel() {
+        SettingsView(model: app.settings)
+    }
 }
+#endif

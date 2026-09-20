@@ -14,7 +14,6 @@ enum LaunchOptions {
     static var tab: AppTab? { defaults.string(forKey: "tab").flatMap(AppTab.init(rawValue:)) }
     static var query: String { defaults.string(forKey: "query") ?? "" }
     static var showOnboarding: Bool { arguments.contains("-onboarding") }
-    static var showPaywall: Bool { arguments.contains("-paywall") }
     static var openDetail: Bool { arguments.contains("-detail") }
     static var addSheet: String? { defaults.string(forKey: "addSheet") }
     /// `-addEvent form` opens the New Event form filled in; `-addEvent submit` also saves it.

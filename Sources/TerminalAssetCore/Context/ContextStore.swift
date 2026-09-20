@@ -18,6 +18,26 @@ public actor ContextStore {
         }
     }
 
+    /// Every stored event, oldest first, for exporting the user's data.
+    public func allEvents() throws -> [TimelineEvent] {
+        try perform {
+            let descriptor = FetchDescriptor<TemporalEvent>(sortBy: [SortDescriptor(\.startDate)])
+            return try modelContext.fetch(descriptor).map(Self.timelineEvent(from:))
+        }
+    }
+
+    /// Deletes everything the app stored: events, their context items and the share history. The calendar itself
+    /// is untouched, so events reappear (without context) at the next sync. Only used by "Delete all data".
+    public func eraseEverything() throws {
+        try perform {
+            try modelContext.delete(model: ContextItem.self)
+            try modelContext.delete(model: TemporalContext.self)
+            try modelContext.delete(model: TemporalEvent.self)
+            try modelContext.delete(model: InboxEntry.self)
+            try modelContext.save()
+        }
+    }
+
     public func event(forKey key: EventKey) throws -> TimelineEvent? {
         try perform {
             try fetchEvent(key).map(Self.timelineEvent(from:))

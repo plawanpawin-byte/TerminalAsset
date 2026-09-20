@@ -163,6 +163,42 @@ public struct SharedInbox: Sendable {
         }
     }
 
+    // MARK: - Storage
+
+    /// Bytes used by imported attachments, for the "Storage" row in Settings.
+    public func attachmentsSize() -> Int64 {
+        Self.size(of: attachmentsDirectory)
+    }
+
+    /// Deletes every imported attachment and everything still waiting in the queue. Only used when the user
+    /// chose "Delete all data"; nothing else in the app removes files in bulk.
+    public func eraseAll() throws {
+        let fileManager = FileManager.default
+        for directory in [attachmentsDirectory, inboxDirectory] where fileManager.fileExists(atPath: directory.path) {
+            do {
+                try fileManager.removeItem(at: directory)
+            } catch {
+                throw SharedInboxError.writeFailed(reason: error.localizedDescription)
+            }
+        }
+    }
+
+    private static func size(of directory: URL) -> Int64 {
+        let fileManager = FileManager.default
+        guard let enumerator = fileManager.enumerator(
+            at: directory,
+            includingPropertiesForKeys: [.fileSizeKey, .isRegularFileKey],
+            options: []
+        ) else { return 0 }
+
+        var total: Int64 = 0
+        for case let url as URL in enumerator {
+            let values = try? url.resourceValues(forKeys: [.fileSizeKey, .isRegularFileKey])
+            if values?.isRegularFile == true { total += Int64(values?.fileSize ?? 0) }
+        }
+        return total
+    }
+
     // MARK: - Layout
 
     public var inboxDirectory: URL { rootURL.appendingPathComponent("Inbox", isDirectory: true) }

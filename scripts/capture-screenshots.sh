@@ -55,8 +55,7 @@ shot add-event light -tab calendar -addEvent form
 shot add-event-quick light -tab calendar -addEvent quick
 shot add-event-saved light -tab calendar -addEvent submit
 shot settings light -tab settings
-shot cloud-privacy light -tab settings -privacy
-shot paywall light -tab settings -paywall
+shot privacy light -tab settings -privacy
 shot onboarding light -onboarding
 
 # Real location + real Open-Meteo request (needs network). The simulator is placed in Bangkok and location

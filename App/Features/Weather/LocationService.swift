@@ -75,9 +75,16 @@ final class CoreLocationService: NSObject, LocationProviding, CLLocationManagerD
     }
 
     /// The place name is a nicety: without it the forecast still works, so a failed lookup returns nil.
+    /// The lookup goes to Apple's geocoding service, so it gets the same ~1 km rounded position as the forecast.
     private func cityName(for location: CLLocation) async -> String? {
+        let coarse = WeatherCoordinate(
+            latitude: location.coordinate.latitude,
+            longitude: location.coordinate.longitude
+        ).rounded()
         do {
-            let placemarks = try await CLGeocoder().reverseGeocodeLocation(location)
+            let placemarks = try await CLGeocoder().reverseGeocodeLocation(
+                CLLocation(latitude: coarse.latitude, longitude: coarse.longitude)
+            )
             let mark = placemarks.first
             return PlaceName.choose(
                 locality: mark?.locality,
