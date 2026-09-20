@@ -1,13 +1,14 @@
 import SwiftUI
 import TerminalAssetDomain
 
-/// The Assistant tab: your whole calendar as a reverse-chronological feed, with a Siri-style voice orb pinned
-/// near the top. Pull the orb down to start speaking; drag it back up to dismiss.
+/// The Assistant tab: your whole calendar as an Apple-News-style "Top Stories" wall of cards, with a
+/// Siri-style liquid-glass voice orb pinned near the top. Pull the orb down to start speaking; drag it
+/// back up to dismiss. The history stays visible behind the glass while listening.
 struct AssistantView: View {
     let model: AssistantViewModel
     let today: TodayViewModel
 
-    /// 0 = orb resting at the top, 1 = full listening panel.
+    /// 0 = orb resting at the top, 1 = full listening state.
     @State private var progress: CGFloat = 0
     @GestureState private var dragOffset: CGFloat = 0
 
@@ -48,11 +49,11 @@ struct AssistantView: View {
         .ignoresSafeArea()
     }
 
-    // MARK: - History feed
+    // MARK: - History feed (Apple-News "Top Stories" wall)
 
     private var feed: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 20) {
                 if let problem = model.problem {
                     Label(problem, systemImage: "exclamationmark.triangle.fill")
                         .font(.footnote)
@@ -66,30 +67,66 @@ struct AssistantView: View {
                 } else if model.days.isEmpty {
                     emptyState
                 } else {
-                    ForEach(model.days) { section in
-                        daySection(section)
-                    }
+                    masonry
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.top, 116)
-            .padding(.bottom, 32)
+            .padding(.top, 118)
+            .padding(.bottom, 40)
         }
         .scrollDisabled(effective > 0.05)
     }
 
-    private func daySection(_ section: HistoryDay) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(dayLabel(section.day))
-                .font(.title3.weight(.bold))
-                .foregroundStyle(.white)
-            ForEach(section.events) { event in
+    /// Two balanced columns of story cards, newest first.
+    private var masonry: some View {
+        let split = balancedColumns(events)
+        return HStack(alignment: .top, spacing: 12) {
+            column(split.left)
+            column(split.right)
+        }
+    }
+
+    private func column(_ events: [TimelineEvent]) -> some View {
+        LazyVStack(spacing: 12) {
+            ForEach(events) { event in
                 NavigationLink(value: event.key) {
-                    EventFeedCard(event: event)
+                    StoryCard(event: event, label: dayLabel(event.startDate))
                 }
                 .buttonStyle(.plain)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .top)
+    }
+
+    /// Every active event, newest day first, ready to flow into columns.
+    private var events: [TimelineEvent] { model.days.flatMap(\.events) }
+
+    /// Greedily drops each card into whichever column is currently shorter, so the two sides stay even.
+    private func balancedColumns(_ events: [TimelineEvent]) -> (left: [TimelineEvent], right: [TimelineEvent]) {
+        var left: [TimelineEvent] = []
+        var right: [TimelineEvent] = []
+        var leftHeight: CGFloat = 0
+        var rightHeight: CGFloat = 0
+        for event in events {
+            let height = estimatedHeight(event)
+            if leftHeight <= rightHeight {
+                left.append(event)
+                leftHeight += height
+            } else {
+                right.append(event)
+                rightHeight += height
+            }
+        }
+        return (left, right)
+    }
+
+    /// Rough card height so the greedy split balances; exact layout is still done by SwiftUI.
+    private func estimatedHeight(_ event: TimelineEvent) -> CGFloat {
+        let titleLines = max(1, ceil(CGFloat(event.title.count) / 15))
+        var height: CGFloat = 58 + titleLines * 24
+        if let location = event.location, !location.isEmpty { height += 18 }
+        if !event.summary.isEmpty { height += 26 }
+        return height
     }
 
     private var emptyState: some View {
@@ -113,19 +150,28 @@ struct AssistantView: View {
         if calendar.isDateInToday(day) { return "Today" }
         if calendar.isDateInTomorrow(day) { return "Tomorrow" }
         if calendar.isDateInYesterday(day) { return "Yesterday" }
-        return day.formatted(.dateTime.weekday(.wide).month(.abbreviated).day())
+        return day.formatted(date: .numeric, time: .omitted)
     }
 
     // MARK: - Voice orb
 
     private var voiceLayer: some View {
         ZStack(alignment: .top) {
-            // Near-opaque when listening, so the feed fades out and the space below the orb reads as empty.
-            background
-                .opacity(min(1, effective * 1.4))
-                .ignoresSafeArea()
-                .allowsHitTesting(effective > 0.05)
-                .onTapGesture { collapse() }
+            // Only a soft top vignette while listening — the history behind stays readable, never blurred out.
+            LinearGradient(
+                colors: [Color.black.opacity(0.55 * effective), .clear],
+                startPoint: .top, endPoint: .center
+            )
+            .ignoresSafeArea()
+            .allowsHitTesting(false)
+
+            // A transparent catcher so a tap anywhere cancels once we're actually listening.
+            if listening {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .ignoresSafeArea()
+                    .onTapGesture { collapse() }
+            }
 
             VStack(spacing: 14) {
                 AssistantOrb(active: listening)
@@ -185,53 +231,49 @@ struct AssistantView: View {
     }
 }
 
-/// One event in the history feed, styled for the dark Assistant surface.
-private struct EventFeedCard: View {
+/// One event as an Apple-News-style story card on the dark Assistant wall.
+private struct StoryCard: View {
     let event: TimelineEvent
+    let label: String
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            VStack(spacing: 2) {
-                if event.isAllDay {
-                    Image(systemName: "sun.max")
-                        .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.7))
-                } else {
-                    Text(event.startDate.formatted(.dateTime.hour().minute()))
-                        .font(.subheadline.weight(.semibold).monospacedDigit())
-                        .foregroundStyle(.white)
-                }
-            }
-            .frame(width: 62, alignment: .leading)
+        VStack(alignment: .leading, spacing: 8) {
+            Text(label)
+                .font(.caption.weight(.medium))
+                .foregroundStyle(.white.opacity(0.45))
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(event.title)
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .multilineTextAlignment(.leading)
-                Text(TimeText.range(of: event))
-                    .font(.footnote)
-                    .foregroundStyle(.white.opacity(0.6))
-                if let location = event.location, !location.isEmpty {
-                    Label(location, systemImage: "mappin.and.ellipse")
-                        .font(.footnote)
-                        .foregroundStyle(.white.opacity(0.6))
-                        .lineLimit(1)
-                }
+            Text(event.title)
+                .font(.title3.weight(.bold))
+                .foregroundStyle(.white)
+                .fixedSize(horizontal: false, vertical: true)
+                .lineLimit(4)
+
+            Text(subtitle)
+                .font(.footnote)
+                .foregroundStyle(.white.opacity(0.55))
+                .fixedSize(horizontal: false, vertical: true)
+                .lineLimit(3)
+
+            if !event.summary.isEmpty {
                 ContextChips(summary: event.summary)
                     .padding(.top, 2)
             }
-            Spacer(minLength: 0)
-            Image(systemName: "chevron.right")
-                .font(.footnote.weight(.semibold))
-                .foregroundStyle(.white.opacity(0.3))
         }
-        .padding(14)
-        .background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .background(Color(hex: 0x1C1C22), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .strokeBorder(.white.opacity(0.08), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .strokeBorder(.white.opacity(0.06), lineWidth: 1)
         )
-        .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .contentShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+    }
+
+    private var subtitle: String {
+        let time = TimeText.range(of: event)
+        if let location = event.location, !location.isEmpty {
+            return "\(time) · \(location)"
+        }
+        return time
     }
 }
