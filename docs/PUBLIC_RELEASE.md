@@ -19,6 +19,9 @@ the pieces the App Store and users expect around that: privacy, data control, an
 | Prep reminders | Opt-in local notifications ~15 minutes before an event with open tasks or nothing attached. No push service, no network. |
 | Widget | Up Next home-screen (small, medium) and lock-screen widget, fed by a snapshot file in the App Group. |
 | Deep links | A tapped reminder or widget opens the event (`terminalasset://event?key=...`, strict parser). |
+| Find Context | Siri / Shortcuts action ("Find context in TerminalAsset") that opens Search with the words filled in. |
+| Edit and preview | Edit notes, tasks and links (leading swipe); attached files open in Quick Look; "Open in Calendar" hands an event to Apple Calendar. |
+| Accessibility | Checked with CI screenshots at the largest text size and in dark mode; fixed-size grids and tiles cap their text, rows stack or wrap. |
 | Thai | String catalogs (app, widget, share extension, permission prompts) with Thai plurals; CI captures the main screens in Thai. |
 
 ## Only the owner can do these
