@@ -130,8 +130,8 @@ struct AssistantView: View {
                     .frame(width: orbSize, height: orbSize)
 
                 ZStack {
-                    collapsedHint.opacity(max(0, 1 - effective * 4))
-                    listeningCaption.opacity(max(0, (effective - 0.5) * 2))
+                    collapsedHint.opacity(hintOpacity)
+                    listeningCaption.opacity(captionOpacity)
                 }
                 .frame(height: 44)
             }
@@ -143,6 +143,8 @@ struct AssistantView: View {
     }
 
     private var orbSize: CGFloat { 56 + 96 * effective }
+    private var hintOpacity: Double { Double(max(0, 1 - effective * 4)) }
+    private var captionOpacity: Double { Double(max(0, (effective - 0.5) * 2)) }
 
     private var collapsedHint: some View {
         VStack(spacing: 2) {
