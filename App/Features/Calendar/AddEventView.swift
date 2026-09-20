@@ -12,6 +12,16 @@ struct AddEventView: View {
         NavigationStack {
             Form {
                 Section {
+                    TextField("Describe it, like “lunch tomorrow 12:30”", text: $model.quickText)
+                        .submitLabel(.go)
+                        .onSubmit { model.applyQuickText() }
+                } header: {
+                    Text("Quick add")
+                } footer: {
+                    Text(model.understood.isEmpty ? "Read on this device. Nothing is sent anywhere." : model.understood)
+                }
+
+                Section {
                     TextField("Title", text: $model.draft.title)
                         .focused($titleFocused)
                         .submitLabel(.done)

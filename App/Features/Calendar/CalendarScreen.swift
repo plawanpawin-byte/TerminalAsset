@@ -84,9 +84,14 @@ struct CalendarScreen: View {
     private func runLaunchAddEvent() async {
         guard let mode = LaunchOptions.addEvent else { return }
         let form = presentAddEvent()
+        await form.loadCalendars()
+        if mode == "quick" {
+            form.quickText = "Lunch with Anna tomorrow 12:30 at Cafe Amazon"
+            form.applyQuickText()
+            return
+        }
         form.draft.title = "Dentist appointment"
         form.draft.location = "Bangkok Hospital"
-        await form.loadCalendars()
         guard mode == "submit" else { return }
         if await form.save() { adding = nil }
     }

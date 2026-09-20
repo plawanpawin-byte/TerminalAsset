@@ -12,6 +12,10 @@ import TerminalAssetDomain
 @Observable
 final class AddEventViewModel: Identifiable {
     var draft: NewEventDraft
+    /// A sentence the user typed to fill the form ("lunch tomorrow 12:30").
+    var quickText = ""
+    /// What the last quick-add sentence was understood as, for the line under the field.
+    private(set) var understood = ""
     private(set) var calendars: [CalendarInfo] = []
     private(set) var isSaving = false
     private(set) var errorMessage: String?
@@ -54,6 +58,27 @@ final class AddEventViewModel: Identifiable {
         } catch {
             calendars = []
         }
+    }
+
+    /// Reads `quickText` on this device and fills the form from it. The user still reviews everything before Add;
+    /// nothing is written to the calendar here.
+    func applyQuickText(now: Date = .now) {
+        let text = quickText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty else { return }
+
+        let parsed = EventTextParser.parse(text, now: now, calendar: calendar)
+        var next = parsed.draft
+        next.calendarID = draft.calendarID
+        draft = next
+        quickText = ""
+
+        let order: [(ParsedEvent.Recognized, String)] = [
+            (.allDay, "all-day"), (.date, "date"), (.time, "time"), (.duration, "length"), (.location, "place")
+        ]
+        let found = order.filter { parsed.recognized.contains($0.0) }.map(\.1)
+        understood = found.isEmpty
+            ? "Used as the title. Add a day or time, like “tomorrow 3pm”."
+            : "Filled in " + found.formatted(.list(type: .and)) + ". Check it below."
     }
 
     /// Returns true when the event was written and the form can close.
