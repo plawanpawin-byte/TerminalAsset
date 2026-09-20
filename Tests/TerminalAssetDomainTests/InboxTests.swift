@@ -97,6 +97,26 @@ struct SharedInboxTests {
         #expect(FileManager.default.fileExists(atPath: inbox.attachmentURL(for: path).path))
     }
 
+    @Test func deletingAnAttachmentCanNeverReachBeyondItsOwnFile() throws {
+        let (inbox, root) = try makeInbox()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let source = try tempFile(named: "a.png")
+        let manifest = try inbox.enqueue(InboxDraft(kind: .image, title: "a.png"), payload: source)
+        let item = try #require(try inbox.pending().items.first)
+        let path = try #require(try inbox.storeAttachment(for: item))
+        let stored = inbox.attachmentURL(for: path)
+
+        // A record with a climbing path must not delete the folder above the file.
+        inbox.deleteAttachment(relativePath: "\(manifest.id.uuidString)/..")
+        inbox.deleteAttachment(relativePath: "..")
+        inbox.deleteAttachment(relativePath: "")
+        #expect(FileManager.default.fileExists(atPath: stored.path))
+
+        inbox.deleteAttachment(relativePath: path)
+        #expect(!FileManager.default.fileExists(atPath: stored.path))
+        #expect(FileManager.default.fileExists(atPath: inbox.attachmentsDirectory.path))
+    }
+
     @Test func storingTheSameAttachmentTwiceIsHarmless() throws {
         let (inbox, root) = try makeInbox()
         defer { try? FileManager.default.removeItem(at: root) }

@@ -182,6 +182,10 @@ public struct SharedInbox: Sendable {
     }
 
     public func deleteAttachment(relativePath: String) {
+        // A stored path is always "<uuid>/<file>". Anything that could climb out of it is refused rather than
+        // resolved, so a bad record can never delete more than one file.
+        let parts = relativePath.split(separator: "/", omittingEmptySubsequences: false)
+        guard !parts.isEmpty, !parts.contains(where: { $0.isEmpty || $0 == "." || $0 == ".." }) else { return }
         let url = attachmentURL(for: relativePath)
         try? FileManager.default.removeItem(at: url)
         // Drop the now-empty per-item directory as well.
