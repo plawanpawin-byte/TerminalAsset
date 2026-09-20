@@ -1,6 +1,8 @@
+import PhotosUI
 import QuickLook
 import SwiftUI
 import TerminalAssetDomain
+import UniformTypeIdentifiers
 
 enum AddKind: String, Identifiable {
     case task
@@ -47,6 +49,8 @@ struct EventDetailView: View {
     @State private var model: EventDetailViewModel
     @State private var adding: AddKind?
     @State private var editing: ContextItemValue?
+    @State private var importingFile = false
+    @State private var pickedPhoto: PhotosPickerItem?
     /// The attached file being previewed (Quick Look), if any.
     @State private var previewing: URL?
     private let today: TodayViewModel
@@ -89,6 +93,11 @@ struct EventDetailView: View {
                     addButton(.task, "Task", "checklist")
                     addButton(.note, "Note", "note.text")
                     addButton(.link, "Link", "link")
+                    Divider()
+                    Button { importingFile = true } label: { Label("File", systemImage: "doc") }
+                    PhotosPicker(selection: $pickedPhoto, matching: .images) {
+                        Label("Photo", systemImage: "photo")
+                    }
                 } label: {
                     Label("Add Context", systemImage: "plus")
                 }
@@ -104,6 +113,29 @@ struct EventDetailView: View {
             }
         }
         .quickLookPreview($previewing)
+        .fileImporter(isPresented: $importingFile, allowedContentTypes: [.item]) { result in
+            switch result {
+            case .success(let url):
+                let isImage = UTType(filenameExtension: url.pathExtension)?.conforms(to: .image) == true
+                Task { model.errorMessage = await model.addAttachment(from: url, isImage: isImage) }
+            case .failure:
+                model.errorMessage = String(localized: "Couldn't attach that file. Please try again.")
+            }
+        }
+        .onChange(of: pickedPhoto) { _, item in
+            guard let item else { return }
+            Task {
+                do {
+                    if let data = try await item.loadTransferable(type: Data.self) {
+                        let type = item.supportedContentTypes.first?.preferredFilenameExtension ?? "jpg"
+                        model.errorMessage = await model.addPhoto(data: data, fileExtension: type)
+                    }
+                } catch {
+                    model.errorMessage = String(localized: "Couldn't load that photo. Please try again.")
+                }
+                pickedPhoto = nil
+            }
+        }
         .alert("Something went wrong", isPresented: errorBinding) {
             Button("OK", role: .cancel) { model.errorMessage = nil }
         } message: {

@@ -1094,6 +1094,17 @@
         }
       }
     },
+    "Couldn't attach that file. Please try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "แนบไฟล์ไม่สำเร็จ กรุณาลองอีกครั้ง"
+          }
+        }
+      }
+    },
     "Couldn't delete everything. Please try again.": {
       "extractionState": "manual",
       "localizations": {
@@ -1112,6 +1123,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "หาตำแหน่งของคุณไม่พบ ลองอีกครั้งในอีกสักครู่"
+          }
+        }
+      }
+    },
+    "Couldn't load that photo. Please try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "โหลดรูปภาพไม่สำเร็จ กรุณาลองอีกครั้ง"
           }
         }
       }
@@ -1695,6 +1717,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "ไฟล์"
+          }
+        }
+      }
+    },
+    "Files can't be attached on this device yet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ยังแนบไฟล์บนเครื่องนี้ไม่ได้"
           }
         }
       }
@@ -2656,6 +2689,17 @@
         }
       }
     },
+    "Photo": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "รูปภาพ"
+          }
+        }
+      }
+    },
     "Pick where it goes": {
       "extractionState": "manual",
       "localizations": {
@@ -3345,6 +3389,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "กิจกรรมนั้นไม่อยู่ในปฏิทินของคุณแล้ว"
+          }
+        }
+      }
+    },
+    "That file is too large to attach (limit %lld MB).": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ไฟล์นี้ใหญ่เกินกว่าจะแนบได้ (จำกัด %lld MB)"
           }
         }
       }

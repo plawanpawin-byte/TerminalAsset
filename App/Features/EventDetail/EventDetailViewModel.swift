@@ -66,6 +66,51 @@ final class EventDetailViewModel {
         }
     }
 
+    /// Copies a file the user picked into the app's own storage and attaches it to the event. The original stays where
+    /// it was. Returns a user-facing message when it could not be attached, nil on success.
+    func addAttachment(from url: URL, isImage: Bool) async -> String? {
+        guard let attachments else {
+            return String(localized: "Files can't be attached on this device yet.")
+        }
+        // Files from the Files app are only readable while this access is open.
+        let scoped = url.startAccessingSecurityScopedResource()
+        defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+
+        let path: String
+        do {
+            path = try await Task.detached(priority: .userInitiated) {
+                try attachments.importAttachment(from: url)
+            }.value
+        } catch SharedInboxError.payloadTooLarge(let limit) {
+            return String(localized: "That file is too large to attach (limit \(limit / 1_048_576) MB).")
+        } catch {
+            return String(localized: "Couldn't attach that file. Please try again.")
+        }
+
+        let name = URL(fileURLWithPath: path).lastPathComponent
+        let draft = ContextItemDraft(kind: isImage ? .image : .file, title: name, fileName: path)
+        if let message = await add(draft) {
+            // The copy has no record pointing at it, so it must not be left behind.
+            attachments.deleteAttachment(relativePath: path)
+            return message
+        }
+        return nil
+    }
+
+    /// Attaches a photo picked in the system photo picker (which needs no photo-library permission).
+    func addPhoto(data: Data, fileExtension: String) async -> String? {
+        // Colons in the timestamp become underscores when the file is stored.
+        let name = "\(String(localized: "Photo")) \(Date.now.formatted(.iso8601)).\(fileExtension)"
+        let temporary = FileManager.default.temporaryDirectory.appendingPathComponent(name)
+        do {
+            try data.write(to: temporary, options: .atomic)
+        } catch {
+            return String(localized: "Couldn't attach that file. Please try again.")
+        }
+        defer { try? FileManager.default.removeItem(at: temporary) }
+        return await addAttachment(from: temporary, isImage: true)
+    }
+
     /// Returns a user-facing message when the change could not be saved, nil on success.
     func update(_ id: UUID, with draft: ContextItemDraft) async -> String? {
         do {

@@ -136,6 +136,50 @@ struct SharedInboxStorageTests {
         #expect(!FileManager.default.fileExists(atPath: inbox.inboxDirectory.path))
     }
 
+    @Test func aPickedFileIsCopiedIntoAttachments() throws {
+        let inbox = try makeInbox()
+        let source = inbox.rootURL.appendingPathComponent("picked/Report.pdf")
+        try write(2048, to: source)
+
+        let path = try inbox.importAttachment(from: source)
+
+        #expect(path.hasSuffix("/Report.pdf"))
+        #expect(FileManager.default.fileExists(atPath: inbox.attachmentURL(for: path).path))
+        // A copy: the original is still where the user left it.
+        #expect(FileManager.default.fileExists(atPath: source.path))
+        #expect(inbox.attachmentsSize() == 2048)
+    }
+
+    @Test func twoFilesWithTheSameNameDoNotCollide() throws {
+        let inbox = try makeInbox()
+        let source = inbox.rootURL.appendingPathComponent("picked/Notes.txt")
+        try write(10, to: source)
+
+        let first = try inbox.importAttachment(from: source)
+        let second = try inbox.importAttachment(from: source)
+
+        #expect(first != second)
+        #expect(inbox.attachmentsSize() == 20)
+    }
+
+    @Test func aMissingFileIsRefused() throws {
+        let inbox = try makeInbox()
+        let missing = inbox.rootURL.appendingPathComponent("nope.bin")
+        #expect(throws: SharedInboxError.payloadMissing) {
+            try inbox.importAttachment(from: missing)
+        }
+    }
+
+    @Test func unsafeNamesAreCleaned() throws {
+        let inbox = try makeInbox()
+        let source = inbox.rootURL.appendingPathComponent("picked/manifest.json")
+        try write(4, to: source)
+
+        // A file that would shadow a queue manifest gets a neutral name.
+        let path = try inbox.importAttachment(from: source)
+        #expect(path.hasSuffix("/file"))
+    }
+
     @Test func eraseAllWithNothingStoredIsHarmless() throws {
         try makeInbox().eraseAll()
     }

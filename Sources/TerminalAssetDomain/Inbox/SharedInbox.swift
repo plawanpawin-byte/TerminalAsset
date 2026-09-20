@@ -143,6 +143,29 @@ public struct SharedInbox: Sendable {
         return "\(item.manifest.id.uuidString)/\(name)"
     }
 
+    /// Copies a file the user picked (from Files or Photos) into permanent storage and returns its path relative to
+    /// `attachmentsDirectory`. The original is copied, never moved or changed. Refuses files over the size limit.
+    public func importAttachment(from source: URL) throws -> String {
+        let fileManager = FileManager.default
+        let size = (try? source.resourceValues(forKeys: [.fileSizeKey]))?.fileSize ?? 0
+        guard size <= Self.maxPayloadBytes else {
+            throw SharedInboxError.payloadTooLarge(limitBytes: Self.maxPayloadBytes)
+        }
+        guard fileManager.fileExists(atPath: source.path) else { throw SharedInboxError.payloadMissing }
+
+        let name = Self.sanitizedFileName(source.lastPathComponent)
+        let folder = UUID().uuidString
+        let directory = attachmentsDirectory.appendingPathComponent(folder, isDirectory: true)
+        do {
+            try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
+            try fileManager.copyItem(at: source, to: directory.appendingPathComponent(name))
+        } catch {
+            try? fileManager.removeItem(at: directory)
+            throw SharedInboxError.writeFailed(reason: error.localizedDescription)
+        }
+        return "\(folder)/\(name)"
+    }
+
     /// Removes an item from the queue once the app has safely stored it.
     public func remove(id: UUID) {
         try? FileManager.default.removeItem(at: itemDirectory(for: id))
