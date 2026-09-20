@@ -63,9 +63,11 @@ public actor EventKitRepository: CalendarRepository {
         event.startDate = newEvent.start
         event.endDate = newEvent.end
         event.location = newEvent.location
+        let rule = Self.recurrenceRule(for: newEvent.repeatRule)
+        if let rule { event.addRecurrenceRule(rule) }
 
         do {
-            try store.save(event, span: .thisEvent, commit: true)
+            try store.save(event, span: rule == nil ? .thisEvent : .futureEvents, commit: true)
         } catch {
             throw CalendarError.writeFailed(reason: error.localizedDescription)
         }
@@ -113,6 +115,17 @@ public actor EventKitRepository: CalendarRepository {
         case .writeOnly: .writeOnly
         case .fullAccess: .fullAccess
         default: .denied
+        }
+    }
+
+    private static func recurrenceRule(for rule: RepeatRule) -> EKRecurrenceRule? {
+        switch rule {
+        case .never: nil
+        case .daily: EKRecurrenceRule(recurrenceWith: .daily, interval: 1, end: nil)
+        case .weekly: EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, end: nil)
+        case .biweekly: EKRecurrenceRule(recurrenceWith: .weekly, interval: 2, end: nil)
+        case .monthly: EKRecurrenceRule(recurrenceWith: .monthly, interval: 1, end: nil)
+        case .yearly: EKRecurrenceRule(recurrenceWith: .yearly, interval: 1, end: nil)
         }
     }
 

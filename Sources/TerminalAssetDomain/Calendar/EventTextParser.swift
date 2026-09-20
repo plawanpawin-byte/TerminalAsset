@@ -3,7 +3,7 @@ import Foundation
 /// What `EventTextParser` made of a sentence: a draft to review, and which parts it actually understood.
 public struct ParsedEvent: Sendable, Equatable {
     public enum Recognized: Sendable, Hashable {
-        case date, time, duration, location, allDay
+        case date, time, duration, location, allDay, repeatRule
     }
 
     public var draft: NewEventDraft
@@ -31,38 +31,60 @@ public enum EventTextParser {
             recognized.insert(.allDay)
         }
 
+        // MARK: Repeat
+        var repeatRule = RepeatRule.never
+        if let g = scanner.take("\\bevery\\s+(\(englishWeekdays))\\b|ทุกวัน(จันทร์|อังคาร|พุธ|พฤหัสบดี|พฤหัส|ศุกร์|เสาร์|อาทิตย์)") {
+            repeatRule = .weekly
+            if let weekday = weekday(named: g[1] ?? g[2] ?? "") {
+                day = date(forWeekday: weekday, from: today, next: false, includingToday: false, calendar: calendar)
+            }
+        } else if scanner.take("\\bevery\\s+(?:2|two|other)\\s+weeks?\\b|\\bbi-?weekly\\b|ทุก\\s*2\\s*สัปดาห์") != nil {
+            repeatRule = .biweekly
+        } else if scanner.take("\\bevery\\s+week\\b|\\bweekly\\b|ทุกสัปดาห์|ทุกอาทิตย์") != nil {
+            repeatRule = .weekly
+        } else if scanner.take("\\bevery\\s+month\\b|\\bmonthly\\b|ทุกเดือน") != nil {
+            repeatRule = .monthly
+        } else if scanner.take("\\bevery\\s+year\\b|\\byearly\\b|\\bannually\\b|ทุกปี") != nil {
+            repeatRule = .yearly
+        } else if scanner.take("\\bevery\\s*day\\b|\\bdaily\\b|ทุกวัน") != nil {
+            repeatRule = .daily
+        }
+        if repeatRule != .never { recognized.insert(.repeatRule) }
+
         // MARK: Dates
-        if let g = scanner.take("(\\d{4})-(\\d{1,2})-(\\d{1,2})", where: { g in
-            date(year: int(g[1]), month: int(g[2]), day: int(g[3]), today: today, calendar: calendar) != nil
-        }) {
-            day = date(year: int(g[1]), month: int(g[2]), day: int(g[3]), today: today, calendar: calendar)
-        } else if let g = scanner.take("(?:^|\\s)(\\d{1,2})/(\\d{1,2})(?:/(\\d{2,4}))?(?![\\d:/])", where: { g in
-            date(year: year(g[3]), month: int(g[2]), day: int(g[1]), today: today, calendar: calendar) != nil
-        }) {
-            day = date(year: year(g[3]), month: int(g[2]), day: int(g[1]), today: today, calendar: calendar)
-        } else if let g = scanner.take("(\\d{1,2})(?:st|nd|rd|th)?\\s+(\(monthNames))\\b(?:\\s+(\\d{4}))?", where: { g in
-            date(year: int(g[3]), month: month(g[2]), day: int(g[1]), today: today, calendar: calendar) != nil
-        }) {
-            day = date(year: int(g[3]), month: month(g[2]), day: int(g[1]), today: today, calendar: calendar)
-        } else if let g = scanner.take("\\b(\(monthNames))\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b(?:,?\\s+(\\d{4}))?", where: { g in
-            date(year: int(g[3]), month: month(g[1]), day: int(g[2]), today: today, calendar: calendar) != nil
-        }) {
-            day = date(year: int(g[3]), month: month(g[1]), day: int(g[2]), today: today, calendar: calendar)
-        } else if let g = scanner.take("(?:\\bon\\s+)?\\b(day after tomorrow)\\b|มะรืน(?:นี้)?") {
-            _ = g
-            day = calendar.date(byAdding: .day, value: 2, to: today)
-        } else if scanner.take("(?:\\bon\\s+)?\\b(?:tomorrow|tmr|tmrw)\\b|พรุ่งนี้") != nil {
-            day = calendar.date(byAdding: .day, value: 1, to: today)
-        } else if scanner.take("(?:\\bon\\s+)?\\b(?:today|tonight)\\b|วันนี้|คืนนี้") != nil {
-            day = today
-        } else if let g = scanner.take(
-            "(?:\\b(next|this)\\s+)?\\b(\(englishWeekdays))\\b(?:\\s*หน้า)?|(?:วัน)?(\(thaiWeekdays))(?:\\s*(หน้า))?"
-        ) {
-            let name = g[2] ?? g[3] ?? ""
-            let next = g[1]?.lowercased() == "next" || g[4] != nil
-            let including = g[1]?.lowercased() == "this"
-            if let weekday = weekday(named: name) {
-                day = date(forWeekday: weekday, from: today, next: next, includingToday: including, calendar: calendar)
+        if day == nil {
+            if let g = scanner.take("(\\d{4})-(\\d{1,2})-(\\d{1,2})", where: { g in
+                date(year: int(g[1]), month: int(g[2]), day: int(g[3]), today: today, calendar: calendar) != nil
+            }) {
+                day = date(year: int(g[1]), month: int(g[2]), day: int(g[3]), today: today, calendar: calendar)
+            } else if let g = scanner.take("(?:^|\\s)(\\d{1,2})/(\\d{1,2})(?:/(\\d{2,4}))?(?![\\d:/])", where: { g in
+                date(year: year(g[3]), month: int(g[2]), day: int(g[1]), today: today, calendar: calendar) != nil
+            }) {
+                day = date(year: year(g[3]), month: int(g[2]), day: int(g[1]), today: today, calendar: calendar)
+            } else if let g = scanner.take("(\\d{1,2})(?:st|nd|rd|th)?\\s+(\(monthNames))\\b(?:\\s+(\\d{4}))?", where: { g in
+                date(year: int(g[3]), month: month(g[2]), day: int(g[1]), today: today, calendar: calendar) != nil
+            }) {
+                day = date(year: int(g[3]), month: month(g[2]), day: int(g[1]), today: today, calendar: calendar)
+            } else if let g = scanner.take("\\b(\(monthNames))\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b(?:,?\\s+(\\d{4}))?", where: { g in
+                date(year: int(g[3]), month: month(g[1]), day: int(g[2]), today: today, calendar: calendar) != nil
+            }) {
+                day = date(year: int(g[3]), month: month(g[1]), day: int(g[2]), today: today, calendar: calendar)
+            } else if let g = scanner.take("(?:\\bon\\s+)?\\b(day after tomorrow)\\b|มะรืน(?:นี้)?") {
+                _ = g
+                day = calendar.date(byAdding: .day, value: 2, to: today)
+            } else if scanner.take("(?:\\bon\\s+)?\\b(?:tomorrow|tmr|tmrw)\\b|พรุ่งนี้") != nil {
+                day = calendar.date(byAdding: .day, value: 1, to: today)
+            } else if scanner.take("(?:\\bon\\s+)?\\b(?:today|tonight)\\b|วันนี้|คืนนี้") != nil {
+                day = today
+            } else if let g = scanner.take(
+                "(?:\\b(next|this)\\s+)?\\b(\(englishWeekdays))\\b(?:\\s*หน้า)?|(?:วัน)?(\(thaiWeekdays))(?:\\s*(หน้า))?"
+            ) {
+                let name = g[2] ?? g[3] ?? ""
+                let next = g[1]?.lowercased() == "next" || g[4] != nil
+                let including = g[1]?.lowercased() == "this"
+                if let weekday = weekday(named: name) {
+                    day = date(forWeekday: weekday, from: today, next: next, includingToday: including, calendar: calendar)
+                }
             }
         }
         if day != nil { recognized.insert(.date) }
@@ -143,6 +165,7 @@ public enum EventTextParser {
         draft.title = scanner.cleanedTitle(trimThaiConnectors: recognized.contains { $0 != .location })
         draft.location = location
         draft.isAllDay = allDay
+        draft.repeatRule = repeatRule
 
         if allDay {
             let start = day ?? today

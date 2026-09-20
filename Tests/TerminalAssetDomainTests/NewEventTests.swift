@@ -86,6 +86,13 @@ struct NewEventDraftTests {
         }
     }
 
+    @Test func repeatDefaultsToNeverAndIsKept() throws {
+        #expect(try draft().validated(calendar: calendar).repeatRule == .never)
+        var input = draft()
+        input.repeatRule = .biweekly
+        #expect(try input.validated(calendar: calendar).repeatRule == .biweekly)
+    }
+
     @Test func calendarChoiceIsKept() throws {
         var input = draft()
         input.calendarID = "work"
@@ -186,6 +193,15 @@ struct StubCalendarWritingTests {
         let repository = StubCalendarRepository(snapshots: [])
         let created = try await repository.createEvent(try validEvent(calendarID: "stub.work"))
         #expect(created.calendarID == "stub.work")
+    }
+
+    @Test func aRepeatingEventIsMarkedRecurring() async throws {
+        let repository = StubCalendarRepository(snapshots: [])
+        var input = draft("Standup")
+        input.repeatRule = .weekly
+        let created = try await repository.createEvent(try input.validated(calendar: calendar))
+        #expect(created.isRecurring)
+        #expect(try await repository.createEvent(try validEvent()).isRecurring == false)
     }
 
     @Test func unknownCalendarIsRejected() async {

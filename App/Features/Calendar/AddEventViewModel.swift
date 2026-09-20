@@ -73,7 +73,8 @@ final class AddEventViewModel: Identifiable {
         quickText = ""
 
         let order: [(ParsedEvent.Recognized, String)] = [
-            (.allDay, "all-day"), (.date, "date"), (.time, "time"), (.duration, "length"), (.location, "place")
+            (.allDay, "all-day"), (.date, "date"), (.time, "time"), (.duration, "length"),
+            (.repeatRule, "repeat"), (.location, "place")
         ]
         let found = order.filter { parsed.recognized.contains($0.0) }.map(\.1)
         understood = found.isEmpty

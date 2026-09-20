@@ -32,6 +32,11 @@ struct AddEventView: View {
                     Toggle("All-day", isOn: $model.draft.isAllDay)
                     DatePicker("Starts", selection: startBinding, displayedComponents: components)
                     DatePicker("Ends", selection: $model.draft.end, in: model.endRange, displayedComponents: components)
+                    Picker("Repeat", selection: $model.draft.repeatRule) {
+                        ForEach(RepeatRule.allCases) { rule in
+                            Text(rule.title).tag(rule)
+                        }
+                    }
                 }
 
                 if model.calendars.count > 1 {
@@ -94,5 +99,18 @@ struct AddEventView: View {
         #else
         return true
         #endif
+    }
+}
+
+extension RepeatRule {
+    var title: String {
+        switch self {
+        case .never: "Never"
+        case .daily: "Every Day"
+        case .weekly: "Every Week"
+        case .biweekly: "Every 2 Weeks"
+        case .monthly: "Every Month"
+        case .yearly: "Every Year"
+        }
     }
 }

@@ -14,6 +14,18 @@ public struct CalendarInfo: Sendable, Hashable, Identifiable {
     }
 }
 
+/// How often a new event repeats. Kept to the common choices Apple Calendar offers first.
+public enum RepeatRule: String, Sendable, CaseIterable, Identifiable {
+    case never
+    case daily
+    case weekly
+    case biweekly
+    case monthly
+    case yearly
+
+    public var id: String { rawValue }
+}
+
 public enum EventDraftError: Error, Sendable, Equatable {
     case emptyTitle
     case titleTooLong
@@ -32,6 +44,7 @@ public struct NewEventDraft: Sendable, Equatable {
     public var end: Date
     public var isAllDay: Bool
     public var location: String
+    public var repeatRule: RepeatRule
     /// `nil` means "the system default calendar".
     public var calendarID: String?
 
@@ -41,6 +54,7 @@ public struct NewEventDraft: Sendable, Equatable {
         end: Date,
         isAllDay: Bool = false,
         location: String = "",
+        repeatRule: RepeatRule = .never,
         calendarID: String? = nil
     ) {
         self.title = title
@@ -48,6 +62,7 @@ public struct NewEventDraft: Sendable, Equatable {
         self.end = end
         self.isAllDay = isAllDay
         self.location = location
+        self.repeatRule = repeatRule
         self.calendarID = calendarID
     }
 
@@ -106,6 +121,7 @@ public struct NewEventDraft: Sendable, Equatable {
             end: resolvedEnd,
             isAllDay: isAllDay,
             location: trimmedLocation.isEmpty ? nil : trimmedLocation,
+            repeatRule: repeatRule,
             calendarID: calendarID
         )
     }
@@ -118,5 +134,6 @@ public struct ValidatedNewEvent: Sendable, Equatable {
     public let end: Date
     public let isAllDay: Bool
     public let location: String?
+    public let repeatRule: RepeatRule
     public let calendarID: String?
 }

@@ -211,6 +211,59 @@ struct EventTextParserThaiTests {
     }
 
     @Test func aTitleThatEndsInADayWordIsLeftAloneWhenNothingWasRead() {
-        #expect(parse("ออกกำลังกายทุกวัน").draft.title == "ออกกำลังกายทุกวัน")
+        #expect(parse("ไปตลาดวัน").draft.title == "ไปตลาดวัน")
+        #expect(parse("ไปตลาดวัน").recognized.isEmpty)
+    }
+
+    @Test func everyDayRepeatsDaily() {
+        let result = parse("ออกกำลังกายทุกวัน 6 โมงเย็น")
+        #expect(result.draft.title == "ออกกำลังกาย")
+        #expect(result.draft.repeatRule == .daily)
+        #expect(result.draft.start == at(1, 15, 18))
+    }
+
+    @Test func everySpecificWeekdayRepeatsWeekly() {
+        let result = parse("ประชุมทีมทุกวันจันทร์ 10 โมง")
+        #expect(result.draft.title == "ประชุมทีม")
+        #expect(result.draft.repeatRule == .weekly)
+        #expect(result.draft.start == at(1, 18, 10))
+    }
+}
+
+@Suite("EventTextParser · Repeat")
+struct EventTextParserRepeatTests {
+    @Test func everyWeekdayInEnglish() {
+        let result = parse("standup every monday 9:30")
+        #expect(result.draft.title == "standup")
+        #expect(result.draft.repeatRule == .weekly)
+        #expect(result.draft.start == at(1, 18, 9, 30))
+        #expect(result.recognized.contains(.repeatRule))
+    }
+
+    @Test func dailyWeeklyMonthlyYearly() {
+        #expect(parse("vitamins daily 8am").draft.repeatRule == .daily)
+        #expect(parse("review every week friday").draft.repeatRule == .weekly)
+        #expect(parse("rent every month 1/2 9am").draft.repeatRule == .monthly)
+        #expect(parse("birthday yearly tomorrow all day").draft.repeatRule == .yearly)
+    }
+
+    @Test func everyOtherWeekIsBiweekly() {
+        #expect(parse("1:1 every other week tomorrow 3pm").draft.repeatRule == .biweekly)
+        #expect(parse("payday biweekly friday").draft.repeatRule == .biweekly)
+    }
+
+    @Test func repeatWordsAreRemovedFromTheTitle() {
+        #expect(parse("gym every day 6pm").draft.title == "gym")
+    }
+
+    @Test func aSentenceWithoutRepeatWordsDoesNotRepeat() {
+        let result = parse("lunch tomorrow 12:30")
+        #expect(result.draft.repeatRule == .never)
+        #expect(!result.recognized.contains(.repeatRule))
+    }
+
+    @Test func theRepeatChoiceReachesTheValidatedEvent() throws {
+        let event = try parse("standup every monday 9:30").draft.validated(calendar: calendar)
+        #expect(event.repeatRule == .weekly)
     }
 }

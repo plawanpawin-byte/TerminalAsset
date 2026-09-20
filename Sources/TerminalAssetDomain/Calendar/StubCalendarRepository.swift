@@ -59,7 +59,7 @@ public actor StubCalendarRepository: CalendarRepository {
             occurrenceDate: event.start,
             isAllDay: event.isAllDay,
             location: event.location,
-            isRecurring: false
+            isRecurring: event.repeatRule != .never
         )
         snapshots.append(snapshot)
         return snapshot
