@@ -131,7 +131,7 @@ struct TodayHeader: View {
         case .needsPermission(.notDetermined):
             promptCard(
                 title: "Show the weather here?",
-                message: "TerminalAsset can show today's forecast for where you are. It uses your approximate location and sends only a rounded coordinate (about 1 km) to the free Open-Meteo weather service. No name, account or calendar data is sent.",
+                message: "TerminalAsset can show today's forecast for where you are. It uses your approximate location. A position rounded to about 1 km is sent to Apple to find the city name and to the free Open-Meteo weather service for the forecast. No name, account or calendar data is sent.",
                 primary: ("Allow Location", { Task { await weather.allow() } }),
                 secondary: ("Not Now", { weather.dismissPrompt() })
             )

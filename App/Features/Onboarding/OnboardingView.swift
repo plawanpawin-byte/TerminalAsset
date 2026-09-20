@@ -33,6 +33,7 @@ struct OnboardingView: View {
                     .font(.body)
                     .opacity(page == pages.count - 1 ? 0 : 1)
                     .disabled(page == pages.count - 1)
+                    .accessibilityHidden(page == pages.count - 1)
             }
             .padding(.horizontal, 20)
             .padding(.top, 12)
@@ -72,8 +73,18 @@ struct OnboardingView: View {
     }
 
     private func pageView(_ item: Page) -> some View {
+        // Scrolls so the text stays reachable at accessibility sizes; when it fits, it is simply centred.
+        GeometryReader { proxy in
+            ScrollView {
+                pageContent(item)
+                    .frame(maxWidth: .infinity, minHeight: proxy.size.height)
+            }
+            .scrollBounceBehavior(.basedOnSize)
+        }
+    }
+
+    private func pageContent(_ item: Page) -> some View {
         VStack(spacing: 24) {
-            Spacer()
             Image(systemName: item.symbol)
                 .font(.system(size: 72))
                 .foregroundStyle(Color.accentColor)
@@ -90,8 +101,6 @@ struct OnboardingView: View {
                     .multilineTextAlignment(.center)
             }
             .padding(.horizontal, 32)
-            Spacer()
-            Spacer()
         }
     }
 }

@@ -20,7 +20,11 @@ public struct OpenMeteoWeatherProvider: WeatherProvider {
         do {
             (data, response) = try await session.data(for: request)
         } catch let error as URLError {
+            // Leaving the screen cancels the request; that is not an outage and must not be reported as one.
+            if error.code == .cancelled { throw CancellationError() }
             throw Self.map(error)
+        } catch is CancellationError {
+            throw CancellationError()
         } catch {
             throw WeatherError.serviceUnavailable
         }
@@ -38,7 +42,7 @@ public struct OpenMeteoWeatherProvider: WeatherProvider {
 
     private static func map(_ error: URLError) -> WeatherError {
         switch error.code {
-        case .notConnectedToInternet, .networkConnectionLost, .dataNotAllowed, .timedOut, .cannotFindHost,
+        case .notConnectedToInternet, .networkConnectionLost, .dataNotAllowed, .cannotFindHost,
              .cannotConnectToHost, .internationalRoamingOff:
             .offline
         default:

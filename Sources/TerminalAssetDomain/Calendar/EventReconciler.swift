@@ -159,14 +159,18 @@ public enum EventReconciler {
     }
 
     /// Sorts deterministically, then resolves key collisions (same external ID + occurrence in two calendars)
-    /// by qualifying the key with the calendar. Exact duplicates inside one calendar are dropped.
+    /// by qualifying the key with the calendar. Events that are still indistinguishable (two "Standup"s at the same
+    /// time in one calendar) get an ordinal, so each keeps its own context instead of one silently disappearing.
     private static func assignKeys(to snapshots: [CalendarEventSnapshot]) -> [KeyedSnapshot] {
         let ordered = snapshots.sorted { lhs, rhs in
             if lhs.calendarID != rhs.calendarID { return lhs.calendarID < rhs.calendarID }
             let lhsID = lhs.eventIdentifier ?? ""
             let rhsID = rhs.eventIdentifier ?? ""
             if lhsID != rhsID { return lhsID < rhsID }
-            return lhs.startDate < rhs.startDate
+            if lhs.startDate != rhs.startDate { return lhs.startDate < rhs.startDate }
+            // Fully ambiguous events still need a stable order so the ordinals below are assigned consistently.
+            if lhs.endDate != rhs.endDate { return lhs.endDate < rhs.endDate }
+            return lhs.title < rhs.title
         }
         var seen = Set<EventKey>()
         var result: [KeyedSnapshot] = []
@@ -176,7 +180,12 @@ public enum EventReconciler {
             if seen.contains(key) {
                 key = EventIdentity.key(for: snapshot, disambiguator: snapshot.calendarID)
             }
-            guard seen.insert(key).inserted else { continue }
+            var ordinal = 1
+            let base = key
+            while !seen.insert(key).inserted {
+                ordinal += 1
+                key = EventKey(rawValue: "\(base.rawValue)|n:\(ordinal)")
+            }
             result.append(KeyedSnapshot(key: key, snapshot: snapshot))
         }
         return result

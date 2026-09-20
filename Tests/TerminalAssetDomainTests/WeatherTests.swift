@@ -40,6 +40,12 @@ private final class CountingProvider: WeatherProvider, @unchecked Sendable {
     }
 }
 
+private struct CancelledProvider: WeatherProvider {
+    func fetch(at coordinate: WeatherCoordinate, now: Date) async throws -> WeatherSnapshot {
+        throw CancellationError()
+    }
+}
+
 @Suite("WeatherCondition")
 struct WeatherConditionTests {
     @Test(arguments: [
@@ -180,6 +186,15 @@ struct WeatherServiceTests {
 
         #expect(result.snapshot == nil)
         #expect(result.error == .serviceUnavailable)
+    }
+
+    @Test func aCancelledRequestIsNotReportedAsAFailure() async {
+        let service = WeatherService(provider: CancelledProvider(), cacheURL: nil)
+
+        let result = await service.weather(at: bangkok, now: now)
+
+        #expect(result.snapshot == nil)
+        #expect(result.error == nil)
     }
 
     @Test func aForecastForAFarawayPlaceIsNotReused() async {

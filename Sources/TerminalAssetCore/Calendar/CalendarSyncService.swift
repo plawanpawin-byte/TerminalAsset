@@ -89,8 +89,11 @@ public actor CalendarSyncService {
         onSynced: @Sendable (SyncReport) -> Void,
         onFailure: @Sendable (SyncError) -> Void
     ) async {
+        // Subscribe before the first sync: a change made while that sync runs would otherwise fall in the gap and
+        // not be picked up until the next unrelated change.
+        let changes = repository.storeChanges()
         await syncAndReport(onSynced: onSynced, onFailure: onFailure)
-        for await _ in repository.storeChanges() {
+        for await _ in changes {
             if Task.isCancelled { return }
             await syncAndReport(onSynced: onSynced, onFailure: onFailure)
         }

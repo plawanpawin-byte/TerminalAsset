@@ -1,7 +1,8 @@
 import Foundation
 
 public struct WeatherResult: Sendable, Equatable {
-    /// The forecast to show, or nil when there is neither a fresh nor a cached one.
+    /// The forecast to show, or nil when there is neither a fresh nor a cached one. A nil snapshot with a nil
+    /// `error` means the request was cancelled (the user left the screen): that is not a failure to report.
     public let snapshot: WeatherSnapshot?
     /// True when `snapshot` is an older cached forecast shown because a fresh one could not be fetched.
     public let isStale: Bool
@@ -52,6 +53,8 @@ public actor WeatherService {
                 .withCity(place.cityName ?? cached?.snapshot.cityName)
             store(CacheEntry(coordinate: coordinate, snapshot: fresh))
             return WeatherResult(snapshot: fresh, isStale: false, error: nil)
+        } catch is CancellationError {
+            return WeatherResult(snapshot: cached?.snapshot.withCity(place.cityName), isStale: cached != nil, error: nil)
         } catch {
             let typed = (error as? WeatherError) ?? .serviceUnavailable
             if let cached {

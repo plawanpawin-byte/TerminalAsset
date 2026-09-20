@@ -76,6 +76,20 @@ struct AllDayIdentityTests {
         )
     }
 
+    @Test func anAllDayKeyDoesNotDependOnTheCalendarSystem() {
+        // A Thai device uses the Buddhist calendar, where 2027 CE is year 2570. Switching region settings must not
+        // change the key, or the event's context would be orphaned.
+        var gregorian = Calendar(identifier: .gregorian)
+        gregorian.timeZone = TimeZone(identifier: "Asia/Bangkok") ?? .gmt
+        var buddhist = Calendar(identifier: .buddhist)
+        buddhist.timeZone = gregorian.timeZone
+        let day = allDay(gregorian.date(from: DateComponents(year: 2027, month: 1, day: 15)) ?? .distantPast)
+
+        let key = EventIdentity.key(for: day, calendar: gregorian)
+        #expect(EventIdentity.key(for: day, calendar: buddhist) == key)
+        #expect(key.rawValue == "ext:series|d2027-1-15")
+    }
+
     @Test func differentDaysOfTheSameSeriesStayDistinct() {
         let utc = calendar("UTC")
         let first = allDay(utc.date(from: DateComponents(year: 2027, month: 1, day: 15)) ?? .distantPast)
@@ -98,6 +112,34 @@ struct AllDayIdentityTests {
 
 @Suite("EventReconciler")
 struct EventReconcilerTests {
+    @Test func twoIndistinguishableEventsKeepTheirOwnRecords() {
+        // Two "Standup"s at the same time in one calendar and no external identifier: neither may be dropped.
+        let first = snapshot(eventIdentifier: "a", external: nil, title: "Standup")
+        let second = snapshot(eventIdentifier: "b", external: nil, title: "Standup")
+
+        let plan = EventReconciler.reconcile(snapshots: [first, second], stored: [], window: window)
+
+        #expect(plan.inserts.count == 2)
+        #expect(Set(plan.inserts.map(\.key)).count == 2)
+
+        // And a second sync matches both to the same records instead of creating more.
+        let stored = plan.inserts.map { insert in
+            StoredEventRecord(
+                key: insert.key,
+                lastEventIdentifier: insert.snapshot.eventIdentifier,
+                fingerprint: EventIdentity.fingerprint(for: insert.snapshot),
+                isRecurring: false,
+                startDate: insert.snapshot.startDate,
+                endDate: insert.snapshot.endDate,
+                state: .active
+            )
+        }
+        let again = EventReconciler.reconcile(snapshots: [second, first], stored: stored, window: window)
+        #expect(again.inserts.isEmpty)
+        #expect(again.markMissing.isEmpty)
+        #expect(again.updates.count == 2)
+    }
+
     @Test func unchangedEventMatchesByExactKey() {
         let event = snapshot()
         let plan = EventReconciler.reconcile(snapshots: [event], stored: [record(from: event)], window: window)

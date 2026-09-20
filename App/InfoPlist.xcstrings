@@ -24,13 +24,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "TerminalAsset uses your approximate location to show the weather for where you are. Only a rounded coordinate is sent to the weather service."
+            "value": "TerminalAsset uses your approximate location to show the weather for where you are. Only a coordinate rounded to about 1 km is sent, to Apple to find the city name and to the weather service for the forecast."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "TerminalAsset ใช้ตำแหน่งโดยประมาณของคุณเพื่อแสดงสภาพอากาศตรงที่คุณอยู่ โดยส่งเฉพาะพิกัดที่ปัดเศษแล้วไปยังบริการสภาพอากาศ"
+            "value": "TerminalAsset ใช้ตำแหน่งโดยประมาณของคุณเพื่อแสดงสภาพอากาศตรงที่คุณอยู่ โดยส่งเฉพาะพิกัดที่ปัดเศษประมาณ 1 กม. ไปยัง Apple เพื่อหาชื่อเมือง และไปยังบริการสภาพอากาศเพื่อขอพยากรณ์"
           }
         }
       }

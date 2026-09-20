@@ -88,6 +88,7 @@ struct CalendarSyncActorTests {
         let second = try await actor.apply(snapshots: [snapshot()], window: window, now: base + hour)
 
         #expect(second.inserted == 0)
+        #expect(second.updated == 0)
         #expect(second.markedMissing == 0)
         #expect(try ModelContext(container).fetchCount(FetchDescriptor<TemporalEvent>()) == 1)
     }

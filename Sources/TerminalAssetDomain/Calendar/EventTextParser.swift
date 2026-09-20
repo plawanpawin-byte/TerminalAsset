@@ -339,16 +339,22 @@ public enum EventTextParser {
     // MARK: - Dates
 
     /// `year == nil` means "this year, or next year if that date has already passed".
+    ///
+    /// Typed years are Gregorian (Buddhist-era years are converted before they get here), but the caller's calendar
+    /// may not be: a Thai device uses the Buddhist one, where "year 2027" would be 1484 CE. So the year arithmetic
+    /// is done in a Gregorian calendar that shares the caller's time zone.
     private static func date(year: Int?, month: Int?, day: Int?, today: Date, calendar: Calendar) -> Date? {
         guard let month, let day, (1...12).contains(month), (1...31).contains(day) else { return nil }
-        let currentYear = calendar.component(.year, from: today)
+        var gregorian = Calendar(identifier: .gregorian)
+        gregorian.timeZone = calendar.timeZone
+        let currentYear = gregorian.component(.year, from: today)
         let resolvedYear = year ?? currentYear
-        guard let date = calendar.date(from: DateComponents(year: resolvedYear, month: month, day: day)),
-              calendar.component(.day, from: date) == day
+        guard let date = gregorian.date(from: DateComponents(year: resolvedYear, month: month, day: day)),
+              gregorian.component(.day, from: date) == day
         else { return nil }
         if year == nil, date < today {
-            return calendar.date(from: DateComponents(year: currentYear + 1, month: month, day: day))
-                .flatMap { calendar.component(.day, from: $0) == day ? $0 : nil }
+            return gregorian.date(from: DateComponents(year: currentYear + 1, month: month, day: day))
+                .flatMap { gregorian.component(.day, from: $0) == day ? $0 : nil }
         }
         return date
     }

@@ -159,6 +159,35 @@ struct EventTextParserEnglishTests {
     }
 }
 
+@Suite("EventTextParser · Buddhist calendar device")
+struct BuddhistCalendarParserTests {
+    /// A Thai device's `Calendar.current` is Buddhist: year components are 543 ahead of the Gregorian ones.
+    private let buddhist: Calendar = {
+        var calendar = Calendar(identifier: .buddhist)
+        calendar.timeZone = utc
+        return calendar
+    }()
+
+    @Test func typedDatesLandInTheRightGregorianYear() {
+        let parsed = EventTextParser.parse("dentist 15 March 2027 10:00", now: now, calendar: buddhist)
+        #expect(parsed.draft.start == at(3, 15, 10))
+        #expect(parsed.draft.title == "dentist")
+    }
+
+    @Test func aDateWithoutAYearIsThisOrNextGregorianYear() {
+        // `now` is in January 2027; 5 March is still ahead, 5 January has passed and rolls to 2028.
+        let ahead = EventTextParser.parse("lunch 5 March 12:00", now: now, calendar: buddhist)
+        #expect(ahead.draft.start == at(3, 5, 12))
+        let passed = EventTextParser.parse("lunch 5 January 12:00", now: now, calendar: buddhist)
+        #expect(passed.draft.start == at(1, 5, 12, year: 2028))
+    }
+
+    @Test func aThaiBuddhistEraYearIsConverted() {
+        let parsed = EventTextParser.parse("ทันตแพทย์ 15 มีนาคม 2570 10:00", now: now, calendar: buddhist)
+        #expect(parsed.draft.start == at(3, 15, 10))
+    }
+}
+
 @Suite("EventTextParser · Thai")
 struct EventTextParserThaiTests {
     @Test func tomorrowAtTenOClock() {

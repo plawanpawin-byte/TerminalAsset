@@ -37,10 +37,11 @@ public actor CalendarSyncActor {
             let resolved = plan.updates.compactMap { update in
                 byKey[update.existingKey.rawValue].map { ($0, update) }
             }
+            var updated = 0
             var relinked = 0
             var restored = 0
             for (model, update) in resolved {
-                model.apply(update.snapshot, key: update.newKey, seenAt: now)
+                if model.apply(update.snapshot, key: update.newKey, seenAt: now) { updated += 1 }
                 if update.isRekey { relinked += 1 }
                 if update.wasMissing { restored += 1 }
             }
@@ -59,7 +60,7 @@ public actor CalendarSyncActor {
             try modelContext.save()
             return SyncReport(
                 inserted: plan.inserts.count,
-                updated: resolved.count,
+                updated: updated,
                 relinked: relinked,
                 restored: restored,
                 markedMissing: plan.markMissing.count

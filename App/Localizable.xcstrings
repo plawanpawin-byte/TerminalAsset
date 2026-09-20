@@ -3327,13 +3327,13 @@
         }
       }
     },
-    "TerminalAsset can show today's forecast for where you are. It uses your approximate location and sends only a rounded coordinate (about 1 km) to the free Open-Meteo weather service. No name, account or calendar data is sent.": {
+    "TerminalAsset can show today's forecast for where you are. It uses your approximate location. A position rounded to about 1 km is sent to Apple to find the city name and to the free Open-Meteo weather service for the forecast. No name, account or calendar data is sent.": {
       "extractionState": "manual",
       "localizations": {
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "TerminalAsset แสดงพยากรณ์อากาศวันนี้ตามตำแหน่งของคุณได้ โดยใช้ตำแหน่งโดยประมาณและส่งเฉพาะพิกัดที่ปัดเศษแล้ว (ประมาณ 1 กม.) ไปยังบริการสภาพอากาศฟรี Open-Meteo ไม่มีการส่งชื่อ บัญชี หรือข้อมูลปฏิทิน"
+            "value": "TerminalAsset แสดงพยากรณ์อากาศวันนี้ตามตำแหน่งของคุณได้ โดยใช้ตำแหน่งโดยประมาณ พิกัดที่ปัดเศษแล้ว (ประมาณ 1 กม.) จะถูกส่งไปยัง Apple เพื่อหาชื่อเมือง และส่งไปยังบริการสภาพอากาศฟรี Open-Meteo เพื่อขอพยากรณ์ ไม่มีการส่งชื่อ บัญชี หรือข้อมูลปฏิทิน"
           }
         }
       }

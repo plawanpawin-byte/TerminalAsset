@@ -55,7 +55,11 @@ public enum EventIdentity {
 
     private static func moment(_ date: Date, allDay: Bool, calendar: Calendar) -> String {
         guard allDay else { return String(epochSeconds(date)) }
-        let parts = calendar.dateComponents([.year, .month, .day], from: date)
+        // Always the Gregorian day in the caller's time zone: switching the device to a Buddhist or Japanese calendar
+        // must not change the key (and so orphan the context) of an all-day event.
+        var gregorian = Calendar(identifier: .gregorian)
+        gregorian.timeZone = calendar.timeZone
+        let parts = gregorian.dateComponents([.year, .month, .day], from: date)
         return "d\(parts.year ?? 0)-\(parts.month ?? 0)-\(parts.day ?? 0)"
     }
 

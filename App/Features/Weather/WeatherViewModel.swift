@@ -22,6 +22,9 @@ final class WeatherViewModel {
     @ObservationIgnored private let location: any LocationProviding
     @ObservationIgnored private let service: WeatherService
     @ObservationIgnored private var lastRefresh: Date?
+    /// The refresh in progress, so a second request (the screen appearing again, the scene becoming active) waits
+    /// for it instead of starting a competing location request.
+    @ObservationIgnored private var inFlight: Task<Void, Never>?
 
     init(location: any LocationProviding, service: WeatherService) {
         self.location = location
@@ -73,14 +76,31 @@ final class WeatherViewModel {
     }
 
     func refresh(force: Bool = false) async {
+        if let inFlight {
+            await inFlight.value
+            return
+        }
         if !force, case .ready(_, isStale: false) = state, let lastRefresh, Date().timeIntervalSince(lastRefresh) < 600 {
             return
         }
+        // Unstructured on purpose: it finishes even if the view that asked goes away, and every waiter shares it.
+        let task = Task { await self.load() }
+        inFlight = task
+        await task.value
+        inFlight = nil
+    }
+
+    private func load() async {
         if case .ready = state {} else { state = .loading }
 
         do {
             let place = try await location.currentPlace()
             let result = await service.weather(at: place)
+            if result.snapshot == nil, result.error == nil {
+                // Cancelled: nothing new to show, and not an error.
+                if case .loading = state { state = .hidden }
+                return
+            }
             if let snapshot = result.snapshot {
                 state = .ready(snapshot, isStale: result.isStale)
                 lastRefresh = Date()

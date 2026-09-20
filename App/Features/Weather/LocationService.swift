@@ -9,10 +9,6 @@ enum LocationPermission: Equatable {
     case authorized
 }
 
-enum LocationError: Error {
-    case unavailable
-}
-
 /// Where the user is, as far as the forecast needs to know. The Today screen depends on this protocol, not on
 /// CoreLocation, so previews, demo mode and tests can supply a fixed place.
 @MainActor
@@ -28,8 +24,8 @@ protocol LocationProviding: AnyObject {
 @MainActor
 final class CoreLocationService: NSObject, LocationProviding, CLLocationManagerDelegate {
     private let manager = CLLocationManager()
-    private var permissionContinuation: CheckedContinuation<Void, Never>?
-    private var locationContinuation: CheckedContinuation<CLLocation, Error>?
+    private var permissionWaiters: [CheckedContinuation<Void, Never>] = []
+    private var locationWaiters: [CheckedContinuation<CLLocation, Error>] = []
 
     override init() {
         super.init()
@@ -44,8 +40,10 @@ final class CoreLocationService: NSObject, LocationProviding, CLLocationManagerD
     func requestPermission() async -> LocationPermission {
         if manager.authorizationStatus == .notDetermined {
             await withCheckedContinuation { continuation in
-                permissionContinuation = continuation
-                manager.requestWhenInUseAuthorization()
+                // A second caller waits on the same system prompt instead of replacing the first one's continuation
+                // (which would leave that caller suspended forever).
+                permissionWaiters.append(continuation)
+                if permissionWaiters.count == 1 { manager.requestWhenInUseAuthorization() }
             }
         }
         return permission()
@@ -66,11 +64,10 @@ final class CoreLocationService: NSObject, LocationProviding, CLLocationManagerD
     // MARK: - Private
 
     private func requestLocation() async throws -> CLLocation {
-        // One request at a time: a second caller would otherwise replace the first one's continuation.
-        guard locationContinuation == nil else { throw LocationError.unavailable }
-        return try await withCheckedThrowingContinuation { continuation in
-            locationContinuation = continuation
-            manager.requestLocation()
+        try await withCheckedThrowingContinuation { continuation in
+            // Callers share one CoreLocation request: they all get its answer.
+            locationWaiters.append(continuation)
+            if locationWaiters.count == 1 { manager.requestLocation() }
         }
     }
 
@@ -110,23 +107,26 @@ final class CoreLocationService: NSObject, LocationProviding, CLLocationManagerD
         let decided = manager.authorizationStatus != .notDetermined
         Task { @MainActor in
             guard decided else { return }
-            permissionContinuation?.resume()
-            permissionContinuation = nil
+            let waiters = permissionWaiters
+            permissionWaiters = []
+            for waiter in waiters { waiter.resume() }
         }
     }
 
     nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let latest = locations.last else { return }
         Task { @MainActor in
-            locationContinuation?.resume(returning: latest)
-            locationContinuation = nil
+            let waiters = locationWaiters
+            locationWaiters = []
+            for waiter in waiters { waiter.resume(returning: latest) }
         }
     }
 
     nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         Task { @MainActor in
-            locationContinuation?.resume(throwing: error)
-            locationContinuation = nil
+            let waiters = locationWaiters
+            locationWaiters = []
+            for waiter in waiters { waiter.resume(throwing: error) }
         }
     }
 }

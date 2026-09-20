@@ -48,22 +48,40 @@ public final class TemporalEvent {
         self.lastSeenAt = seenAt
     }
 
+    /// `lastSeenAt` is refreshed at most this often, so a sync that changes nothing writes nothing.
+    private static let seenRefreshInterval: TimeInterval = 6 * 3600
+
     /// Copies calendar-owned fields from a fresh snapshot. Context is never touched.
-    func apply(_ snapshot: CalendarEventSnapshot, key: EventKey, seenAt: Date) {
-        eventKey = key.rawValue
-        externalIdentifier = snapshot.externalIdentifier
-        lastEventIdentifier = snapshot.eventIdentifier
-        calendarID = snapshot.calendarID
-        title = snapshot.title
-        startDate = snapshot.startDate
-        endDate = snapshot.endDate
-        occurrenceDate = snapshot.occurrenceDate
-        isAllDay = snapshot.isAllDay
-        location = snapshot.location
-        isRecurring = snapshot.isRecurring
-        fingerprint = EventIdentity.fingerprint(for: snapshot)
-        syncState = .active
-        lastSeenAt = seenAt
+    ///
+    /// Only fields that actually differ are assigned, so an unchanged event does not dirty the store (each sync
+    /// re-reads the whole window, and rewriting every record every time wastes writes and triggers observers).
+    /// Returns whether anything meaningful changed.
+    @discardableResult
+    func apply(_ snapshot: CalendarEventSnapshot, key: EventKey, seenAt: Date) -> Bool {
+        var changed = false
+        func assign<Value: Equatable>(_ keyPath: ReferenceWritableKeyPath<TemporalEvent, Value>, _ value: Value) {
+            if self[keyPath: keyPath] != value {
+                self[keyPath: keyPath] = value
+                changed = true
+            }
+        }
+        assign(\.eventKey, key.rawValue)
+        assign(\.externalIdentifier, snapshot.externalIdentifier)
+        assign(\.lastEventIdentifier, snapshot.eventIdentifier)
+        assign(\.calendarID, snapshot.calendarID)
+        assign(\.title, snapshot.title)
+        assign(\.startDate, snapshot.startDate)
+        assign(\.endDate, snapshot.endDate)
+        assign(\.occurrenceDate, snapshot.occurrenceDate)
+        assign(\.isAllDay, snapshot.isAllDay)
+        assign(\.location, snapshot.location)
+        assign(\.isRecurring, snapshot.isRecurring)
+        assign(\.fingerprint, EventIdentity.fingerprint(for: snapshot))
+        assign(\.syncState, .active)
+        if changed || seenAt.timeIntervalSince(lastSeenAt) >= Self.seenRefreshInterval {
+            lastSeenAt = seenAt
+        }
+        return changed
     }
 
     var storedRecord: StoredEventRecord {
