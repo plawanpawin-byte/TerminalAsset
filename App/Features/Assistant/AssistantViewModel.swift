@@ -7,6 +7,8 @@ import TerminalAssetDomain
 @Observable
 final class AssistantViewModel {
     private(set) var days: [HistoryDay] = []
+    /// Deterministic "what needs attention" summary shown above the history.
+    private(set) var briefing = AssistantBriefing(upNext: nil, looseEnds: [])
     private(set) var isLoading = true
     /// Set when a refresh failed but previously loaded history is still shown.
     private(set) var problem: String?
@@ -40,6 +42,7 @@ final class AssistantViewModel {
         do {
             let events = try await store.events(from: start, to: end)
             days = CalendarHistory.days(from: events, calendar: calendar)
+            briefing = AssistantBriefing.make(from: events, now: now)
             if sync.authorizationStatus() == .fullAccess { problem = nil }
         } catch {
             problem = TodayViewModel.message(for: error)

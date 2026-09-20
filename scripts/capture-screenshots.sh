@@ -50,7 +50,6 @@ shot search light -tab search
 shot search-results light -tab search -query audit
 shot inbox light -tab inbox
 shot assistant dark -tab assistant
-shot assistant-listening dark -tab assistant -assistantListening
 shot settings light -tab settings
 shot cloud-privacy light -tab settings -privacy
 shot paywall light -tab settings -paywall

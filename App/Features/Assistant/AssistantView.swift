@@ -1,35 +1,25 @@
 import SwiftUI
 import TerminalAssetDomain
 
-/// The Assistant tab: your whole calendar as an Apple-News-style "Top Stories" wall of story cards,
-/// with a liquid-glass "Ask" bar pinned at the bottom. Tap it (or the mic) to talk; the history stays
-/// visible behind the glass while listening.
+/// The Assistant tab: a local-first briefing of what needs attention (the next event to prepare for and
+/// past events with loose ends), followed by your whole calendar as an Apple-News-style "Top Stories" wall.
 struct AssistantView: View {
     let model: AssistantViewModel
     let today: TodayViewModel
-
-    @State private var listening = false
 
     private let calendar = Calendar.current
 
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .bottom) {
+            ZStack {
                 background
                 feed
-                if listening { listeningOverlay }
-                askBar
             }
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(for: EventKey.self) { key in
                 EventDetailView(key: key, today: today)
             }
-            .task {
-                #if DEBUG
-                if LaunchOptions.assistantListening { listening = true }
-                #endif
-                await model.load()
-            }
+            .task { await model.load() }
             // The first sync (or a share attached elsewhere) can finish after this screen loaded.
             .onChange(of: today.events) { Task { await model.load() } }
         }
@@ -44,12 +34,12 @@ struct AssistantView: View {
         .ignoresSafeArea()
     }
 
-    // MARK: - History feed (Apple-News "Top Stories" wall)
-
     private var feed: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 18) {
-                header
+            VStack(alignment: .leading, spacing: 22) {
+                Text("Assistant")
+                    .font(.largeTitle.weight(.bold))
+                    .foregroundStyle(.white)
 
                 if let problem = model.problem {
                     Label(problem, systemImage: "exclamationmark.triangle.fill")
@@ -64,39 +54,64 @@ struct AssistantView: View {
                 } else if model.days.isEmpty {
                     emptyState
                 } else {
-                    masonry
+                    briefing
+                    timeline
                 }
             }
             .padding(.horizontal, 16)
             .padding(.top, 12)
-            .padding(.bottom, 96) // room for the floating Ask bar
+            .padding(.bottom, 40)
         }
     }
 
-    private var header: some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text("Timeline")
-                .font(.largeTitle.weight(.bold))
-                .foregroundStyle(.white)
-            Spacer()
-            Text(headerSubtitle)
-                .font(.footnote)
-                .foregroundStyle(.white.opacity(0.5))
+    // MARK: - Briefing
+
+    @ViewBuilder private var briefing: some View {
+        if !model.briefing.isEmpty {
+            // The clock drives the live countdown and "ended … ago" wording without a timer of our own.
+            TimelineView(.everyMinute) { context in
+                VStack(alignment: .leading, spacing: 18) {
+                    if let event = model.briefing.upNext {
+                        section("Up next") {
+                            NavigationLink(value: event.key) {
+                                UpNextCard(event: event, now: context.date)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+
+                    if !model.briefing.looseEnds.isEmpty {
+                        section("Loose ends") {
+                            LooseEndsCard(events: model.briefing.looseEnds, now: context.date)
+                        }
+                    }
+                }
+            }
         }
     }
 
-    private var headerSubtitle: String {
-        let count = model.days.reduce(0) { $0 + $1.events.count }
-        guard count > 0 else { return "" }
-        return "\(count) events"
+    private func section<Content: View>(
+        _ title: String,
+        @ViewBuilder _ content: () -> Content
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(title.uppercased())
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.white.opacity(0.45))
+                .tracking(0.5)
+            content()
+        }
     }
 
-    /// Two balanced columns of story cards, newest day first.
-    private var masonry: some View {
-        let split = balancedColumns(events)
-        return HStack(alignment: .top, spacing: 12) {
-            column(split.left)
-            column(split.right)
+    // MARK: - Timeline wall (Apple-News "Top Stories")
+
+    private var timeline: some View {
+        section("Timeline") {
+            let split = balancedColumns(events)
+            HStack(alignment: .top, spacing: 12) {
+                column(split.left)
+                column(split.right)
+            }
         }
     }
 
@@ -152,7 +167,7 @@ struct AssistantView: View {
             Text("No events yet")
                 .font(.headline)
                 .foregroundStyle(.white)
-            Text("Once your calendar syncs, every event shows up here as a history you can scroll through.")
+            Text("Once your calendar syncs, everything you need to prepare for shows up here.")
                 .font(.subheadline)
                 .foregroundStyle(.white.opacity(0.6))
                 .multilineTextAlignment(.center)
@@ -167,70 +182,142 @@ struct AssistantView: View {
         if calendar.isDateInYesterday(day) { return "Yesterday" }
         return day.formatted(date: .numeric, time: .omitted)
     }
+}
 
-    // MARK: - Ask bar
+// MARK: - Up next card
 
-    private var askBar: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "sparkles")
-                .font(.title3)
-                .foregroundStyle(Color(hex: 0x7A78F0))
-            Text("Ask Assistant…")
-                .font(.body)
-                .foregroundStyle(.white.opacity(0.5))
-            Spacer(minLength: 0)
-            Image(systemName: "mic.fill")
-                .font(.title3)
-                .foregroundStyle(.white.opacity(0.9))
-        }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 15)
-        .background(.ultraThinMaterial, in: Capsule())
-        .overlay(Capsule().strokeBorder(.white.opacity(0.12), lineWidth: 1))
-        .shadow(color: .black.opacity(0.4), radius: 16, y: 6)
-        .padding(.horizontal, 16)
-        .padding(.bottom, 8)
-        .contentShape(Capsule())
-        .onTapGesture { startListening() }
-        .opacity(listening ? 0 : 1)
-    }
+private struct UpNextCard: View {
+    let event: TimelineEvent
+    let now: Date
 
-    // MARK: - Listening overlay
+    private var isOngoing: Bool { event.startDate <= now && now < event.endDate }
 
-    private var listeningOverlay: some View {
-        ZStack(alignment: .top) {
-            // Soft top vignette only — the history behind stays readable, never blurred out.
-            LinearGradient(
-                colors: [.black.opacity(0.5), .black.opacity(0.1)],
-                startPoint: .top, endPoint: .bottom
-            )
-            .ignoresSafeArea()
-            .contentShape(Rectangle())
-            .onTapGesture { stopListening() }
-
-            VStack(spacing: 16) {
-                AssistantOrb(active: true)
-                    .frame(width: 156, height: 156)
-                Text("Listening…")
-                    .font(.title2.weight(.semibold))
-                    .foregroundStyle(.white)
-                Text("Tap anywhere to cancel")
-                    .font(.footnote)
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Label(event.startDate.formatted(date: .abbreviated, time: .omitted), systemImage: "calendar")
+                    .font(.caption.weight(.medium))
                     .foregroundStyle(.white.opacity(0.6))
+                Spacer()
+                countdownPill
             }
-            .padding(.top, 150)
+
+            Text(event.title)
+                .font(.title2.weight(.bold))
+                .foregroundStyle(.white)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Text(detailLine)
+                .font(.subheadline)
+                .foregroundStyle(.white.opacity(0.7))
+
+            if event.summary.isEmpty {
+                Label("No context attached yet — tap to prepare", systemImage: "paperclip")
+                    .font(.footnote.weight(.medium))
+                    .foregroundStyle(Color(hex: 0xFFD166))
+            } else {
+                ContextChips(summary: event.summary)
+            }
         }
-        .transition(.opacity)
+        .padding(18)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            LinearGradient(
+                colors: [Color(hex: 0x2A2A57), Color(hex: 0x1B1B2E)],
+                startPoint: .topLeading, endPoint: .bottomTrailing
+            ),
+            in: RoundedRectangle(cornerRadius: 22, style: .continuous)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .strokeBorder(Color(hex: 0x7A78F0).opacity(0.35), lineWidth: 1)
+        )
+        .contentShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 
-    private func startListening() {
-        withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) { listening = true }
+    private var countdownPill: some View {
+        let text = isOngoing
+            ? "Now · \(TimeText.remaining(until: event.endDate, from: now))"
+            : TimeText.countdown(to: event.startDate, from: now)
+        let color = isOngoing ? Color(hex: 0x30D158) : Color(hex: 0x7A78F0)
+        return Text(text)
+            .font(.caption.weight(.bold).monospacedDigit())
+            .foregroundStyle(.white)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
+            .background(color.opacity(0.9), in: Capsule())
     }
 
-    private func stopListening() {
-        withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) { listening = false }
+    private var detailLine: String {
+        let time = TimeText.range(of: event)
+        if let location = event.location, !location.isEmpty {
+            return "\(time) · \(location)"
+        }
+        return time
     }
 }
+
+// MARK: - Loose ends card
+
+private struct LooseEndsCard: View {
+    let events: [TimelineEvent]
+    let now: Date
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ForEach(Array(events.enumerated()), id: \.element.id) { index, event in
+                NavigationLink(value: event.key) {
+                    row(event)
+                }
+                .buttonStyle(.plain)
+                if index < events.count - 1 {
+                    Divider().overlay(Color.white.opacity(0.08))
+                        .padding(.leading, 44)
+                }
+            }
+        }
+        .background(Color(hex: 0x1C1C22), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(.white.opacity(0.06), lineWidth: 1)
+        )
+    }
+
+    private func row(_ event: TimelineEvent) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "checklist")
+                .font(.body.weight(.semibold))
+                .foregroundStyle(Color(hex: 0xFF9F0A))
+                .frame(width: 24)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(event.title)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                Text(subtitle(event))
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.55))
+                    .lineLimit(1)
+            }
+            Spacer(minLength: 0)
+            Image(systemName: "chevron.right")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.white.opacity(0.3))
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .contentShape(Rectangle())
+    }
+
+    private func subtitle(_ event: TimelineEvent) -> String {
+        let open = event.summary.openTasks
+        let tasks = "\(open) task\(open == 1 ? "" : "s") open"
+        return "\(tasks) · \(TimeText.relative(event.endDate, to: now))"
+    }
+}
+
+// MARK: - Story card
 
 /// Deterministic look for a story card's hero: a gradient, an SF Symbol, and a height. Same event → same
 /// look every launch (seeded from the event key), and different events vary so the wall reads like a
