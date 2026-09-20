@@ -15,6 +15,9 @@ struct TodayWidgets: View {
             DayProgressWidget(stats: snapshot.stats, openTasks: snapshot.openTasks, onOpenCalendar: onOpenCalendar)
                 .frame(width: 132)
         }
+        // Like a home-screen widget, these have a fixed size, so their text stops growing at a large size
+        // (they open the full event and calendar, which do scale).
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
     }
 }
 
