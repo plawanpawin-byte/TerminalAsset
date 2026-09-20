@@ -44,6 +44,17 @@ the pieces the App Store and users expect around that: privacy, data control, an
    written by the assistant and has not been proofread. Strings that come from calendar data or sample content stay as
    they are.
 
+## Known caveats to decide before release
+
+- **City-name lookup uses `CLGeocoder`**, which Apple deprecated in iOS 26 in favour of MapKit's geocoding
+  (`MKReverseGeocodingRequest`). It still works and the lookup is optional (the forecast works without a city), but
+  plan to migrate when the minimum deployment target moves. The lookup sends the same ~1 km rounded position to Apple;
+  the weather card and the location permission text say so.
+- **Two identical events** (same calendar, title and start, no external ID) are kept as separate records, numbered by
+  a best-effort order. If the calendar renumbers them, their context can swap; nothing is ever deleted.
+- **Buddhist / Japanese calendar devices**: dates typed in the Add Event sentence are read as Gregorian (Buddhist-era
+  years above 2400 are converted), and all-day event keys always use the Gregorian day.
+
 ## Not built yet (and therefore not offered in the app)
 
 - **Cloud AI** (Firebase AI Logic + App Check). Needs a Firebase project, `GoogleService-Info.plist`, and App Check
