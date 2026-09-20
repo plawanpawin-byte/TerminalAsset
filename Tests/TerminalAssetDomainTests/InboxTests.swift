@@ -151,6 +151,18 @@ struct SharedInboxTests {
         #expect(SharedInbox.sanitizedFileName("a:b.txt") == "a_b.txt")
         #expect(SharedInbox.sanitizedFileName("manifest.json") == "file")
         #expect(SharedInbox.sanitizedFileName("  ") == "file")
+        #expect(SharedInbox.sanitizedFileName("..") == "file")
+        #expect(SharedInbox.sanitizedFileName(".") == "file")
+        #expect(SharedInbox.sanitizedFileName("Manifest.JSON") == "file")
+    }
+
+    @Test func aLongNameIsShortenedButKeepsItsExtension() {
+        let thai = String(repeating: "ประชุม", count: 30) + ".pdf"
+        let name = SharedInbox.sanitizedFileName(thai)
+        #expect(name.utf8.count <= SharedInbox.maxFileNameBytes)
+        #expect(name.hasSuffix(".pdf"))
+        #expect(name.hasPrefix("ประชุม"))
+        #expect(SharedInbox.sanitizedFileName("short.txt") == "short.txt")
     }
 }
 

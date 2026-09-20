@@ -263,12 +263,33 @@ public struct SharedInbox: Sendable {
     static let manifestName = "manifest.json"
 
     static func sanitizedFileName(_ name: String) -> String {
-        let last = URL(fileURLWithPath: name).lastPathComponent
+        // Plain string work: `URL(fileURLWithPath:)` resolves "." and ".." against the current directory.
+        let last = name.split(whereSeparator: { $0 == "/" || $0 == "\\" }).last.map(String.init) ?? ""
         let cleaned = last
             .replacingOccurrences(of: "/", with: "_")
             .replacingOccurrences(of: ":", with: "_")
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        return cleaned.isEmpty || cleaned == manifestName ? "file" : cleaned
+        // "." and ".." would point at a directory, and the file system ignores case, so "Manifest.JSON" would
+        // overwrite the manifest.
+        if cleaned.isEmpty || cleaned == "." || cleaned == ".." || cleaned.lowercased() == manifestName { return "file" }
+        return truncated(cleaned, toBytes: maxFileNameBytes)
+    }
+
+    /// File systems refuse names over 255 bytes, and Thai takes three bytes a letter. Room is left for the `.part`
+    /// suffix used while copying. The extension is kept so the file still opens with the right app.
+    static let maxFileNameBytes = 200
+
+    static func truncated(_ name: String, toBytes limit: Int) -> String {
+        guard name.utf8.count > limit else { return name }
+        let ext = URL(fileURLWithPath: name).pathExtension
+        let suffix = ext.isEmpty || ext.utf8.count > 20 ? "" : "." + ext
+        let stem = suffix.isEmpty ? name : String(name.dropLast(suffix.count))
+        var kept = ""
+        for character in stem {
+            if kept.utf8.count + String(character).utf8.count + suffix.utf8.count > limit { break }
+            kept.append(character)
+        }
+        return kept.isEmpty ? "file" + suffix : kept + suffix
     }
 
     private static var encoder: JSONEncoder {
