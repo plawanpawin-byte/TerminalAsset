@@ -1721,6 +1721,17 @@
         }
       }
     },
+    "Find Context": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ค้นหาข้อมูลที่แนบ"
+          }
+        }
+      }
+    },
     "Fog": {
       "extractionState": "manual",
       "localizations": {
@@ -2876,6 +2887,17 @@
         }
       }
     },
+    "Searches the notes, links and tasks attached to your events.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ค้นหาโน้ต ลิงก์ และงานที่แนบกับกิจกรรมของคุณ"
+          }
+        }
+      }
+    },
     "See your day with its context": {
       "extractionState": "manual",
       "localizations": {
@@ -3774,6 +3796,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "ที่อยู่เว็บ"
+          }
+        }
+      }
+    },
+    "What do you want to find?": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ต้องการค้นหาอะไร"
           }
         }
       }

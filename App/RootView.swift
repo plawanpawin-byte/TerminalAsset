@@ -26,7 +26,10 @@ struct RootView: View {
                 tabs
             }
         }
-        .task { await app.start() }
+        .task {
+            await app.start()
+            openPendingSearch()
+        }
         // Keeps prep reminders and the home-screen widget in step with the calendar, whichever tab is showing.
         .onChange(of: app.today.events) { _, events in
             Task {
@@ -43,7 +46,10 @@ struct RootView: View {
         }
         .onChange(of: scenePhase) { _, phase in
             // Items shared while the app was closed are waiting in the queue.
-            if phase == .active { Task { await app.inbox.refresh() } }
+            if phase == .active {
+                Task { await app.inbox.refresh() }
+                openPendingSearch()
+            }
         }
     }
 
@@ -78,6 +84,14 @@ struct RootView: View {
                 SettingsView(model: app.settings, reminders: app.reminders)
             }
         }
+    }
+
+    /// "Find context" from Siri or Shortcuts leaves its words behind; show them in Search.
+    private func openPendingSearch() {
+        guard let query = PendingSearch.take() else { return }
+        selection = .search
+        app.search.query = query
+        app.search.scheduleSearch()
     }
 
     private var showsOnboarding: Bool {
