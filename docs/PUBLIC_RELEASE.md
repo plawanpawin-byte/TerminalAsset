@@ -8,7 +8,6 @@ the pieces the App Store and users expect around that: privacy, data control, an
 | Area | State |
 | --- | --- |
 | Data stays on device | Calendar, notes, links, tasks and files are stored locally (SwiftData + App Group). |
-| Database versioning | The SwiftData store is declared as `TemporalSchemaV1` with a migration plan (no stages yet), so a later release can change a model without losing users' context. Never edit a released schema in place: add V2 and a stage. |
 | Privacy manifest | `App/PrivacyInfo.xcprivacy`: no tracking, coarse location (weather) as app functionality, UserDefaults reason `CA92.1`. |
 | Export | Settings → Export my data saves notes, links, tasks and file names as JSON through Save to Files. |
 | Delete | Settings → Delete all data erases the database, imported files and the share queue (calendar untouched). |
@@ -55,6 +54,8 @@ the pieces the App Store and users expect around that: privacy, data control, an
   a best-effort order. If the calendar renumbers them, their context can swap; nothing is ever deleted.
 - **Buddhist / Japanese calendar devices**: dates typed in the Add Event sentence are read as Gregorian (Buddhist-era
   years above 2400 are converted), and all-day event keys always use the Gregorian day.
+
+- **Database versioning** is deliberately not set up yet: the store has no `VersionedSchema` or migration plan, because a store made before a plan existed has no version information and opening it with a plan can fail at launch. The first release that changes a model must add versioning together with a tested upgrade from the current shape.
 
 ## Not built yet (and therefore not offered in the app)
 
