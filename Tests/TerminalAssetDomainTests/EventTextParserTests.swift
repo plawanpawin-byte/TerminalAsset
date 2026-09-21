@@ -159,6 +159,40 @@ struct EventTextParserEnglishTests {
     }
 }
 
+@Suite("EventTextParser · Everyday phrasing")
+struct EventTextParserEverydayTests {
+    @Test func aThaiTimeWrittenWithADotAndNo() {
+        let result = parse("ส่งรายงาน วันศุกร์ 17.00 น.")
+        #expect(result.draft.title == "ส่งรายงาน")
+        #expect(result.draft.start == at(1, 22, 17))
+    }
+
+    @Test func aThaiClockWithNoDoesNotSwallowTheWordThatFollows() {
+        let result = parse("ประชุม 9:30 นักลงทุน")
+        #expect(result.draft.start == at(1, 16, 9, 30))
+        #expect(result.draft.title == "ประชุม นักลงทุน")
+    }
+
+    @Test func thisSaturdayAndAfternoonTwoLeaveOnlyTheTitle() {
+        let result = parse("ทานข้าวกับแม่ เสาร์นี้ บ่าย 2")
+        #expect(result.draft.title == "ทานข้าวกับแม่")
+        #expect(result.draft.start == at(1, 16, 14))
+    }
+
+    @Test func aPartOfTheDayWithABareHour() {
+        #expect(parse("ประชุม พรุ่งนี้ เช้า 9").draft.start == at(1, 16, 9))
+        #expect(parse("ดินเนอร์ พรุ่งนี้ เย็น 6").draft.start == at(1, 16, 18))
+    }
+
+    @Test func monthFirstDatesWorkWhenTheyCannotBeDayFirst() {
+        let american = parse("dentist 3/15 at 4pm")
+        #expect(american.draft.start == at(3, 15, 16))
+        #expect(american.draft.title == "dentist")
+        // Both readings are possible: day/month wins.
+        #expect(parse("dentist 3/4 at 4pm").draft.start == at(4, 3, 16))
+    }
+}
+
 @Suite("EventTextParser · Buddhist calendar device")
 struct BuddhistCalendarParserTests {
     /// A Thai device's `Calendar.current` is Buddhist: year components are 543 ahead of the Gregorian ones.

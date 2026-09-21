@@ -59,9 +59,9 @@ public enum EventTextParser {
             }) {
                 day = date(year: gregorianYear(g[1]), month: int(g[2]), day: int(g[3]), today: today, calendar: calendar)
             } else if let g = scanner.take("(?:^|\\s)(\\d{1,2})/(\\d{1,2})(?:/(\\d{2,4}))?(?![\\d:/])", where: { g in
-                date(year: year(g[3]), month: int(g[2]), day: int(g[1]), today: today, calendar: calendar) != nil
+                numericDate(first: g[1], second: g[2], year: year(g[3]), today: today, calendar: calendar) != nil
             }) {
-                day = date(year: year(g[3]), month: int(g[2]), day: int(g[1]), today: today, calendar: calendar)
+                day = numericDate(first: g[1], second: g[2], year: year(g[3]), today: today, calendar: calendar)
             } else if let g = scanner.take("(\\d{1,2})(?:st|nd|rd|th)?\\s+(\(monthNames))\\b(?:\\s+(\\d{4}))?", where: { g in
                 date(year: gregorianYear(g[3]), month: month(g[2]), day: int(g[1]), today: today, calendar: calendar) != nil
             }) {
@@ -82,11 +82,11 @@ public enum EventTextParser {
             } else if scanner.take("(?:\\bon\\s+)?\\b(?:today|tonight)\\b|วันนี้|คืนนี้") != nil {
                 day = today
             } else if let g = scanner.take(
-                "(?:\\b(next|this)\\s+)?\\b(\(englishWeekdays))\\b(?:\\s*หน้า)?|(?:วัน)?(\(thaiWeekdays))(?:\\s*(หน้า))?"
+                "(?:\\b(next|this)\\s+)?\\b(\(englishWeekdays))\\b(?:\\s*หน้า)?|(?:วัน)?(\(thaiWeekdays))(?:\\s*(หน้า|นี้))?"
             ) {
                 let name = g[2] ?? g[3] ?? ""
-                let next = g[1]?.lowercased() == "next" || g[4] != nil
-                let including = g[1]?.lowercased() == "this"
+                let next = g[1]?.lowercased() == "next" || g[4] == "หน้า"
+                let including = g[1]?.lowercased() == "this" || g[4] == "นี้"
                 if let weekday = weekday(named: name) {
                     day = date(forWeekday: weekday, from: today, next: next, includingToday: including, calendar: calendar)
                 }
@@ -168,15 +168,22 @@ public enum EventTextParser {
             startMinutes = (18 + (thaiInt(g[1]) ?? 1)) * 60 + (g[2] != nil ? 30 : 0)
         } else if let g = scanner.take("ตี\\s*(\(thaiNumber))", where: { g in (1...6).contains(thaiInt(g[1]) ?? 0) }) {
             startMinutes = (thaiInt(g[1]) ?? 0) * 60
+        } else if let g = scanner.take(
+            // "บ่าย 2", "เย็น 6", "เช้า 9": a part of the day and a bare hour, without "โมง".
+            "(บ่าย|เย็น|ค่ำ|เช้า)\\s*(\\d{1,2})(?![\\d:.ก-๙])",
+            where: { g in thaiOClock(prefix: g[1], number: g[2], suffix: nil) != nil }
+        ) {
+            startMinutes = thaiOClock(prefix: g[1], number: g[2], suffix: nil)
         } else if scanner.take("เที่ยง(?!คืน)|\\b(?:noon|midday)\\b") != nil {
             startMinutes = 12 * 60
         } else if let g = scanner.take(
             // `12:30` is a time anywhere; `12.30` only after "at" / "@" / "เวลา" or with am/pm, so version numbers
             // and prices ("v2.10", "5.50") stay in the title. A digit or letter right before it is not a boundary.
-            "(?:^|\\s|(?=เวลา|ตอน))((?:\\bat\\b|@|เวลา|ตอน)\\s*)?(\\d{1,2})([:.])(\\d{2})\\s*(am|pm)?(?![\\d:])",
+            "(?:^|\\s|(?=เวลา|ตอน))((?:\\bat\\b|@|เวลา|ตอน)\\s*)?(\\d{1,2})([:.])(\\d{2})\\s*(am|pm)?(?:\\s*(น)\\.?(?![ก-๙]))?(?![\\d:])",
             where: { g in
                 clock(hour: g[2], minute: g[4], marker: g[5], evening: evening) != nil
-                    && (g[3] == ":" || g[1] != nil || g[5] != nil)
+                    // Thai writes "17.00 น." (น. = o'clock), which makes the dot unambiguous too.
+                    && (g[3] == ":" || g[1] != nil || g[5] != nil || g[6] != nil)
             }
         ) {
             startMinutes = clock(hour: g[2], minute: g[4], marker: g[5], evening: evening)
@@ -381,6 +388,12 @@ public enum EventTextParser {
             if calendar.component(.weekday, from: candidate) == weekday { return candidate }
         }
         return nil
+    }
+
+    /// "15/3" is day/month, as in Thailand and most of the world. "3/15" cannot be, so it is read as month/day.
+    private static func numericDate(first: String?, second: String?, year: Int?, today: Date, calendar: Calendar) -> Date? {
+        date(year: year, month: int(second), day: int(first), today: today, calendar: calendar)
+            ?? date(year: year, month: int(first), day: int(second), today: today, calendar: calendar)
     }
 
     private static func atMinutes(_ minutes: Int, on day: Date, calendar: Calendar) -> Date {
