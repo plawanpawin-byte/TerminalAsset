@@ -16,11 +16,13 @@ struct SettingsView: View {
 
     enum SettingsRoute: Hashable {
         case privacy
+        case language
     }
 
     var body: some View {
         NavigationStack(path: $path) {
             Form {
+                languageSection
                 calendarSection
                 remindersSection
                 weatherSection
@@ -29,7 +31,12 @@ struct SettingsView: View {
                 aboutSection
             }
             .navigationTitle("Settings")
-            .navigationDestination(for: SettingsRoute.self) { _ in PrivacyView() }
+            .navigationDestination(for: SettingsRoute.self) { route in
+                switch route {
+                case .privacy: PrivacyView()
+                case .language: LanguageView(model: model)
+                }
+            }
             .fileExporter(
                 isPresented: $exporting,
                 document: exportDocument,
@@ -69,6 +76,14 @@ struct SettingsView: View {
     }
 
     // MARK: - Sections
+
+    private var languageSection: some View {
+        Section {
+            NavigationLink(value: SettingsRoute.language) {
+                AdaptiveRow("Language") { Text(model.language.title) }
+            }
+        }
+    }
 
     private var calendarSection: some View {
         Section {
@@ -189,6 +204,7 @@ struct SettingsView: View {
     private func applyLaunchOptions() {
         #if DEBUG
         if LaunchOptions.privacyDetail, path.isEmpty { path = [.privacy] }
+        if LaunchOptions.languageDetail, path.isEmpty { path = [.language] }
         #endif
     }
 }

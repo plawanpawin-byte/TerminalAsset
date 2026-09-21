@@ -14,6 +14,8 @@ final class SettingsViewModel {
     private(set) var calendarAccess: CalendarAuthorization
     private(set) var attachmentsBytes: Int64 = 0
     private(set) var isWorking = false
+    /// The language the user picked for this app (iOS applies it the next time the app opens).
+    private(set) var language: AppLanguage
     /// A short result or failure to show in an alert.
     private(set) var notice: String?
 
@@ -21,6 +23,7 @@ final class SettingsViewModel {
     @ObservationIgnored private let store: ContextStore
     @ObservationIgnored private let shared: SharedInbox?
     @ObservationIgnored private let calendar: Calendar
+    @ObservationIgnored private let languagePreference: LanguagePreference
     @ObservationIgnored private let onDataChanged: @MainActor () async -> Void
 
     init(
@@ -28,12 +31,15 @@ final class SettingsViewModel {
         store: ContextStore,
         shared: SharedInbox?,
         calendar: Calendar = .current,
+        languagePreference: LanguagePreference = LanguagePreference(),
         onDataChanged: @escaping @MainActor () async -> Void
     ) {
         self.sync = sync
         self.store = store
         self.shared = shared
         self.calendar = calendar
+        self.languagePreference = languagePreference
+        self.language = languagePreference.current
         self.onDataChanged = onDataChanged
         self.calendarAccess = sync.authorizationStatus()
     }
@@ -89,6 +95,15 @@ final class SettingsViewModel {
         } catch {
             notice = String(localized: "Couldn't delete everything. Please try again.")
         }
+    }
+
+    /// Saves the language choice. Returns whether it changed, so the screen knows to tell the user to reopen the app.
+    @discardableResult
+    func chooseLanguage(_ new: AppLanguage) -> Bool {
+        guard new != language else { return false }
+        languagePreference.choose(new)
+        language = new
+        return true
     }
 
     func clearNotice() { notice = nil }

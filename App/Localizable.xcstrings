@@ -1000,6 +1000,17 @@
         }
       }
     },
+    "Choose the language TerminalAsset uses. Only this app changes; the widget and the share sheet follow the language of your iPhone.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เลือกภาษาที่ TerminalAsset ใช้ เปลี่ยนเฉพาะแอพนี้ วิดเจ็ตและหน้าต่างแชร์ใช้ภาษาตามที่ตั้งไว้ใน iPhone"
+          }
+        }
+      }
+    },
     "Choose…": {
       "extractionState": "manual",
       "localizations": {
@@ -2003,6 +2014,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "สิ่งที่ส่งมาจากแอปอื่นจะรออยู่ในกล่องรับเข้าบน iPhone เครื่องนี้จนกว่าคุณจะแนบกับกิจกรรม"
+          }
+        }
+      }
+    },
+    "Language": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ภาษา"
           }
         }
       }
@@ -3261,6 +3283,17 @@
         }
       }
     },
+    "System default": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ค่าเริ่มต้นของระบบ"
+          }
+        }
+      }
+    },
     "Tap Share": {
       "extractionState": "manual",
       "localizations": {
@@ -3477,6 +3510,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "ตอนนี้ยังไม่มีพยากรณ์อากาศ"
+          }
+        }
+      }
+    },
+    "The language changes the next time TerminalAsset opens. Close it from the app switcher and open it again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ภาษาจะเปลี่ยนเมื่อเปิด TerminalAsset ครั้งถัดไป ปิดแอพจากหน้าสลับแอพแล้วเปิดใหม่"
           }
         }
       }

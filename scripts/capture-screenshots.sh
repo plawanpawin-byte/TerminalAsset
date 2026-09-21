@@ -56,6 +56,7 @@ shot add-event-quick light -tab calendar -addEvent quick
 shot add-event-saved light -tab calendar -addEvent submit
 shot settings light -tab settings
 shot privacy light -tab settings -privacy
+shot language light -tab settings -language
 shot onboarding light -onboarding
 
 # Dark mode for the newer screens.
@@ -83,6 +84,7 @@ shot th-inbox light -tab inbox -AppleLanguages "(th)" -AppleLocale th_TH
 shot th-search light -tab search -AppleLanguages "(th)" -AppleLocale th_TH
 shot th-settings light -tab settings -AppleLanguages "(th)" -AppleLocale th_TH
 shot th-privacy light -tab settings -privacy -AppleLanguages "(th)" -AppleLocale th_TH
+shot th-language light -tab settings -language -AppleLanguages "(th)" -AppleLocale th_TH
 
 # Real location + real Open-Meteo request (needs network). The simulator is placed in Bangkok and location
 # permission is pre-granted, so this exercises CoreLocation, geocoding and the HTTP call end to end.
