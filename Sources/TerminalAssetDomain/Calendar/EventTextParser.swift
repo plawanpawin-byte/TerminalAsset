@@ -149,7 +149,9 @@ public enum EventTextParser {
             where: { g in
                 let anchored = g[1] != nil || g[2] != nil
                 let marked = g[4] != nil || g[5] != nil || g[7] != nil || g[8] != nil
-                return (anchored || marked)
+                // "tomorrow 9-12": once a date was read, two bare hours around a dash are a time range. Without a
+                // date, "3-4" could be anything (a chapter, a score), so it needs "at", "from" or am/pm.
+                return (anchored || marked || day != nil)
                     && clock(hour: g[3], minute: g[4], marker: g[5] ?? g[8], evening: evening) != nil
                     && clock(hour: g[6], minute: g[7], marker: g[8] ?? g[5], evening: evening) != nil
             }

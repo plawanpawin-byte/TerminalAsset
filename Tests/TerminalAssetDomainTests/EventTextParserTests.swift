@@ -184,6 +184,23 @@ struct EventTextParserEverydayTests {
         #expect(parse("ดินเนอร์ พรุ่งนี้ เย็น 6").draft.start == at(1, 16, 18))
     }
 
+    @Test func twoBareHoursAroundADashAreARangeOnceThereIsADate() {
+        let result = parse("workshop tomorrow 9-12")
+        #expect(result.draft.title == "workshop")
+        #expect(result.draft.start == at(1, 16, 9))
+        #expect(result.draft.end == at(1, 16, 12))
+
+        let afternoon = parse("lunch tomorrow 12-1")
+        #expect(afternoon.draft.start == at(1, 16, 12))
+        #expect(afternoon.draft.end == at(1, 16, 13))
+    }
+
+    @Test func twoBareNumbersWithoutADateStayInTheTitle() {
+        let result = parse("read chapters 3-4")
+        #expect(result.draft.title == "read chapters 3-4")
+        #expect(!result.recognized.contains(.time))
+    }
+
     @Test func aThaiWordThatStartsWithTheWordForAtIsNotAPlace() {
         let consultant = parse("พบที่ปรึกษา พรุ่งนี้ 10 โมง")
         #expect(consultant.draft.title == "พบที่ปรึกษา")
