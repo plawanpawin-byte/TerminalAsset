@@ -294,6 +294,24 @@ struct EventSuggesterTests {
         #expect(suggestion?.reasons.contains(.similarTopic) == true)
     }
 
+    @Test func thaiTextMatchesThaiEventTitlesWithoutSpaces() {
+        let marketing = event("ประชุมทีมการตลาด", from: now + 60 * minute)
+        let dentist = event("นัดหมอฟัน", from: now + 45 * minute)
+
+        let suggestion = EventSuggester.suggest(text: "แผนการตลาดไตรมาสสอง", at: now, events: [dentist, marketing])
+
+        #expect(suggestion?.eventTitle == "ประชุมทีมการตลาด")
+        #expect(suggestion?.reasons.contains(.similarTopic) == true)
+    }
+
+    @Test func aWordThatOnlyNamesTheKindOfEventIsNotATopic() {
+        // "ประชุม" means "meeting": sharing anything about some other meeting must not point here.
+        let tokens = EventSuggester.tokens(in: "สรุปการประชุม")
+        #expect(tokens.isEmpty)
+        let other = event("ประชุมทีมขาย", from: now + 4 * hour)
+        #expect(EventSuggester.suggest(text: "สรุปการประชุมลูกค้า", at: now, events: [other]) == nil)
+    }
+
     @Test func currentIntentResolvesTheEventRunningAtTheMomentOfSharing() {
         let running = event("A", from: now - 10 * minute)
         let later = event("B", from: now + hour)

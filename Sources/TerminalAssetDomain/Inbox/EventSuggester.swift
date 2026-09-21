@@ -32,8 +32,9 @@ public struct EventSuggestion: Sendable, Hashable {
 ///
 /// Trade-offs: additive rather than multiplicative, so a strong time signal alone can still suggest an event
 /// (the spec's multiplicative form would zero out anything with no word overlap). Tokenization splits on
-/// non-alphanumerics, which works for space-separated languages but not for Thai; a language-aware tokenizer
-/// (NaturalLanguage) can replace `tokens(in:)` later without changing callers.
+/// non-alphanumerics. Thai is written without spaces, so a Thai run is compared as overlapping four-letter pieces
+/// instead (after dropping a few words too common to mean anything); a language-aware tokenizer (NaturalLanguage)
+/// can replace `tokens(in:)` later without changing callers.
 public enum EventSuggester {
     public static let minimumConfidence = 0.35
 
@@ -126,10 +127,38 @@ public enum EventSuggester {
         "meeting", "call", "sync", "review"
     ]
 
+    /// Thai words that name a kind of event rather than its subject: the same role as "meeting" and "call" above.
+    private static let thaiStopwords = ["การประชุม", "ประชุม", "นัดหมาย", "นัด", "โทร", "ซิงค์", "รีวิว", "สรุป"]
+    private static let thaiPieceLength = 4
+
     static func tokens(in text: String) -> Set<String> {
-        let words = text.lowercased()
-            .components(separatedBy: CharacterSet.alphanumerics.inverted)
-            .filter { $0.count >= 3 && !stopwords.contains($0) }
-        return Set(words)
+        var tokens = Set<String>()
+        for word in text.lowercased().components(separatedBy: CharacterSet.alphanumerics.inverted) {
+            if word.unicodeScalars.contains(where: isThai) {
+                tokens.formUnion(thaiPieces(of: word))
+            } else if word.count >= 3, !stopwords.contains(word) {
+                tokens.insert(word)
+            }
+        }
+        return tokens
+    }
+
+    private static func isThai(_ scalar: Unicode.Scalar) -> Bool {
+        (0x0E01...0x0E5B).contains(scalar.value)
+    }
+
+    /// Overlapping four-letter pieces of a Thai run, so "สรุปงบการตลาด" and "การตลาดไตรมาสสอง" share "การตลาด".
+    private static func thaiPieces(of word: String) -> Set<String> {
+        var remaining = word
+        for stopword in thaiStopwords { remaining = remaining.replacingOccurrences(of: stopword, with: " ") }
+        var pieces = Set<String>()
+        for part in remaining.split(separator: " ") {
+            let letters = Array(part)
+            guard letters.count >= thaiPieceLength else { continue }
+            for start in 0...(letters.count - thaiPieceLength) {
+                pieces.insert(String(letters[start..<start + thaiPieceLength]))
+            }
+        }
+        return pieces
     }
 }
