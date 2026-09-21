@@ -8,6 +8,7 @@ the pieces the App Store and users expect around that: privacy, data control, an
 | Area | State |
 | --- | --- |
 | Data stays on device | Calendar, notes, links, tasks and files are stored locally (SwiftData + App Group). |
+| Database versioning | The SwiftData store is declared as `TemporalSchemaV1` with a migration plan (no stages yet), so a later release can change a model without losing users' context. Never edit a released schema in place: add V2 and a stage. |
 | Privacy manifest | `App/PrivacyInfo.xcprivacy`: no tracking, coarse location (weather) as app functionality, UserDefaults reason `CA92.1`. |
 | Export | Settings → Export my data saves notes, links, tasks and file names as JSON through Save to Files. |
 | Delete | Settings → Delete all data erases the database, imported files and the share queue (calendar untouched). |
