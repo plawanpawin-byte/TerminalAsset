@@ -184,6 +184,16 @@ struct EventTextParserEverydayTests {
         #expect(parse("ดินเนอร์ พรุ่งนี้ เย็น 6").draft.start == at(1, 16, 18))
     }
 
+    @Test func aThaiWordThatStartsWithTheWordForAtIsNotAPlace() {
+        let consultant = parse("พบที่ปรึกษา พรุ่งนี้ 10 โมง")
+        #expect(consultant.draft.title == "พบที่ปรึกษา")
+        #expect(consultant.draft.location.isEmpty)
+
+        let room = parse("ประชุมที่ห้อง 4 พรุ่งนี้ 10 โมง")
+        #expect(room.draft.title == "ประชุม")
+        #expect(room.draft.location == "ห้อง 4")
+    }
+
     @Test func monthFirstDatesWorkWhenTheyCannotBeDayFirst() {
         let american = parse("dentist 3/15 at 4pm")
         #expect(american.draft.start == at(3, 15, 16))

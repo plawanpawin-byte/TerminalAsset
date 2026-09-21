@@ -215,7 +215,9 @@ public enum EventTextParser {
 
         // MARK: Location
         var location = ""
-        if let g = scanner.take("(?:\\bat\\b|@|ที่)\\s*(.+)$") {
+        // "ที่" ("at") is glued to the next word in Thai, so the common words that merely start with it
+        // (ที่ปรึกษา "consultant", ที่พัก "accommodation" …) are not read as a place.
+        if let g = scanner.take("(?:\\bat\\b|@|ที่(?!ปรึกษา|พัก|อยู่|ดิน|นอน|จอดรถ|นี่|นั่น|ไหน|สุด))\\s*(.+)$") {
             location = (g[1] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
             if !location.isEmpty { recognized.insert(.location) }
         }
