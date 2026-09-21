@@ -1,0 +1,3 @@
+// Shared build settings. Your own machine-specific values (signing team) go in Config/Local.xcconfig,
+// which is not committed, so regenerating the project after a `git pull` never loses them.
+#include? "Local.xcconfig"

@@ -21,6 +21,17 @@ never depend on a cloud service.
 - Everything else needs macOS with Xcode: `xcodegen generate`, then build the `TerminalAsset` scheme.
   CI (`.github/workflows`) runs the Core tests and builds the app on every push.
 
+## Running it on a Mac after `git pull`
+
+1. `bash scripts/open-in-xcode.sh` regenerates `TerminalAsset.xcodeproj` from `project.yml` and opens it. The project
+   file is not committed, so do this after every pull; edits made inside Xcode (signing team, bundle ID) are lost
+   each time.
+2. To sign for a real iPhone, copy `Config/Local.xcconfig.example` to `Config/Local.xcconfig` and put your Team ID
+   in it. That file is ignored by git, so the team survives regeneration.
+3. Do not change the bundle identifiers (`com.terminalasset.app`, `.share`, `.widget`). A different identifier is a
+   different app to iOS: you get a second icon and the first one's data stays behind. If a duplicate already exists,
+   delete the older icon from the device or simulator.
+
 ## Principles
 
 See `CLAUDE.md`: local first, AI only behind a protocol, deterministic before generative, privacy by design, and the

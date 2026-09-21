@@ -1,0 +1,4 @@
+// Copy to Config/Local.xcconfig (ignored by git) and fill in. Your Team ID is in Xcode > Settings > Accounts,
+// or on developer.apple.com > Membership. Leave the bundle identifiers alone: changing them makes the phone
+// treat the build as a different app (a second icon) and loses the data of the first.
+DEVELOPMENT_TEAM = ABCDE12345
