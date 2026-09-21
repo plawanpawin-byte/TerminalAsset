@@ -25,6 +25,8 @@ struct LanguageView: View {
                         }
                         .contentShape(Rectangle())
                     }
+                    // Plain, so the names read as list text (not blue links); the checkmark marks the choice.
+                    .buttonStyle(.plain)
                     .accessibilityAddTraits(model.language == language ? .isSelected : [])
                 }
             } footer: {
